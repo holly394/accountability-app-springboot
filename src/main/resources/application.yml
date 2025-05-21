@@ -32,6 +32,8 @@ logging:
   threshold:
     file: NONE
     console: TRACE
+  level:
+    org.flywaydb: DEBUG
 
 management:
   server:

@@ -1,0 +1,45 @@
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: expireAfterAccess=30m
+  jpa:
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+  threads:
+    virtual:
+      enabled: true
+
+  datasource:
+    url: "jdbc:h2:file:./database/accountability;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"
+    username: accountability
+    password: accountability-pw
+  h2:
+    console:
+      enabled: true
+
+logging:
+  file:
+    path: "./logs"
+    name: "./logs/accountability.log"
+  logback:
+    rollingpolicy:
+      max-history: 14
+      max-file-size: 100MB
+      clean-history-on-start: true
+  threshold:
+    file: NONE
+    console: TRACE
+
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      base-path: "/"
+  endpoint:
+    health:
+      probes:
+        enabled: true

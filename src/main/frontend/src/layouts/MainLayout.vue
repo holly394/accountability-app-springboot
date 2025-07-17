@@ -157,40 +157,7 @@
           </q-list>
         </q-expansion-item>
 
-        <q-item to="/Mail" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="email"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Mail</q-item-label>
-          </q-item-section>
-        </q-item>
 
-        <q-item to="/directory" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="card_giftcard"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Directory</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-item to="/TreeTable" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="list"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>TreeTable</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Charts" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="insert_chart"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Charts</q-item-label>
-          </q-item-section>
-        </q-item>
         <q-item to="/Footer" active-class="q-item-no-link-highlighting">
           <q-item-section avatar>
             <q-icon name="info"/>

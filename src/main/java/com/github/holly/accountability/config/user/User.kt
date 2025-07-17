@@ -1,4 +1,4 @@
-package com.github.holly.accountability.config.task;
+package com.github.holly.accountability.config.user
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -7,12 +7,11 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "tasks")
-class Task(
-    val userId: Integer,
-    val description: String,
-    val timeInSeconds: Long,
-    val status: String,
+@Table(name = "user")
+class User(
+    val username: String,
+    val name: String,
+    val password: String,
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 )

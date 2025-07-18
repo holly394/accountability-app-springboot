@@ -1,4 +1,4 @@
-package com.github.holly.accountability.config.user
+package com.github.holly.accountability.user
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails

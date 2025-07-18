@@ -1,4 +1,4 @@
-package com.github.holly.accountability.config.user
+package com.github.holly.accountability.user
 
 data class RegisterUser(
     val username: String,

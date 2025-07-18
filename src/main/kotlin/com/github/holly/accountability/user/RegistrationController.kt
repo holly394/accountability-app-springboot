@@ -1,4 +1,4 @@
-package com.github.holly.accountability.config.user
+package com.github.holly.accountability.user
 
 import com.github.holly.accountability.validation.BindingResultWrapper
 import jakarta.validation.Valid

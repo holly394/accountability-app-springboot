@@ -1,6 +1,6 @@
 package com.github.holly.accountability.config.auth
 
-import com.github.holly.accountability.config.user.AccountabilitySessionUser
+import com.github.holly.accountability.user.AccountabilitySessionUser
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider

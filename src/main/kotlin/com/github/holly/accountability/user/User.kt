@@ -1,4 +1,4 @@
-package com.github.holly.accountability.config.user
+package com.github.holly.accountability.user
 
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue

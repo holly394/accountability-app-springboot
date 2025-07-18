@@ -1,7 +1,7 @@
 package com.github.holly.accountability.config.auth
 
-import com.github.holly.accountability.config.user.AccountabilitySessionUser
-import com.github.holly.accountability.config.user.UserRepository
+import com.github.holly.accountability.user.AccountabilitySessionUser
+import com.github.holly.accountability.user.UserRepository
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService

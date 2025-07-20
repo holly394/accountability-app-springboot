@@ -1,4 +1,6 @@
 export interface UserData {
-  lastFmKey: string,
-  lastFmUsername: string,
+  username: string,
+  name: string,
+  password: string,
+  id: number
 }

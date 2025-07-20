@@ -4,8 +4,10 @@ import { api } from 'boot/axios'
 import { UserData } from 'components/dto/UserData.ts';
 
 const user = ref<UserData>( {
-  lastFmKey: '',
-  lastFmUsername: ''
+  username: '',
+  name: '',
+  password: '',
+  id: 0
 });
 
 onMounted(async () => {
@@ -29,14 +31,14 @@ defineOptions({
           This is required for specific recommendations from Last.FM. By setting it, you can get similar artists or tracks to the ones in your library
         </q-tooltip>
       </q-icon>
-      <q-input v-model="user.lastFmKey" label="Last.FM API Key" />
+      <q-input v-model="user.name" label="Last.FM API Key" />
       <q-icon name="info">
         <q-tooltip class="text-body1">
           Knowing your Last.FM username, accountability can pull Last.FM's recommendations for your user. Those depend on what's been scrobbled.
           If you don't already scrobble your listened songs, you need to enable API access so accountability can take the from Navidrome and send it there.
         </q-tooltip>
       </q-icon>
-      <q-input v-model="user.lastFmUsername" label="Last.FM Username" />
+      <q-input v-model="user.username" label="Last.FM Username" />
 
       <div>
         <q-btn label="Submit" type="submit" color="primary"/>

@@ -2,7 +2,6 @@ CREATE TABLE "wallet" (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     user_id BIGINT NOT NULL,
     balance BIGINT DEFAULT 0,
-
     FOREIGN KEY (user_id) REFERENCES "user"(id)
 );
 
@@ -11,7 +10,8 @@ CREATE TABLE "tasks"(
     user_id BIGINT NOT NULL,
     description VARCHAR(511),
     status VARCHAR(255) NOT NULL,
-    time_in_seconds BIGINT DEFAULT 0,
+    time_start TIMESTAMP,
+    time_end TIMESTAMP,
 
     FOREIGN KEY (user_id) REFERENCES "user"(id)
 );

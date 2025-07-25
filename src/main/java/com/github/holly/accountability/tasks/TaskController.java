@@ -2,14 +2,17 @@ package com.github.holly.accountability.tasks;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/tasks")
@@ -23,16 +26,21 @@ public class TaskController {
     private UserRepository userRepository;
 
     @GetMapping("")
-    public List<Task> getAllTasks(@AuthenticationPrincipal AccountabilitySessionUser user){
-        return taskRepository.findByUserId(user.getId());
+    public List<TaskDto> getAllTasks(@AuthenticationPrincipal AccountabilitySessionUser user){
+
+        List<Task> taskListToConvert = taskRepository.findByUserId(user.getId());
+        return taskListToConvert.stream()
+                .map(this::convertTaskToDto)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/add")
-    public Task addTask(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestBody TaskEditRequest request){
+    public TaskDto addTask(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestBody TaskEditRequest request){
         Task newTask = new Task();
         newTask.setDescription(request.getDescription());
         newTask.setUser(userRepository.getReferenceById(user.getId()));
-        return taskRepository.save(newTask);
+        taskRepository.save(newTask);
+        return convertTaskToDto(newTask);
     }
 
     @DeleteMapping("/{taskId}")
@@ -43,38 +51,51 @@ public class TaskController {
     }
 
     @PutMapping("/{taskId}")
-    public Task editTask(
+    public TaskDto editTask(
             @PathVariable Long taskId,
             @AuthenticationPrincipal AccountabilitySessionUser user,
             @RequestBody TaskEditRequest request
     ){
         Task task = validateUserTask(taskId, user.getId());
         task.setDescription(request.getDescription());
-        return taskRepository.save(task);
+        taskRepository.save(task);
+        return convertTaskToDto(task);
     }
 
     @PostMapping("/{taskId}/start")
-    public Task startTask(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long taskId){
+    public TaskDto startTask(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long taskId){
         Task task = validateUserTask(taskId, user.getId());
+
+        if(task.getTimeStart() != null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task has already started.");
+        }
+
         task.setTimeStart(LocalDateTime.now());
         task.setStatus(TaskStatus.IN_PROGRESS);
-        return task;
+        taskRepository.save(task);
+        return convertTaskToDto(task);
     }
 
     @PostMapping("/{taskId}/end")
-    public Task endTask(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long taskId){
+    public TaskDto endTask(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long taskId){
         Task task = validateUserTask(taskId, user.getId());
+
+        if(task.getTimeEnd() != null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task has already ended.");
+        }
+
         task.setTimeEnd(LocalDateTime.now());
         task.setStatus(TaskStatus.COMPLETED);
-        return task;
+        taskRepository.save(task);
+        return convertTaskToDto(task);
     }
 
     private Task validateUserTask(Long taskId, Long userId){
         Task task = taskRepository
                 .findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task does not exist."));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task does not exist."));
         if(!task.getUser().getId().equals(userId)){
-            throw new IllegalArgumentException("Task does not exist.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Task does not exist.");
         }
         return task;
     }
@@ -84,13 +105,22 @@ public class TaskController {
         taskDto.setId(task.getId());
         taskDto.setDescription(task.getDescription());
         taskDto.setStatus(task.getStatus());
+        if (task.getTimeStart() != null) {
+            Duration duration;
+            if(task.getTimeEnd() == null){
+                duration = Duration.between(task.getTimeStart(), LocalDateTime.now());
+            } else {
+                duration = Duration.between(task.getTimeStart(), task.getTimeEnd());
+            }
+            taskDto.setDuration(duration);
+            long HH = duration.toHours();
+            long MM = duration.toMinutesPart();
+            long SS = duration.toSecondsPart();
+            String timeInHHMMSS = String.format("%02d:%02d:%02d", HH, MM, SS);
+            taskDto.setDurationString(timeInHHMMSS);
+        }
+
         return taskDto;
     }
 
-    private Duration totalTimeDuration(LocalDateTime startTime, LocalDateTime endTime){
-        return Duration.between(startTime, endTime);
-        //duration.getSeconds() for all in seconds
-        //..toMinutes(), toHours(). all in each unit
-        //..toHoursPart(), toMinutesPart() separated values
-    }
 }

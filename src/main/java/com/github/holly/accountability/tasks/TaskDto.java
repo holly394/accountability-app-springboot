@@ -1,10 +1,6 @@
 package com.github.holly.accountability.tasks;
 
-import com.github.holly.accountability.user.User;
-import jakarta.persistence.*;
-
 import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class TaskDto {
     private Long id;
@@ -15,7 +11,8 @@ public class TaskDto {
 
     private Duration duration = Duration.ZERO;
 
-    // for Hibernate
+    private String durationString;
+
     public TaskDto() {
     }
 
@@ -31,8 +28,12 @@ public class TaskDto {
         this.status = status;
     }
 
-    public void setTimeDuration(Duration duration) {
+    public void setDuration(Duration duration) {
         this.duration = duration;
+    }
+
+    public void setDurationString(String durationString) {
+        this.durationString = durationString;
     }
 
     public Long getId() {
@@ -47,6 +48,8 @@ public class TaskDto {
         return this.status;
     }
 
-    public Duration getTimeDuration() { return this.duration; }
+    public Duration getDuration() { return this.duration; }
+
+    public String getDurationString() { return this.durationString; }
 
 }

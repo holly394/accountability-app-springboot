@@ -3,7 +3,7 @@
 export interface TaskData {
   id: number,
   description: string,
-  timeInSeconds: number,
+  durationString: string,
   status: string,
 
 }

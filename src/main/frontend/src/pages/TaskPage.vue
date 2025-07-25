@@ -5,7 +5,6 @@ import { TaskData } from 'components/dto/TaskData.ts';
 import { TaskEditRequestDto } from 'components/dto/TaskEditRequestDto.ts';
 import { QMarkupTable } from "quasar";
 
-
 const tasks = ref<TaskData[]>([]);
 
 defineOptions({
@@ -47,6 +46,38 @@ async function removeTask(taskId: number) {
   }
 }
 
+async function startTask(taskId: number) {
+    await api.post<TaskData>(`/tasks/${taskId}/start`, taskId)
+      .then(response => {
+          console.log('Task started with ID:', response.data.id);
+          const index = tasks.value.findIndex(
+            (task) => task.id === taskId
+          );
+          tasks.value.splice(index, 1, response.data);
+        })
+          .catch(error => {
+            console.log(error);
+          })
+}
+
+async function endTask(taskId: number) {
+  await api.post(`/tasks/${taskId}/end`, taskId)
+    .then(response => {
+      console.log('Task ended with ID:', response.data.id);
+      const index = tasks.value.findIndex(
+        (task) => task.id === taskId
+      );
+
+      tasks.value.splice(index, 1, response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    })
+}
+
+
+
+
 </script>
 
 <template>
@@ -70,6 +101,7 @@ async function removeTask(taskId: number) {
           <th>Task Description</th>
           <th>Status</th>
           <th>Time Spent</th>
+          <th>Action</th>
           <th>Delete task</th>
         </tr>
       </thead>
@@ -78,7 +110,16 @@ async function removeTask(taskId: number) {
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
-          <td v-text="task.timeInSeconds" />
+          <td v-text="task.durationString" />
+          <td>
+            <div v-if="task.durationString === 'PT0S'">
+              <button @click="startTask(task.id)">Start</button>
+            </div>
+            <div v-else-if="task.status === 'IN_PROGRESS'">
+              <button @click="endTask(task.id)">End</button>
+            </div>
+            <div v-else></div>
+          </td>
           <td><button @click="removeTask(task.id)">Delete</button></td>
         </tr>
       </tbody>

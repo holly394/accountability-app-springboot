@@ -4,15 +4,53 @@ import { api } from 'boot/axios';
 import { TaskData } from 'components/dto/TaskData.ts';
 import { TaskEditRequestDto } from 'components/dto/TaskEditRequestDto.ts';
 import { QMarkupTable } from "quasar";
+import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 
 const tasks = ref<TaskData[]>([]);
+
 
 defineOptions({
   name: 'TaskPage'
 });
 
+const totalCompletedPayment = ref<TaskCalculatorDto>({
+  payment: ""
+});
+
+const totalApprovedPayment = ref<TaskCalculatorDto>({
+  payment: ""
+});
+const totalInProgressPayment = ref<TaskCalculatorDto>({
+  payment: ""
+});
+
+
 onMounted(async () => {
   tasks.value = await api.get<TaskData[]>('/tasks').then(res => res.data)
+
+  await api.get<TaskCalculatorDto>('/tasks/calculatePaymentCompleted')
+    .then(res => {
+      totalCompletedPayment.value = res.data;
+    })
+    .catch(err => {
+      console.error(err);
+    })
+
+  await api.get<TaskCalculatorDto>('/tasks/calculatePaymentApproved')
+    .then(res => {
+      totalApprovedPayment.value = res.data;
+    })
+    .catch(err => {
+      console.error(err);
+    })
+  await api.get<TaskCalculatorDto>('/tasks/calculatePaymentInProgress')
+    .then(res => {
+      totalInProgressPayment.value = res.data;
+    })
+    .catch(err => {
+      console.error(err);
+    })
+
 });
 
 // this should be a ref<TaskData> - you want to send TaskData to the backend - or maybe a new class like TaskEditRequestDto.ts
@@ -77,12 +115,11 @@ async function endTask(taskId: number) {
 
 
 
-
 </script>
 
 <template>
 <div>
-  <q-page class="row items-center justify-evenly">
+  <q-page class="column items-center justify-evenly">
     <q-form @submit="addTask">
       <q-input
         v-model="formData.description"
@@ -94,8 +131,9 @@ async function endTask(taskId: number) {
     </q-form>
     <br>
 
-    <q-markup-table>
+    <q-markup-table title="COMPLETED TASKS">
       <thead>
+        <tr><th>COMPLETED TASKS</th></tr>
         <tr>
           <th>Task ID</th>
           <th>Task Description</th>
@@ -107,21 +145,73 @@ async function endTask(taskId: number) {
       </thead>
       <tbody>
         <tr v-for="task in tasks" :key="task.id">
+          <template v-if="task.status === 'COMPLETED'">
+            <td v-text="task.id" />
+            <td v-text="task.description" />
+            <td v-text="task.status" />
+            <td v-text="task.durationString" />
+            <td />
+            <td><button @click="removeTask(task.id)">Delete</button></td>
+          </template>
+        </tr>
+        <tr>
+          <td>TOTAL VALUE: </td>
+          <td>{{ totalCompletedPayment.payment }}</td>
+        </tr>
+      </tbody>
+    </q-markup-table>
+
+    <q-markup-table>
+      <thead>
+      <tr>
+        <th>Task ID (IN PROGRESS)</th>
+        <th>Task Description</th>
+        <th>Status</th>
+        <th>Time Spent</th>
+        <th>Action</th>
+        <th>Delete task</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="task in tasks" :key="task.id">
+        <template v-if="task.status === 'IN_PROGRESS'">
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
           <td v-text="task.durationString" />
-          <td>
-            <div v-if="task.durationString === 'PT0S'">
-              <button @click="startTask(task.id)">Start</button>
-            </div>
-            <div v-else-if="task.status === 'IN_PROGRESS'">
-              <button @click="endTask(task.id)">End</button>
-            </div>
-            <div v-else></div>
-          </td>
+          <td><button @click="endTask(task.id)">End</button></td>
           <td><button @click="removeTask(task.id)">Delete</button></td>
-        </tr>
+        </template>
+      </tr>
+      <tr>
+        <td>TOTAL VALUE: </td>
+        <td>{{ totalInProgressPayment.payment }}</td>
+      </tr>
+      </tbody>
+    </q-markup-table>
+
+    <q-markup-table>
+      <thead>
+      <tr>
+        <th>Task ID (PLANNED)</th>
+        <th>Task Description</th>
+        <th>Status</th>
+        <th>Time Spent</th>
+        <th>Action</th>
+        <th>Delete task</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr v-for="task in tasks" :key="task.id">
+        <template v-if="task.status === 'PENDING'">
+          <td v-text="task.id" />
+          <td v-text="task.description" />
+          <td v-text="task.status" />
+          <td v-text="task.durationString" />
+          <td><button @click="startTask(task.id)">Start</button></td>
+          <td><button @click="removeTask(task.id)">Delete</button></td>
+        </template>
+      </tr>
       </tbody>
     </q-markup-table>
   </q-page>

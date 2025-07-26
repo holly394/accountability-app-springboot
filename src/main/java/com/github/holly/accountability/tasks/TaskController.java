@@ -34,6 +34,34 @@ public class TaskController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/calculatePaymentCompleted")
+    public TaskCalculator calculatePaymentCompleted(@AuthenticationPrincipal AccountabilitySessionUser user){
+        List<Task> taskCompletedList = taskRepository.findCompleted(user.getId());
+        Double total = calculateTotal(taskCompletedList);
+        TaskCalculator taskCalculator = new TaskCalculator();
+        taskCalculator.setPayment(total);
+        return taskCalculator;
+    }
+
+    @GetMapping("/calculatePaymentApproved")
+    public TaskCalculator calculatePaymentApproved(@AuthenticationPrincipal AccountabilitySessionUser user){
+        List<Task> taskCompletedList = taskRepository.findApproved(user.getId());
+        Double total = calculateTotal(taskCompletedList);
+        TaskCalculator taskCalculator = new TaskCalculator();
+        taskCalculator.setPayment(total);
+        return taskCalculator;
+    }
+
+    @GetMapping("/calculatePaymentInProgress")
+    public TaskCalculator calculatePaymentInProgress(@AuthenticationPrincipal AccountabilitySessionUser user){
+        List<Task> taskCompletedList = taskRepository.findInProgress(user.getId());
+        Double total = calculateTotal(taskCompletedList);
+        TaskCalculator taskCalculator = new TaskCalculator();
+        taskCalculator.setPayment(total);
+        return taskCalculator;
+    }
+
+
     @PostMapping("/add")
     public TaskDto addTask(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestBody TaskEditRequest request){
         Task newTask = new Task();
@@ -90,6 +118,8 @@ public class TaskController {
         return convertTaskToDto(task);
     }
 
+
+
     private Task validateUserTask(Long taskId, Long userId){
         Task task = taskRepository
                 .findById(taskId)
@@ -121,6 +151,15 @@ public class TaskController {
         }
 
         return taskDto;
+    }
+
+    private Double calculateTotal(List<Task> taskList){
+        Duration combinedTime = taskList.stream()
+                .map(this::convertTaskToDto)
+                .map(TaskDto::getDuration)
+                .reduce(Duration.ZERO, Duration::plus);
+
+        return combinedTime.toHours() * 13.0;
     }
 
 }

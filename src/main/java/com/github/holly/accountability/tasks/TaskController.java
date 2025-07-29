@@ -1,6 +1,8 @@
 package com.github.holly.accountability.tasks;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.UserRepository;
+import com.github.holly.accountability.wallet.Wallet;
+import com.github.holly.accountability.wallet.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,12 @@ public class TaskController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
     @GetMapping("")
     public List<TaskDto> getAllTasks(@AuthenticationPrincipal AccountabilitySessionUser user){
 
@@ -36,28 +44,35 @@ public class TaskController {
 
     @GetMapping("/calculatePaymentCompleted")
     public TaskCalculator calculatePaymentCompleted(@AuthenticationPrincipal AccountabilitySessionUser user){
-        List<Task> taskCompletedList = taskRepository.findCompleted(user.getId());
-        Double total = calculateTotal(taskCompletedList);
+        if(taskRepository.findCompleted(user.getId())==null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+        }
+        List<Task> taskList = taskRepository.findCompleted(user.getId());
+        List<TaskDto> taskDtoList = taskList.stream()
+                .map(this::convertTaskToDto)
+                .toList();
         TaskCalculator taskCalculator = new TaskCalculator();
+        Float total = taskService.calculateTotal(taskDtoList);
         taskCalculator.setPayment(total);
-        return taskCalculator;
-    }
 
-    @GetMapping("/calculatePaymentApproved")
-    public TaskCalculator calculatePaymentApproved(@AuthenticationPrincipal AccountabilitySessionUser user){
-        List<Task> taskCompletedList = taskRepository.findApproved(user.getId());
-        Double total = calculateTotal(taskCompletedList);
-        TaskCalculator taskCalculator = new TaskCalculator();
-        taskCalculator.setPayment(total);
         return taskCalculator;
     }
 
     @GetMapping("/calculatePaymentInProgress")
     public TaskCalculator calculatePaymentInProgress(@AuthenticationPrincipal AccountabilitySessionUser user){
-        List<Task> taskCompletedList = taskRepository.findInProgress(user.getId());
-        Double total = calculateTotal(taskCompletedList);
+        if(taskRepository.findApproved(user.getId()) == null){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
+        }
+
+        List<Task> taskList = taskRepository.findInProgress(user.getId());
+        List<TaskDto> taskDtoList = taskList.stream()
+                .map(this::convertTaskToDto)
+                .toList();
+
+        Float total = taskService.calculateTotal(taskDtoList);
         TaskCalculator taskCalculator = new TaskCalculator();
         taskCalculator.setPayment(total);
+
         return taskCalculator;
     }
 
@@ -115,9 +130,17 @@ public class TaskController {
         task.setTimeEnd(LocalDateTime.now());
         task.setStatus(TaskStatus.COMPLETED);
         taskRepository.save(task);
+
+        //move later to approved tasks once user relationships are established
+        TaskDto taskDto = convertTaskToDto(task);
+        Float payment = taskService.calculateFromTaskDto(taskDto);
+        Wallet wallet = walletRepository.findByUserId(user.getId());
+        wallet.addBalance(payment);
+        walletRepository.save(wallet);
+        //
+
         return convertTaskToDto(task);
     }
-
 
 
     private Task validateUserTask(Long taskId, Long userId){
@@ -153,13 +176,5 @@ public class TaskController {
         return taskDto;
     }
 
-    private Double calculateTotal(List<Task> taskList){
-        Duration combinedTime = taskList.stream()
-                .map(this::convertTaskToDto)
-                .map(TaskDto::getDuration)
-                .reduce(Duration.ZERO, Duration::plus);
-
-        return combinedTime.toHours() * 13.0;
-    }
 
 }

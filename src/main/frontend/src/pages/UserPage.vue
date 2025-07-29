@@ -2,6 +2,9 @@
 import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios'
 import { UserData } from 'components/dto/UserData.ts';
+import {AxiosError} from "axios";
+import {useRouter} from "vue-router";
+import {useQuasar} from "quasar";
 
 const user = ref<UserData>( {
   username: '',
@@ -10,39 +13,55 @@ const user = ref<UserData>( {
   id: 0
 });
 
-onMounted(async () => {
-  user.value = await api.get<UserData>('/user').then(res => res.data)
-})
-
-const sendUpdate = async () => {
-  user.value = await api.put<UserData>('/user', user.value).then(res => res.data)
-}
-
 defineOptions({
   name: 'UserPage'
 });
+
+const router = useRouter();
+const $q = useQuasar();
+
+onMounted(async () => {
+  user.value = await api.get<UserData>('/user').then(res => res.data)
+});
+
+const attemptLogOut = async () => {
+
+  await api.post('/logout')
+    .then(() => router.push('/'))
+    .catch((err: AxiosError)  => {
+      if(err.response?.status === 401) {
+        $q.notify( {
+          message: "Log out failed.",
+          position: 'top-right',
+          color: 'red',
+          badgeColor: 'red'
+        })
+      }
+
+      // handle unexpected error?
+
+    })
+}
 </script>
 
 <template>
-  <q-page class="row items-center justify-evenly">
-    <q-form v-model="user" @submit="sendUpdate">
-      <q-icon name="info">
-        <q-tooltip class="text-body1">
-          This is required for specific recommendations from Last.FM. By setting it, you can get similar artists or tracks to the ones in your library
-        </q-tooltip>
-      </q-icon>
-      <q-input v-model="user.name" label="Last.FM API Key" />
-      <q-icon name="info">
-        <q-tooltip class="text-body1">
-          Knowing your Last.FM username, accountability can pull Last.FM's recommendations for your user. Those depend on what's been scrobbled.
-          If you don't already scrobble your listened songs, you need to enable API access so accountability can take the from Navidrome and send it there.
-        </q-tooltip>
-      </q-icon>
-      <q-input v-model="user.username" label="Last.FM Username" />
+  <div>
+  <q-card dark bordered class="bg-grey-9 my-card">
+    <q-card-section>
+      <div class="text-h6">Log Out</div>
+    </q-card-section>
 
-      <div>
-        <q-btn label="Submit" type="submit" color="primary"/>
-      </div>
-    </q-form>
-  </q-page>
+
+    <q-card-section>
+
+        <q-btn
+          label="LogOut"
+          type="button"
+          color="primary"
+          @click="attemptLogOut"
+        />
+
+    </q-card-section>
+  </q-card>
+  </div>
 </template>

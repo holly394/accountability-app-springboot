@@ -6,4 +6,6 @@ interface UserRepository: JpaRepository<User, Long> {
 
     fun findByUsernameIgnoreCase(username: String): User?
 
+    fun findUserById(userId: Long): User?
+
 }

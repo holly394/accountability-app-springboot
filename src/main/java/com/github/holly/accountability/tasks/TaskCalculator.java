@@ -2,13 +2,13 @@ package com.github.holly.accountability.tasks;
 
 public class TaskCalculator {
 
-    private Double payment;
+    private Float payment = (float) 0;
 
-    public Double getPayment() {
+    public Float getPayment() {
         return payment;
     }
 
-    public void setPayment(Double payment) {
+    public void setPayment(Float payment) {
         this.payment = payment;
     }
 

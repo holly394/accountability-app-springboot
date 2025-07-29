@@ -3,8 +3,8 @@ import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios';
 import { TaskData } from 'components/dto/TaskData.ts';
 import { TaskEditRequestDto } from 'components/dto/TaskEditRequestDto.ts';
-import { QMarkupTable } from "quasar";
-import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
+import { QMarkupTable } from 'quasar';
+import {TaskCalculatorDto} from 'components/dto/TaskCalculatorDto.ts';
 
 const tasks = ref<TaskData[]>([]);
 
@@ -14,16 +14,12 @@ defineOptions({
 });
 
 const totalCompletedPayment = ref<TaskCalculatorDto>({
-  payment: ""
+  payment: 0
 });
 
-const totalApprovedPayment = ref<TaskCalculatorDto>({
-  payment: ""
-});
 const totalInProgressPayment = ref<TaskCalculatorDto>({
-  payment: ""
+  payment: 0
 });
-
 
 onMounted(async () => {
   tasks.value = await api.get<TaskData[]>('/tasks').then(res => res.data)
@@ -36,13 +32,6 @@ onMounted(async () => {
       console.error(err);
     })
 
-  await api.get<TaskCalculatorDto>('/tasks/calculatePaymentApproved')
-    .then(res => {
-      totalApprovedPayment.value = res.data;
-    })
-    .catch(err => {
-      console.error(err);
-    })
   await api.get<TaskCalculatorDto>('/tasks/calculatePaymentInProgress')
     .then(res => {
       totalInProgressPayment.value = res.data;
@@ -55,14 +44,14 @@ onMounted(async () => {
 
 // this should be a ref<TaskData> - you want to send TaskData to the backend - or maybe a new class like TaskEditRequestDto.ts
 const formData = ref<TaskEditRequestDto>({
-  description: ""
+  description: ''
 });
 
 const addTask = async () => {
   await api.post<TaskData>('/tasks/add', formData.value)
     .then(response => {
       console.log('New task created with ID:', response.data.id);
-      formData.value.description = "";
+      formData.value.description = '';
       tasks.value.push(response.data);
     })
     .catch(error => {
@@ -113,8 +102,6 @@ async function endTask(taskId: number) {
     })
 }
 
-
-
 </script>
 
 <template>
@@ -156,11 +143,11 @@ async function endTask(taskId: number) {
         </tr>
         <tr>
           <td>TOTAL VALUE: </td>
-          <td>{{ totalCompletedPayment.payment }}</td>
+          <td>{{ totalCompletedPayment.payment.toFixed(2) }}</td>
         </tr>
       </tbody>
     </q-markup-table>
-
+    <br>
     <q-markup-table>
       <thead>
       <tr>
@@ -185,11 +172,11 @@ async function endTask(taskId: number) {
       </tr>
       <tr>
         <td>TOTAL VALUE: </td>
-        <td>{{ totalInProgressPayment.payment }}</td>
+        <td>{{ totalInProgressPayment.payment.toFixed(2) }}</td>
       </tr>
       </tbody>
     </q-markup-table>
-
+    <br>
     <q-markup-table>
       <thead>
       <tr>

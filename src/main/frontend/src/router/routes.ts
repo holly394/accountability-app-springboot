@@ -26,6 +26,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/tasks',
         component: () => import('pages/TaskPage.vue')
+      },
+      {
+        path: '/wallet',
+        component: () => import('pages/WalletPage.vue')
       }
     ],
   },

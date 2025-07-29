@@ -1,3 +1,3 @@
 export interface TaskCalculatorDto {
-  payment: string;
+  payment: number;
 }

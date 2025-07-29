@@ -1,7 +1,7 @@
 CREATE TABLE "wallet" (
     id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     user_id BIGINT NOT NULL,
-    balance BIGINT DEFAULT 0,
+    balance DOUBLE PRECISION DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES "user"(id)
 );
 

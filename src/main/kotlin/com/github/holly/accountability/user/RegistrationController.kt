@@ -1,6 +1,8 @@
 package com.github.holly.accountability.user
 
 import com.github.holly.accountability.validation.BindingResultWrapper
+import com.github.holly.accountability.wallet.Wallet
+import com.github.holly.accountability.wallet.WalletRepository
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody
 class RegistrationController(
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
+    val walletRepository: WalletRepository
 ) {
 
     @PostMapping("")
@@ -34,7 +37,9 @@ class RegistrationController(
             return ResponseEntity<BindingResultWrapper>(BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST)
         }
 
-        userRepository.save(User(registerUser.username, registerUser.name, passwordEncoder.encode(registerUser.password)))
+        val user = userRepository.save(User(registerUser.username, registerUser.name,passwordEncoder.encode(registerUser.password)))
+        val wallet = walletRepository.save(Wallet(user))
+
         return ResponseEntity<Void>(MultiValueMap.fromSingleValue(mapOf("Location"  to "/login")), HttpStatus.FOUND)
     }
 }

@@ -95,12 +95,12 @@
               </q-item-section>
             </q-item>
 
-            <q-item to="/Lock-2" active-class="q-item-no-link-highlighting">
+            <q-item to="/relationships" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
                 <q-icon name="lock"/>
               </q-item-section>
               <q-item-section>
-                <q-item-label>Lock Screen - 2</q-item-label>
+                <q-item-label>Find a friend</q-item-label>
               </q-item-section>
             </q-item>
 

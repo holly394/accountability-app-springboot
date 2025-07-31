@@ -8,4 +8,6 @@ interface UserRepository: JpaRepository<User, Long> {
 
     fun findUserById(userId: Long): User?
 
+    fun findUsersByUsernameContainsIgnoreCase(username: String): List<User>
+
 }

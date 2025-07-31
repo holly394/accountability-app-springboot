@@ -1,4 +1,5 @@
 package com.github.holly.accountability.relationships;
+import com.github.holly.accountability.user.User;
 
 import jakarta.persistence.*;
 
@@ -11,9 +12,26 @@ public class Relationship {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @JoinColumn(name="status")
     private RelationshipStatus status;
 
-    private Long partnerId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "partner_id", nullable = false)
+    private User partner;
+
+    public Relationship() {
+
+    }
+
+    public Relationship(User user, User partner, RelationshipStatus status) {
+        this.user = user;
+        this.partner = partner;
+        this.status = status;
+    }
 
     public Long getId() {
         return id;
@@ -31,11 +49,19 @@ public class Relationship {
         this.status = status;
     }
 
-    public Long getPartnerId() {
-        return partnerId;
+    public User getPartner() {
+        return partner;
     }
 
-    public void setPartnerId(Long partnerId) {
-        this.partnerId = partnerId;
+    public void setPartner(User partner) {
+        this.partner = partner;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

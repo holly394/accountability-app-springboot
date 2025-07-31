@@ -71,7 +71,6 @@ const makePurchase = async () => {
           <div class="text-subtitle2">Describe item and add price</div>
         </q-card-section>
 
-
         <q-card-section>
           <q-form @submit="makePurchase">
             <q-input

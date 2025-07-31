@@ -97,7 +97,7 @@ const attemptLogin = async () => {
     .catch((err: AxiosError)  => {
       if(err.response?.status === 401) {
         $q.notify( {
-          message: "Login failed. Please double check you're using the correct credentials for your Navidrome account.",
+          message: "Login failed. Please double check you're using the correct credentials for your account.",
           position: 'top-right',
           color: 'red',
           badgeColor: 'red'

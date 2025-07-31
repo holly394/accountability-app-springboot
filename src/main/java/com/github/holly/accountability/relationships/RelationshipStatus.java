@@ -4,5 +4,6 @@ public enum RelationshipStatus {
 
     REQUESTED,
     APPROVED,
-    REJECTED
+    REJECTED,
+    PENDING
 }

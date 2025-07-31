@@ -2,34 +2,29 @@
 import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios'
 import {QMarkupTable} from "quasar";
-import {RelationshipData} from "components/dto/RelationshipData.ts";
-import {UserDto} from "components/dto/UserDto.ts";
+import {RelationshipStatusDto} from "components/dto/RelationshipStatusDto.ts";
 
 defineOptions({
   name: 'RelationshipPage'
 });
 
-const relationship = ref<RelationshipData>( {
+const relationships = ref<RelationshipStatusDto[]>( []);
+
+const userSearch = ref<RelationshipStatusDto>( {
   id: 0,
-  userId: 0,
   partnerId: 0,
+  partnerUsername: '',
   status: ''
 });
 
-const userSearch = ref<UserDto>( {
-  id: 0,
-  username:''
-});
-
-const searchResult = ref<UserDto[]>([]);
+const searchResult = ref<RelationshipStatusDto[]>([]);
 
 onMounted(async () => {
-  relationship.value = await api.get<RelationshipData>('/relationships/approved-list').then(res => res.data)
+  relationships.value = await api.get<RelationshipStatusDto[]>('/relationships').then(res => res.data)
 });
 
-
 const searchFriend = async () => {
-  await api.get<UserDto[]>(`/relationships/search?username=${userSearch.value.username}`)
+  await api.get<RelationshipStatusDto[]>(`/relationships/search?username=${userSearch.value.partnerUsername}`)
     .then(response => {
       searchResult.value = response.data;
     })
@@ -37,6 +32,19 @@ const searchFriend = async () => {
       console.log(error);
     })
 };
+
+async function sendRequest(partnerId: number) {
+  await api.get<RelationshipStatusDto>(`/relationships/send-request?partnerId=${partnerId}`)
+    .then(response => {
+      const index = relationships.value.findIndex(
+        (relationship) => relationship.partnerId === partnerId
+      );
+      relationships.value.splice(index, 1, response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    })
+}
 
 </script>
 
@@ -51,11 +59,14 @@ const searchFriend = async () => {
         <q-card-section>
             <q-input
               v-on:keyup="searchFriend"
-              v-model="userSearch.username"
-              label="search for friend"
+              v-model="userSearch.partnerUsername"
+              label="search for a friend"
               filled
               type="textarea"
             />
+        </q-card-section>
+
+        <q-card-section>
           <q-markup-table title="EXISTING USERS">
             <thead>
             <tr><th>EXISTING USERS</th></tr>
@@ -66,8 +77,15 @@ const searchFriend = async () => {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="user in searchResult" :key="user.id">
-                <td v-text="user.username" />
+            <tr v-for="partner in searchResult" :key="partner.id">
+              <td v-text="partner.partnerId" />
+              <td v-text="partner.partnerUsername" />
+              <template v-if="partner.status === null">
+                <q-btn @click="sendRequest(partner.id)" label="Request" type="submit" color="primary"/>
+              </template>
+              <template v-else>
+                <td v-text="partner.status" />
+              </template>
             </tr>
             </tbody>
           </q-markup-table>

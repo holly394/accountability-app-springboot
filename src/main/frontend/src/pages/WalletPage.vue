@@ -2,8 +2,8 @@
 import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios'
 import { PurchaseDto } from 'components/dto/PurchaseDto.ts';
-import {WalletDto} from "components/dto/WalletDto.ts";
-import {QMarkupTable} from "quasar";
+import {WalletDto} from 'components/dto/WalletDto.ts';
+import {QMarkupTable} from 'quasar';
 
 
 const wallet = ref<WalletDto>( {

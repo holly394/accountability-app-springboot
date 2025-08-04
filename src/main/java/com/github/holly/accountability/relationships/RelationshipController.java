@@ -3,15 +3,14 @@ package com.github.holly.accountability.relationships;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
+import com.github.holly.accountability.users.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/api/relationships")
@@ -23,36 +22,37 @@ public class RelationshipController {
     @Autowired
     private UserRepository userRepository;
 
-    @GetMapping("")
-    public List<RelationshipStatusDto> getAllRelationships(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        List<Relationship> existingRelationships = relationshipRepository.getAllByUserId(user.getId());
-        return existingRelationships.stream()
-                .map(result -> convertPartnertoRelationshipStatusDto(user.getId(), result.getPartner().getId()))
-                .collect(toList());
+    @GetMapping("/this-user")
+    public UserDto getUser(@AuthenticationPrincipal AccountabilitySessionUser user) {
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setId(user.getId());
+        return userDto;
     }
 
-    @GetMapping("/search")
-    public List<RelationshipStatusDto> search(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam String username) {
-        List<User> partnerList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
-        return partnerList.stream()
-                .filter(thisPartner -> !thisPartner.getUsername().equals(user.getUsername()))
-                .map(partner -> convertPartnertoRelationshipStatusDto(user.getId(), partner.getId()))
+    @GetMapping("")
+    public List<RelationshipData> getAllRelationships(@AuthenticationPrincipal AccountabilitySessionUser user) {
+        return relationshipRepository.getAllByUserId(user.getId()).stream()
+                .map(this::convertRelationshipToRelationshipData)
                 .toList();
     }
 
-    @GetMapping("/approved-list")
-    public List<Relationship> getApprovedRelationships(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        return relationshipRepository.getApprovedByUserId(user.getId());
+    @GetMapping("/search")
+    public List<RelationshipData> search(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam String username) {
+        List<User> partnerList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
+        User thisUser = userRepository.findUserById(user.getId());
+        return partnerList.stream()
+                .filter(thisPartner -> !thisPartner.getUsername().equals(user.getUsername()))
+                .map(partner -> {
+                    assert thisUser != null;
+                    return findOrMakeRelationshipData(thisUser, partner);
+                })
+                .toList();
     }
 
-    @GetMapping("/pending-request-list")
-    public List<Relationship> getPendingRelationships(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        return relationshipRepository.getPendingByUserId(user.getId());
-    }
-
-    @GetMapping("/send-request")
-    public Relationship addRelationship(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam Long partnerId) {
-        if(relationshipRepository.findRelationship(user.getId(), partnerId) == null) {
+    @PostMapping("/send-request")
+    public void sendRequest(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam Long partnerId) {
+        if(relationshipRepository.findRelationship(user.getId(), partnerId) != null) {
             throw new IllegalArgumentException("Relationship already exists");
         }
 
@@ -63,74 +63,80 @@ public class RelationshipController {
         Relationship newRelationshipPending = new Relationship(partner, thisUser, RelationshipStatus.PENDING);
 
         relationshipRepository.save(newRelationshipPending);
-        return relationshipRepository.save(newRelationshipRequest);
-    }
-
-    @GetMapping("/approve-request")
-    public Relationship approveRelationship(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam Long partnerId) {
-        if(relationshipRepository.findRelationship(user.getId(), partnerId) == null) {
-            throw new IllegalArgumentException("Relationship does not exist");
-        }
-        Relationship newRelationshipApproved = relationshipRepository.findRelationship(user.getId(), partnerId);
-
-        if(newRelationshipApproved.getStatus() != RelationshipStatus.PENDING) {
-            throw new IllegalArgumentException("You cannot approve this relationship");
-        }
-
-        newRelationshipApproved.setStatus(RelationshipStatus.APPROVED);
-        return relationshipRepository.save(newRelationshipApproved);
+        relationshipRepository.save(newRelationshipRequest);
     }
 
     //delete request
-    @DeleteMapping("/delete-request")
-    public ResponseEntity<Void> deleteRelationship(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestBody Long relationshipId) {
-        if(!relationshipRepository.existsById(relationshipId)) {
-            throw new IllegalArgumentException("Relationship does not exist");
+    @PostMapping("/delete-request")
+    public void deleteRequest(@RequestParam Long relationshipId) {
+        Relationship relationshipToDelete = relationshipRepository.getById(relationshipId);
+        Relationship relationshipOtherDirection =
+                relationshipRepository.findRelationship(relationshipToDelete.getPartner().getId(), relationshipToDelete.getUser().getId());
+
+        relationshipRepository.delete(relationshipToDelete);
+        relationshipRepository.delete(relationshipOtherDirection);
+    }
+
+    @GetMapping("/approve-request")
+    public RelationshipData approveRequest(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam Long relationshipId) {
+        Relationship relationshipToApprove = relationshipRepository.getById(relationshipId);
+
+        if(!Objects.equals(relationshipToApprove.getUser().getId(), user.getId())) {
+            throw new IllegalArgumentException("You cannot approve this relationship");
         }
 
-        //Optional.get() without isPresent() check
-        Relationship relationshipToDelete = relationshipRepository.findById(relationshipId).get();
-        Relationship otherDirection = getOppositeDirection(relationshipToDelete);
-
-        //null pointer exception (fix)
-        if(relationshipToDelete.getUser().getId().equals(user.getId()) || relationshipToDelete.getPartner().getId().equals(user.getId())) {
-            relationshipRepository.delete(relationshipToDelete);
-            relationshipRepository.delete(otherDirection);
+        if(relationshipToApprove.getStatus() != RelationshipStatus.PENDING) {
+            throw new IllegalArgumentException("You cannot approve this relationship");
         }
 
-        return ResponseEntity.noContent().build();
+        relationshipToApprove.setStatus(RelationshipStatus.APPROVED);
+        relationshipRepository.save(relationshipToApprove);
+        return convertRelationshipToRelationshipData(relationshipToApprove);
+    }
+
+    @GetMapping("/reject-request")
+    public RelationshipData rejectRequest(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam Long relationshipId) {
+        Relationship relationshipToReject = relationshipRepository.getById(relationshipId);
+
+        if(!Objects.equals(relationshipToReject.getUser().getId(), user.getId())) {
+            throw new IllegalArgumentException("You cannot reject this relationship");
+        }
+
+        if(relationshipToReject.getStatus() != RelationshipStatus.PENDING) {
+            throw new IllegalArgumentException("You cannot reject this relationship");
+        }
+
+        relationshipToReject.setStatus(RelationshipStatus.REJECTED);
+        relationshipRepository.save(relationshipToReject);
+        return convertRelationshipToRelationshipData(relationshipToReject);
+    }
+
+    private RelationshipData findOrMakeRelationshipData(User thisUser, User partner) {
+        if(relationshipRepository.findRelationship(thisUser.getId(), partner.getId()) != null){
+            Relationship existing = relationshipRepository.findRelationship(thisUser.getId(), partner.getId());
+            return convertRelationshipToRelationshipData(existing);
+        }
+
+        Relationship relationship = new Relationship();
+        relationship.setUser(thisUser);
+        relationship.setPartner(partner);
+        return convertRelationshipToRelationshipData(relationship);
+    }
+
+    private RelationshipData convertRelationshipToRelationshipData(Relationship relationship) {
+        RelationshipData relationshipData = new RelationshipData();
+
+        relationshipData.setUserId(relationship.getUser().getId());
+        relationshipData.setPartnerId(relationship.getPartner().getId());
+        relationshipData.setUserName(relationship.getUser().getUsername());
+        relationshipData.setPartnerName(relationship.getPartner().getName());
+        relationshipData.setId(relationship.getId());
+        relationshipData.setStatus(relationship.getStatus());
+
+        return relationshipData;
     }
 
 
-    private RelationshipStatusDto convertPartnertoRelationshipStatusDto(Long thisUserId, Long partnerId) {
-        RelationshipStatusDto relationshipStatusDto = new RelationshipStatusDto();
-        User partner = userRepository.findUserById(partnerId);
 
-        if(relationshipRepository.findRelationship(thisUserId, partnerId) == null){
-            assert partner != null;
-            relationshipStatusDto.setPartnerUsername(partner.getUsername());
-            relationshipStatusDto.setPartnerId(partner.getId());
-            return relationshipStatusDto;
-        }
-
-        Relationship relationship = relationshipRepository.findRelationship(thisUserId, partnerId);
-        assert partner != null;
-        relationshipStatusDto.setPartnerUsername(partner.getUsername());
-        relationshipStatusDto.setPartnerId(partner.getId());
-
-        if(relationship.getStatus() == RelationshipStatus.REQUESTED) {
-            relationship = getOppositeDirection(relationship);
-        }
-
-        relationshipStatusDto.setId(relationship.getId());
-        relationshipStatusDto.setStatus(relationship.getStatus());
-        return relationshipStatusDto;
-    }
-
-    private Relationship getOppositeDirection(Relationship oneDirection) {
-        Long userId = oneDirection.getUser().getId();
-        Long partnerId = oneDirection.getPartner().getId();
-        return relationshipRepository.findRelationship(partnerId, userId);
-    }
 
 }

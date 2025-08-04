@@ -44,6 +44,7 @@
                 filled
                 v-model="password"
                 label="Password"
+                @keyup.enter="attemptLogin"
                 lazy-rules
               />
 

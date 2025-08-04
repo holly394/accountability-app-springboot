@@ -1,11 +1,14 @@
 package com.github.holly.accountability.relationships;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
 interface RelationshipRepository extends JpaRepository<Relationship, Long> {
+    @NotNull Relationship getById(@NotNull Long id);
+
     @Query("""
         FROM Relationship r
         WHERE r.user.id =:userId
@@ -16,6 +19,7 @@ interface RelationshipRepository extends JpaRepository<Relationship, Long> {
     @Query("""
         FROM Relationship r
         WHERE r.user.id =:userId
+        OR r.partner.id =:userId
         """)
     List<Relationship> getAllByUserId(Long userId);
 
@@ -24,7 +28,15 @@ interface RelationshipRepository extends JpaRepository<Relationship, Long> {
         WHERE r.user.id =:userId
         AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
         """)
-    List<Relationship> getPendingByUserId(Long userId);
+    List<Relationship> getToAnswerByUserId(Long userId);
+
+    @Query("""
+        FROM Relationship r
+        WHERE r.partner.id =:userId
+        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
+        """)
+    List<Relationship> getWaitingByUserId(Long userId);
+
 
     @Query("""
         FROM Relationship r

@@ -1,24 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios'
-import { UserData } from 'components/dto/UserData.ts';
-import {AxiosError} from "axios";
-import {useRouter} from "vue-router";
-import {useQuasar} from "quasar";
-import {RelationshipData} from "components/dto/RelationshipData.ts";
+import {AxiosError} from 'axios';
+import {useRouter} from 'vue-router';
+import {useQuasar} from 'quasar';
+import {UserDto} from "components/dto/UserDto.ts";
 
-const user = ref<UserData>( {
+const user = ref<UserDto>( {
   username: '',
-  name: '',
-  password: '',
   id: 0
-});
-
-const relationship = ref<RelationshipData>( {
-  id: 0,
-  userId: 0,
-  partnerId: 0,
-  status: ''
 });
 
 defineOptions({
@@ -29,8 +19,7 @@ const router = useRouter();
 const $q = useQuasar();
 
 onMounted(async () => {
-  user.value = await api.get<UserData>('/user').then(res => res.data)
-  relationship.value = await api.get<RelationshipData>('/relationships').then(res => res.data)
+  user.value = await api.get<UserDto>('relationships/this-user').then(res => res.data)
 });
 
 const attemptLogOut = async () => {

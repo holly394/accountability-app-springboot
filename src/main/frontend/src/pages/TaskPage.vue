@@ -68,6 +68,7 @@ async function removeTask(taskId: number) {
     );
 
     tasks.value.splice(index, 1);
+    window.location.reload();
   } catch {
     console.log('Error while deleting task', taskId);
   }
@@ -96,6 +97,7 @@ async function endTask(taskId: number) {
       );
 
       tasks.value.splice(index, 1, response.data);
+      window.location.reload();
     })
     .catch(error => {
       console.log(error);

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { api } from 'boot/axios'
-import {QMarkupTable} from 'quasar';
-import {RelationshipData} from 'components/dto/RelationshipData.ts';
-import {UserDto} from 'components/dto/UserDto.ts';
+import { QMarkupTable } from 'quasar';
+import { RelationshipData } from 'components/dto/RelationshipData.ts';
+import { UserDto } from 'components/dto/UserDto.ts';
+import { RelationshipStatusDto } from 'components/dto/RelationshipStatusDto.ts';
 
 
 defineOptions({
@@ -39,9 +40,11 @@ const searchFriend = async () => {
 };
 
 async function sendRequest(partnerId: number) {
-  await api.post(`/relationships/send-request?partnerId=${partnerId}`)
-    .then (() => {
-      window.location.reload();
+  await api.put(`/relationships/request/${partnerId}`)
+    .then (response => {
+      for(let i=0; i < response.data.length; i++) {
+        everythingList.value.splice(everythingList.value.length, 0, response.data[i]);
+      }
     })
     .catch(error => {
       console.log(error);
@@ -49,18 +52,22 @@ async function sendRequest(partnerId: number) {
 }
 
 async function deleteRequest(relationshipId: number) {
-  await api.post(`/relationships/delete-request?relationshipId=${relationshipId}`)
-    .then (() => {
-      window.location.reload();
+  await api.delete(`/relationships/${relationshipId}`)
+    .then (response => {
+      for(let i=0; i < response.data.length; i++) {
+        const index = everythingList.value.findIndex(
+          (relationship) => relationship.id === response.data[i]
+        );
+        everythingList.value.splice(index, 1);
+      }
     })
     .catch(error => {
       console.log(error);
     })
 }
 
-
-async function approveRequest(relationshipId: number) {
-  await api.get<RelationshipData>(`/relationships/approve-request?relationshipId=${relationshipId}`)
+async function updateStatus(status: string, relationshipId: number) {
+  await api.post<RelationshipData>(`/relationships/${relationshipId}`, {status: status} as RelationshipStatusDto)
     .then(response => {
       const index = everythingList.value.findIndex(
         (relationship) => relationship.id === relationshipId
@@ -71,20 +78,6 @@ async function approveRequest(relationshipId: number) {
       console.log(error);
     })
 }
-
-async function rejectRequest(relationshipId: number) {
-  await api.get<RelationshipData>(`/relationships/reject-request?relationshipId=${relationshipId}`)
-    .then(response => {
-      const index = everythingList.value.findIndex(
-        (relationship) => relationship.id === relationshipId
-      );
-      everythingList.value.splice(index, 1, response.data);
-    })
-    .catch(error => {
-      console.log(error);
-    })
-}
-
 
 </script>
 
@@ -133,6 +126,30 @@ async function rejectRequest(relationshipId: number) {
         </q-card-section>
       </q-card>
 
+      <q-markup-table title="PARTNERSHIPS">
+        <thead>
+        <tr><th>EVERY PARTNERSHIP</th></tr>
+        <tr>
+          <th>RELATIONSHIP ID</th>
+          <th>USER ID</th>
+          <th>USER NAME</th>
+          <th>PARTNER ID</th>
+          <th>PARTNER NAME</th>
+          <th>STATUS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="relationship in everythingList" :key="relationship.id">
+              <td v-text="relationship.id" />
+              <td v-text="relationship.userId" />
+              <td v-text="relationship.userName" />
+              <td v-text="relationship.partnerId" />
+              <td v-text="relationship.partnerName" />
+              <td v-text="relationship.status" />
+        </tr>
+        </tbody>
+      </q-markup-table>
+
       <q-markup-table title="PARTNERSHIPS TO RESPOND TO">
         <thead>
         <tr><th>REQUESTS TO ANSWER</th></tr>
@@ -153,8 +170,10 @@ async function rejectRequest(relationshipId: number) {
                 <td v-text="relationship.partnerId" />
                 <td v-text="relationship.partnerName" />
                 <td v-text="relationship.status" />
-                <td><q-btn @click="approveRequest(relationship.id)" label="ACCEPT" type="submit" color="primary"/></td>
-                <td><q-btn @click="rejectRequest(relationship.id)" label="REJECT" type="submit" color="primary"/></td>
+                <td><q-btn @click="updateStatus('APPROVED', relationship.id)"
+                           label="ACCEPT" type="submit" color="primary"/></td>
+                <td><q-btn @click="updateStatus('REJECTED', relationship.id)"
+                           label="REJECT" type="submit" color="primary"/></td>
               </template>
           </template>
         </tr>

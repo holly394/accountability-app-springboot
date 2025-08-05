@@ -8,6 +8,12 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserId(Long userId);
 
+    @Query("""
+        FROM Task t
+        WHERE t.user.id in (:userIds)
+        """)
+    List<Task> findByUserIdIn(List<Long> userIds);
+
 
     @Query("""
         FROM Task t

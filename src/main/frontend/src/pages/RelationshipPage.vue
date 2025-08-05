@@ -126,30 +126,6 @@ async function updateStatus(status: string, relationshipId: number) {
         </q-card-section>
       </q-card>
 
-      <q-markup-table title="PARTNERSHIPS">
-        <thead>
-        <tr><th>EVERY PARTNERSHIP</th></tr>
-        <tr>
-          <th>RELATIONSHIP ID</th>
-          <th>USER ID</th>
-          <th>USER NAME</th>
-          <th>PARTNER ID</th>
-          <th>PARTNER NAME</th>
-          <th>STATUS</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="relationship in everythingList" :key="relationship.id">
-              <td v-text="relationship.id" />
-              <td v-text="relationship.userId" />
-              <td v-text="relationship.userName" />
-              <td v-text="relationship.partnerId" />
-              <td v-text="relationship.partnerName" />
-              <td v-text="relationship.status" />
-        </tr>
-        </tbody>
-      </q-markup-table>
-
       <q-markup-table title="PARTNERSHIPS TO RESPOND TO">
         <thead>
         <tr><th>REQUESTS TO ANSWER</th></tr>

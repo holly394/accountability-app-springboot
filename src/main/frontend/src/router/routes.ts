@@ -34,6 +34,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/relationships',
         component: () => import('pages/RelationshipPage.vue')
+      },
+      {
+        path: '/partner-tasks',
+        component: () => import('pages/PartnerTaskPage.vue')
       }
     ],
   },

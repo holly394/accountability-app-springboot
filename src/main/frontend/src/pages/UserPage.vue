@@ -4,7 +4,7 @@ import { api } from 'boot/axios'
 import {AxiosError} from 'axios';
 import {useRouter} from 'vue-router';
 import {useQuasar} from 'quasar';
-import {UserDto} from "components/dto/UserDto.ts";
+import {UserDto} from 'components/dto/UserDto.ts';
 
 const user = ref<UserDto>( {
   username: '',
@@ -29,7 +29,7 @@ const attemptLogOut = async () => {
     .catch((err: AxiosError)  => {
       if(err.response?.status === 401) {
         $q.notify( {
-          message: "Log out failed.",
+          message: 'Log out failed.',
           position: 'top-right',
           color: 'red',
           badgeColor: 'red'

@@ -5,6 +5,10 @@ import java.time.Duration;
 public class TaskDto {
     private Long id;
 
+    private Long userId;
+
+    private String userName;
+
     private String description;
 
     private TaskStatus status = TaskStatus.PENDING;
@@ -52,4 +56,19 @@ public class TaskDto {
 
     public String getDurationString() { return this.durationString; }
 
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 }

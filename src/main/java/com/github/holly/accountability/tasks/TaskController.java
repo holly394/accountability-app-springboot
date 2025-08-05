@@ -1,6 +1,11 @@
 package com.github.holly.accountability.tasks;
+import com.github.holly.accountability.relationships.Relationship;
+import com.github.holly.accountability.relationships.RelationshipRepository;
+import com.github.holly.accountability.relationships.RelationshipService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
+import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
+import com.github.holly.accountability.users.UserDto;
 import com.github.holly.accountability.wallet.Wallet;
 import com.github.holly.accountability.wallet.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +18,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.lang.Long.valueOf;
 
 @Controller
 @RequestMapping("/api/tasks")
@@ -33,6 +41,12 @@ public class TaskController {
     @Autowired
     private WalletRepository walletRepository;
 
+    @Autowired
+    private RelationshipRepository relationshipRepository;
+
+    @Autowired
+    private RelationshipService relationshipService;
+
     @GetMapping("")
     public List<TaskDto> getAllTasks(@AuthenticationPrincipal AccountabilitySessionUser user){
 
@@ -40,6 +54,15 @@ public class TaskController {
         return taskListToConvert.stream()
                 .map(this::convertTaskToDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/get-tasks-by-partner-id")
+    public List<TaskDto> getTasksByUserId(@RequestParam List<Long> ids){
+        List<Task> eachTaskList = taskRepository.findByUserIdIn(ids);
+
+        return eachTaskList.stream()
+                .map(this::convertTaskToDto)
+                .toList();
     }
 
     @GetMapping("/calculatePaymentCompleted")
@@ -131,14 +154,51 @@ public class TaskController {
         task.setStatus(TaskStatus.COMPLETED);
         taskRepository.save(task);
 
-        //move later to approved tasks once user relationships are established
-        TaskDto taskDto = convertTaskToDto(task);
-        Float payment = taskService.calculateFromTaskDto(taskDto);
-        Wallet wallet = walletRepository.findByUserId(user.getId());
-        wallet.addBalance(payment);
-        walletRepository.save(wallet);
-        //
 
+        return convertTaskToDto(task);
+    }
+
+    @PostMapping("/{taskId}/update-status")
+    public TaskDto updateTaskStatus(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                    @PathVariable Long taskId,
+                                    @RequestBody TaskStatusDto newStatus){
+
+        List<Relationship> partnerRelationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
+        List<UserDto> cleanPartnerList = relationshipService.getCleanPartnerList(partnerRelationships, user.getId());
+
+        Task task = taskRepository
+                .findById(taskId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        boolean partnerTask = false;
+        for(UserDto partner: cleanPartnerList){
+            if(partner.getId().equals(task.getUser().getId())){
+                partnerTask = true;
+            }
+        }
+
+        if(!partnerTask){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if(!task.getStatus().equals(TaskStatus.COMPLETED)){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        if(newStatus.getStatus() == TaskStatus.APPROVED){
+            task.setStatus(TaskStatus.APPROVED);
+            TaskDto taskDto = convertTaskToDto(task);
+            Float payment = taskService.calculateFromTaskDto(taskDto);
+            Wallet wallet = walletRepository.findByUserId(task.getUser().getId());
+            wallet.addBalance(payment);
+            walletRepository.save(wallet);
+        }
+
+        if(newStatus.getStatus() == TaskStatus.REJECTED){
+            task.setStatus(TaskStatus.REJECTED);
+        }
+
+        taskRepository.save(task);
         return convertTaskToDto(task);
     }
 
@@ -158,6 +218,8 @@ public class TaskController {
         taskDto.setId(task.getId());
         taskDto.setDescription(task.getDescription());
         taskDto.setStatus(task.getStatus());
+        taskDto.setUserId(task.getUser().getId());
+        taskDto.setUserName(task.getUser().getUsername());
         if (task.getTimeStart() != null) {
             Duration duration;
             if(task.getTimeEnd() == null){

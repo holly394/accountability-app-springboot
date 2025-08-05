@@ -20,4 +20,23 @@ public class UserDto {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public boolean equals(Object compared){
+        if(this == compared){
+            return true;
+        }
+
+        if(!(this instanceof UserDto)){
+            return false;
+        }
+
+        UserDto userDtoCompared = (UserDto) compared;
+
+        if(this.id == userDtoCompared.id &&
+                this.username == userDtoCompared.username){
+            return true;
+        }
+        return false;
+
+    }
 }

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-interface RelationshipRepository extends JpaRepository<Relationship, Long> {
+public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
     @NotNull Relationship getById(@NotNull Long id);
 
     @Query("""
@@ -25,23 +25,10 @@ interface RelationshipRepository extends JpaRepository<Relationship, Long> {
 
     @Query("""
         FROM Relationship r
-        WHERE r.user.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
-        """)
-    List<Relationship> getToAnswerByUserId(Long userId);
-
-    @Query("""
-        FROM Relationship r
-        WHERE r.partner.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
-        """)
-    List<Relationship> getWaitingByUserId(Long userId);
-
-
-    @Query("""
-        FROM Relationship r
-        WHERE r.user.id =:userId
+        WHERE (r.user.id =:userId OR r.partner.id =:userId)
         AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.APPROVED
         """)
-    List<Relationship> getApprovedByUserId(Long userId);
+    List<Relationship> getApprovedRelationshipsByUserIdBothDirections(Long userId);
+
+
 }

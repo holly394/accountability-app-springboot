@@ -104,12 +104,12 @@
               </q-item-section>
             </q-item>
 
-            <q-item to="/Pricing" active-class="q-item-no-link-highlighting">
+            <q-item to="/partner-tasks" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
                 <q-icon name="list"/>
               </q-item-section>
               <q-item-section>
-                <q-item-label>Pricing</q-item-label>
+                <q-item-label>Other people's tasks</q-item-label>
               </q-item-section>
             </q-item>
 

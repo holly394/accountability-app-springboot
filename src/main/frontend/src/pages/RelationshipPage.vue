@@ -4,7 +4,10 @@ import { api } from 'boot/axios'
 import { QMarkupTable } from 'quasar';
 import { RelationshipData } from 'components/dto/RelationshipData.ts';
 import { UserDto } from 'components/dto/UserDto.ts';
-import { RelationshipStatusDto } from 'components/dto/RelationshipStatusDto.ts';
+import PartnershipsApproved from 'components/tables/PartnershipsApproved.vue';
+import PartnershipsPending from 'components/tables/PartnershipsPending.vue';
+import PartnershipsRejected from 'components/tables/PartnershipsRejected.vue';
+import PartnershipsUnanswered from 'components/tables/PartnershipsUnanswered.vue';
 
 
 defineOptions({
@@ -45,34 +48,7 @@ async function sendRequest(partnerId: number) {
       for(let i=0; i < response.data.length; i++) {
         everythingList.value.splice(everythingList.value.length, 0, response.data[i]);
       }
-    })
-    .catch(error => {
-      console.log(error);
-    })
-}
-
-async function deleteRequest(relationshipId: number) {
-  await api.delete(`/relationships/${relationshipId}`)
-    .then (response => {
-      for(let i=0; i < response.data.length; i++) {
-        const index = everythingList.value.findIndex(
-          (relationship) => relationship.id === response.data[i]
-        );
-        everythingList.value.splice(index, 1);
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    })
-}
-
-async function updateStatus(status: string, relationshipId: number) {
-  await api.post<RelationshipData>(`/relationships/${relationshipId}`, {status: status} as RelationshipStatusDto)
-    .then(response => {
-      const index = everythingList.value.findIndex(
-        (relationship) => relationship.id === relationshipId
-      );
-      everythingList.value.splice(index, 1, response.data);
+      window.location.reload();
     })
     .catch(error => {
       console.log(error);
@@ -126,124 +102,11 @@ async function updateStatus(status: string, relationshipId: number) {
         </q-card-section>
       </q-card>
 
-      <q-markup-table title="PARTNERSHIPS TO RESPOND TO">
-        <thead>
-        <tr><th>REQUESTS TO ANSWER</th></tr>
-        <tr>
-          <th>RELATIONSHIP ID</th>
-          <th>PARTNER ID</th>
-          <th>NAME</th>
-          <th>STATUS</th>
-          <th>ACCEPT</th>
-          <th>REJECT</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="relationship in everythingList" :key="relationship.id">
-          <template v-if="relationship.status === 'PENDING' ">
-              <template v-if="relationship.userId === thisUser.id">
-                <td v-text="relationship.id" />
-                <td v-text="relationship.partnerId" />
-                <td v-text="relationship.partnerName" />
-                <td v-text="relationship.status" />
-                <td><q-btn @click="updateStatus('APPROVED', relationship.id)"
-                           label="ACCEPT" type="submit" color="primary"/></td>
-                <td><q-btn @click="updateStatus('REJECTED', relationship.id)"
-                           label="REJECT" type="submit" color="primary"/></td>
-              </template>
-          </template>
-        </tr>
-        </tbody>
-      </q-markup-table>
 
-      <q-markup-table title="APPROVED PARTNERSHIPS">
-        <thead>
-        <tr><th>APPROVED PARTNERS</th></tr>
-        <tr>
-          <th>RELATIONSHIP ID</th>
-          <th>PARTNER ID</th>
-          <th>NAME</th>
-          <th>STATUS</th>
-          <th>REMOVE</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="relationship in everythingList" :key="relationship.id">
-          <template v-if="relationship.status === 'APPROVED' ">
-            <td v-text="relationship.id" />
-            <template v-if="relationship.userId === thisUser.id">
-              <td v-text="relationship.partnerId" />
-              <td v-text="relationship.partnerName" />
-            </template>
-            <template v-else>
-              <td v-text="relationship.userId" />
-              <td v-text="relationship.userName" />
-            </template>
-            <td v-text="relationship.status" />
-            <td><q-btn @click="deleteRequest(relationship.id)" label="DELETE" type="submit" color="primary"/></td>
-          </template>
-        </tr>
-        </tbody>
-      </q-markup-table>
-
-      <q-markup-table title="REJECTED PARTNERSHIPS">
-        <thead>
-        <tr><th>REJECTED PARTNERS</th></tr>
-        <tr>
-          <th>RELATIONSHIP ID</th>
-          <th>PARTNER ID</th>
-          <th>NAME</th>
-          <th>STATUS</th>
-          <th>REMOVE</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="relationship in everythingList" :key="relationship.id">
-          <template v-if="relationship.status === 'REJECTED' ">
-            <td v-text="relationship.id" />
-            <template v-if="relationship.userId === thisUser.id">
-              <td v-text="relationship.partnerId" />
-              <td v-text="relationship.partnerName" />
-              <td v-text="relationship.status" />
-              <td><q-btn @click="deleteRequest(relationship.id)" label="DELETE" type="submit" color="primary"/></td>
-            </template>
-            <template v-else>
-              <td v-text="relationship.userId" />
-              <td v-text="relationship.userName" />
-              <td v-text="relationship.status" />
-              <td> </td>
-            </template>
-          </template>
-        </tr>
-        </tbody>
-      </q-markup-table>
-
-      <q-markup-table title="PARTNERSHIPS WAITING FOR ANSWER">
-        <thead>
-        <tr><th>REQUESTS STILL PENDING</th></tr>
-        <tr>
-          <th>RELATIONSHIP ID</th>
-          <th>PARTNER ID</th>
-          <th>NAME</th>
-          <th>STATUS</th>
-          <th>DELETE</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="relationship in everythingList" :key="relationship.id">
-          <template v-if="relationship.partnerId === thisUser.id">
-              <template v-if="relationship.status === 'PENDING'">
-                <td v-text="relationship.id" />
-                <td v-text="relationship.userId" />
-                <td v-text="relationship.userName" />
-                <td v-text="relationship.status" />
-                <td><q-btn @click="deleteRequest(relationship.id)" label="DELETE" type="submit" color="primary"/></td>
-              </template>
-          </template>
-        </tr>
-        </tbody>
-      </q-markup-table>
-
+      <PartnershipsApproved />
+      <PartnershipsUnanswered />
+      <PartnershipsPending />
+      <PartnershipsRejected />
 
     </div>
 </template>

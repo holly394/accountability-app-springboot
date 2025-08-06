@@ -5,7 +5,7 @@
         Bar Chart
       </q-card-section>
       <q-card-section>
-        <div ref="barchart" style="width: 600px; height: 400px;" />
+        <div ref="barchart" style="width: 600px; height: 200px;" />
       </q-card-section>
     </q-card>
   </div>
@@ -15,9 +15,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
-import {api} from "boot/axios.js";
-import {WalletDto} from "components/dto/WalletDto.js";
-import {ECharts} from "echarts";
+import {api} from 'boot/axios.js';
+import {WalletDto} from 'components/dto/WalletDto.js';
+import {ECharts} from 'echarts';
 
 defineOptions({
   name: 'TestGraph'
@@ -39,23 +39,23 @@ const data = ({
 // Fetch data and initialize chart
 onMounted(async () => {
   // 1. Fetch data from API
-  api.get<WalletDto[]>('/wallet/get-partner-wallets')
+  await api.get<WalletDto>('/wallet')
+    .then(res => {
+      let wallet = res.data
+      data.labels.push('YOU');
+      data.values.push(wallet.balance);
+    })
+    .catch(error => {
+      console.log(error);
+    })
+
+  await api.get<WalletDto[]>('/wallet/get-partner-wallets')
     .then(res => {
       let walletArray = res.data
       walletArray.forEach(wallet => {
         data.labels.push(wallet.userName);
         data.values.push(wallet.balance);
       })
-    })
-    .catch(error => {
-      console.log(error);
-    })
-
-  await api.get<WalletDto>('/wallet')
-    .then(res => {
-      let wallet = res.data
-      data.labels.push("YOU");
-      data.values.push(wallet.balance);
     })
     .catch(error => {
       console.log(error);

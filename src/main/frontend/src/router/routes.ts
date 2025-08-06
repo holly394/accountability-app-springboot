@@ -37,11 +37,11 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: '/partner-tasks',
-        component: () => import('pages/PartnerTaskPage.vue')
+        component: () => import('pages/PartnerPage.vue')
       },
       {
         path: '/partner-wallet-graph',
-        component: () => import('pages/PartnerWalletsGraphPage.vue')
+        component: () => import('components/charts/PartnerWalletsGraph.vue')
       }
     ],
   },

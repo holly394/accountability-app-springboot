@@ -1,47 +1,30 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
+  <q-page class="q-pa-md row items-start q-gutter-md">
+
+    <q-card
+      class="my-card text-white"
+      style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
+    >
+      <q-card-section>
+        <div class="text-h6">Wallet overview</div>
+        <div class="text-subtitle2">How you compare</div>
+      </q-card-section>
+      <q-card-section class="q-pt-none">
+        <PartnerWalletsGraph />
+      </q-card-section>
+    </q-card>
+
+
+    <PartnershipsApproved />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/ExampleComponent.vue';
+import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
+import PartnershipsApproved from 'components/tables/PartnershipsApproved.vue';
 
 defineOptions({
   name: 'IndexPage'
 });
 
-const todos = ref<Todo[]>([
-  {
-    id: 1,
-    content: 'ct1'
-  },
-  {
-    id: 2,
-    content: 'ct2'
-  },
-  {
-    id: 3,
-    content: 'ct3'
-  },
-  {
-    id: 4,
-    content: 'ct4'
-  },
-  {
-    id: 5,
-    content: 'ct5'
-  }
-]);
-
-const meta = ref<Meta>({
-  totalCount: 1200
-});
 </script>

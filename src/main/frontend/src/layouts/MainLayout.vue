@@ -11,7 +11,7 @@
           aria-label="Menu"
         />
         <q-toolbar-title>
-          Accountability App
+          <ThisUserName />'s accountability app
         </q-toolbar-title>
         <q-space/>
         <div class="q-gutter-sm row items-center no-wrap">
@@ -45,6 +45,9 @@
               <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="boy avatar">
             </q-avatar>
           </q-btn>
+
+          <q-btn round flat @click="attemptLogOut" type="button"
+                 color="indigo-1" label="LogOut"/>
 
         </div>
       </q-toolbar>
@@ -215,16 +218,36 @@
 
 <script>
 import Messages from 'layouts/Messages.vue';
+import ThisUserName from 'layouts/ThisUserName.vue';
 
 import { defineComponent, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router';
+import { api } from 'boot/axios';
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    Messages
+    Messages,
+    ThisUserName
+  },
+  methods: {
+    async attemptLogOut() {
+      try {
+        await api.post('/logout')
+        this.$router.push('/login')
+      } catch (err) {
+        if (err.response?.status === 401) {
+          this.$q.notify({
+            message: 'Log out failed.',
+            position: 'top-right',
+            color: 'red',
+            badgeColor: 'red'
+          })
+        }
+      }
+    }
   },
 
   setup() {

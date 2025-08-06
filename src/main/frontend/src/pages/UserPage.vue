@@ -23,7 +23,6 @@ onMounted(async () => {
 });
 
 const attemptLogOut = async () => {
-
   await api.post('/logout')
     .then(() => router.push('/login'))
     .catch((err: AxiosError)  => {
@@ -37,6 +36,7 @@ const attemptLogOut = async () => {
       }
     })
 }
+
 </script>
 
 <template>

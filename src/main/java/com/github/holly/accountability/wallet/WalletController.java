@@ -3,8 +3,12 @@ package com.github.holly.accountability.wallet;
 import com.github.holly.accountability.purchases.Purchase;
 import com.github.holly.accountability.purchases.PurchaseDto;
 import com.github.holly.accountability.purchases.PurchaseRepository;
+import com.github.holly.accountability.relationships.Relationship;
+import com.github.holly.accountability.relationships.RelationshipRepository;
+import com.github.holly.accountability.relationships.RelationshipService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.UserRepository;
+import com.github.holly.accountability.users.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,12 +32,30 @@ public class WalletController {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    WalletService walletService;
+
+    @Autowired
+    RelationshipRepository relationshipRepository;
+
+    @Autowired
+    RelationshipService relationshipService;
+
     @GetMapping("")
     public WalletDto getWallet(@AuthenticationPrincipal AccountabilitySessionUser user){
-        WalletDto walletDto = new WalletDto();
-        float balance = walletRepository.findByUserId(user.getId()).getBalance();
-        walletDto.setBalance(balance);
-        return walletDto;
+        Wallet userWallet = walletRepository.findByUserId(user.getId());
+        return walletService.convertWalletToWalletDto(userWallet);
+    }
+
+    @GetMapping("/get-partner-wallets")
+    public List<WalletDto> getPartnerWallets(@AuthenticationPrincipal AccountabilitySessionUser user){
+        List<Relationship> partnerships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
+        List<UserDto> partnerDtos = relationshipService.getCleanPartnerList(partnerships, user.getId());
+
+        return partnerDtos.stream()
+                .map(response -> walletRepository.findByUserId(response.getId()))
+                .map(res -> walletService.convertWalletToWalletDto(res))
+                .toList();
     }
 
     @GetMapping("/getPurchases")

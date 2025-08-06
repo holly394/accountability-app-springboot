@@ -7,6 +7,8 @@ import {QMarkupTable} from 'quasar';
 
 
 const wallet = ref<WalletDto>( {
+  userId: 0,
+  userName: '',
   balance: 0.00
 });
 

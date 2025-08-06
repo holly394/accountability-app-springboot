@@ -11,23 +11,25 @@
           aria-label="Menu"
         />
         <q-toolbar-title>
-          Quasar App
+          Accountability App
         </q-toolbar-title>
         <q-space/>
         <div class="q-gutter-sm row items-center no-wrap">
+
           <q-btn round dense flat color="white" icon="fab fa-github" type="a"
                  href="https://github.com/pratik227/quasar-admin" target="_blank">
           </q-btn>
+
           <q-btn round dense flat style="color:red !important;" type="a" href="https://github.com/sponsors/pratik227"
                  target="_blank">
             <i class="fa fa-heart fa-2x fa-beat"></i>
           </q-btn>
+
           <q-btn round dense flat color="white" icon="notifications">
             <q-badge color="red" text-color="white" floating>
               5
             </q-badge>
-            <q-menu
-            >
+            <q-menu>
               <q-list style="min-width: 100px">
                 <messages></messages>
                 <q-card class="text-center no-shadow no-border">
@@ -37,11 +39,13 @@
               </q-list>
             </q-menu>
           </q-btn>
+
           <q-btn round flat @click="router.push('/user')">
             <q-avatar size="26px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png">
+              <img src="https://cdn.quasar.dev/img/boy-avatar.png" alt="boy avatar">
             </q-avatar>
           </q-btn>
+
         </div>
       </q-toolbar>
     </q-header>
@@ -62,6 +66,11 @@
           </q-item-section>
         </q-item>
 
+      <q-expansion-item
+          icon="pages"
+          label="Tasks"
+        >
+      <q-list class="q-pl-lg">
         <q-item to="/tasks" active-class="q-item-no-link-highlighting">
           <q-item-section avatar>
             <q-icon name="table_chart"/>
@@ -71,11 +80,31 @@
           </q-item-section>
         </q-item>
 
+        <q-item to="/partner-tasks" active-class="q-item-no-link-highlighting">
+          <q-item-section avatar>
+            <q-icon name="list"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Other people's tasks</q-item-label>
+          </q-item-section>
+        </q-item>
+
+      </q-list>
+      </q-expansion-item>
+
         <q-expansion-item
           icon="pages"
           label="Your info"
         >
           <q-list class="q-pl-lg">
+            <q-item to="/user" active-class="q-item-no-link-highlighting">
+              <q-item-section avatar>
+                <q-icon name="lock"/>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>User info</q-item-label>
+              </q-item-section>
+            </q-item>
 
             <q-item to="/wallet" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
@@ -86,54 +115,26 @@
               </q-item-section>
             </q-item>
 
-            <q-item to="/user" active-class="q-item-no-link-highlighting">
-              <q-item-section avatar>
-                <q-icon name="lock"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>User info</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item to="/relationships" active-class="q-item-no-link-highlighting">
-              <q-item-section avatar>
-                <q-icon name="lock"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Find a friend</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item to="/partner-tasks" active-class="q-item-no-link-highlighting">
-              <q-item-section avatar>
-                <q-icon name="list"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Other people's tasks</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item-label header class="text-weight-bolder text-white">Generic</q-item-label>
-            <q-item to="/Profile" active-class="q-item-no-link-highlighting">
-              <q-item-section avatar>
-                <q-icon name="person"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>User Profile</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item to="/Maintenance" active-class="q-item-no-link-highlighting">
-              <q-item-section avatar>
-                <q-icon name="settings"/>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label>Maintenance</q-item-label>
-              </q-item-section>
-            </q-item>
-
           </q-list>
         </q-expansion-item>
+
+        <q-item to="/relationships" active-class="q-item-no-link-highlighting">
+          <q-item-section avatar>
+            <q-icon name="lock"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Find a friend</q-item-label>
+          </q-item-section>
+        </q-item>
+
+        <q-item to="/partner-wallet-graph" active-class="q-item-no-link-highlighting">
+          <q-item-section avatar>
+            <q-icon name="settings"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Wallet Graph</q-item-label>
+          </q-item-section>
+        </q-item>
 
         <q-expansion-item
           icon="map"
@@ -167,92 +168,6 @@
           </q-list>
         </q-expansion-item>
 
-
-        <q-item to="/Footer" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="info"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Footer</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/CardHeader" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="card_giftcard"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Card Header</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Cards" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="card_giftcard"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Cards</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Tables" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="table_chart"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Tables</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Contact" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="person"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Contact</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Checkout" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="check_circle_outline"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Checkout</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <!--        not completed-->
-        <q-item to="/Calendar" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="date_range"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Calendar</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <!--        not completed-->
-        <!--        <q-item to="/Taskboard" active-class="q-item-no-link-highlighting">-->
-        <!--          <q-item-section avatar>-->
-        <!--            <q-icon name="done"/>-->
-        <!--          </q-item-section>-->
-        <!--          <q-item-section>-->
-        <!--            <q-item-label>Taskboard</q-item-label>-->
-        <!--          </q-item-section>-->
-        <!--        </q-item>-->
-
-        <q-item to="/Pagination" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="date_range"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Pagination</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item to="/Ecommerce" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="shopping_cart"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Product Catalogues</q-item-label>
-          </q-item-section>
-        </q-item>
         <q-expansion-item
           icon="menu_open"
           label="Menu Levels"
@@ -288,6 +203,7 @@
             </q-expansion-item>
           </q-expansion-item>
         </q-expansion-item>
+
       </q-list>
     </q-drawer>
 

@@ -3,7 +3,6 @@ import com.github.holly.accountability.relationships.Relationship;
 import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
-import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
 import com.github.holly.accountability.users.UserDto;
 import com.github.holly.accountability.wallet.Wallet;
@@ -18,11 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static java.lang.Long.valueOf;
 
 @Controller
 @RequestMapping("/api/tasks")
@@ -53,7 +49,7 @@ public class TaskController {
         List<Task> taskListToConvert = taskRepository.findByUserId(user.getId());
         return taskListToConvert.stream()
                 .map(this::convertTaskToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @GetMapping("/get-tasks-by-partner-id")
@@ -67,13 +63,16 @@ public class TaskController {
 
     @GetMapping("/calculatePaymentCompleted")
     public TaskCalculator calculatePaymentCompleted(@AuthenticationPrincipal AccountabilitySessionUser user){
+
         if(taskRepository.findCompleted(user.getId())==null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
         }
+
         List<Task> taskList = taskRepository.findCompleted(user.getId());
         List<TaskDto> taskDtoList = taskList.stream()
                 .map(this::convertTaskToDto)
                 .toList();
+
         TaskCalculator taskCalculator = new TaskCalculator();
         Float total = taskService.calculateTotal(taskDtoList);
         taskCalculator.setPayment(total);

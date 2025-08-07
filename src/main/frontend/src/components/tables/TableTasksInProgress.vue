@@ -1,37 +1,52 @@
 <script setup lang="ts">
-import {onMounted } from 'vue';
+import {ref, watch} from 'vue';
 import { QMarkupTable } from 'quasar';
-import { taskRelated } from 'src/composables/tasks/taskList.ts'
-import {changeTaskById} from 'src/composables/tasks/changeTaskById.ts';
-import {taskPayment} from "src/composables/tasks/taskPayment.ts";
+import { taskData } from 'src/composables/taskData.ts'
+import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 import {TaskData} from "components/dto/TaskData.ts";
-import {taskListUpdate} from "src/composables/tasks/taskListUpdate.ts";
 
-const { tasks, getCurrentUserTaskList, forceUpdate } = taskRelated();
-const { totalInProgressPayment, getTotalInProgressPayment } = taskPayment();
+const { deleteTask, endTask, calculatePaymentInProgress } = taskData();
 
 defineOptions({
   name: 'TableTasksInProgress',
 });
 
-onMounted(async () => {
-  await getCurrentUserTaskList();
-  await getTotalInProgressPayment();
-});
+const props = defineProps<{
+  taskList: TaskData[]
+  inProgressPayment: TaskCalculatorDto | undefined
+}>()
+
+const listCopy = ref(props.taskList)
+const totalInProgressPayment = ref(props.inProgressPayment)
 
 
-async function deleteTask(task: TaskData) {
-  const { removeTask } = taskListUpdate(task);
-  await removeTask();
-  await forceUpdate();
+async function deleteTaskButton(taskId: number) {
+  await deleteTask(taskId);
+  totalInProgressPayment.value = await calculatePaymentInProgress();
+  for(let i=0; i<listCopy.value.length; i++) {
+    if(listCopy.value[i].id === taskId) {
+      listCopy.value.splice(i, 1);
+    }
+  }
 }
 
-async function endTaskById(taskId: number) {
-  const { endTask } = changeTaskById(taskId);
-  await endTask();
-  await forceUpdate();
+async function endTaskButton(taskId: number) {
+  const ended = await endTask(taskId);
+  totalInProgressPayment.value = await calculatePaymentInProgress();
+  for(let i=0; i<listCopy.value.length; i++) {
+    if(listCopy.value[i].id === taskId) {
+      listCopy.value.splice(i, 1, ended);
+    }
+  }
 }
 
+watch (() => props.taskList, (newList) => {
+  listCopy.value = newList;
+})
+
+watch (() => props.inProgressPayment, (newPayment) => {
+  totalInProgressPayment.value = newPayment;
+})
 
 </script>
 
@@ -56,19 +71,19 @@ async function endTaskById(taskId: number) {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="task in tasks" :key="task.id">
+      <tr v-for="task in listCopy" :key="task.id">
         <template v-if="task.status === 'IN_PROGRESS'">
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
           <td v-text="task.durationString" />
-          <td><button @click="endTaskById(task.id)">End</button></td>
-          <td><button @click="deleteTask(task)">Delete</button></td>
+          <td><button @click="endTaskButton(task.id)">End</button></td>
+          <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
         </template>
       </tr>
       <tr>
         <td>TOTAL VALUE: </td>
-        <td>{{ totalInProgressPayment.payment.toFixed(2) }}</td>
+        <td>{{ totalInProgressPayment?.payment.toFixed(2) }}</td>
       </tr>
       </tbody>
     </q-markup-table>

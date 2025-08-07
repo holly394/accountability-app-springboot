@@ -144,12 +144,12 @@
           label="Maps"
         >
           <q-list class="q-pl-lg">
-            <q-item to="/Map" active-class="q-item-no-link-highlighting">
+            <q-item to="/pagination-test-page" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
                 <q-icon name="map"/>
               </q-item-section>
               <q-item-section>
-                <q-item-label>Map</q-item-label>
+                <q-item-label>Pagination testing</q-item-label>
               </q-item-section>
             </q-item>
             <q-item to="/MapMarker" active-class="q-item-no-link-highlighting">

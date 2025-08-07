@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import {api} from 'boot/axios';
 import {TaskData} from 'components/dto/TaskData.ts';
 import {QMarkupTable} from 'quasar';
 import {UserDto} from 'components/dto/UserDto.ts';
-import {editTask} from "src/composables/tasks/editTask.ts";
+import { taskData } from 'src/composables/taskData.ts'
+import { relationshipData } from 'src/composables/relationshipData.ts'
+import {TaskStatus} from "components/dto/TaskStatus.ts";
+import {TaskStatusDto} from "components/dto/TaskStatusDto.ts";
 
-const tasks = ref<TaskData[]>([]);
+const { updateTaskStatus, getTasksByUserId } = taskData();
+const { getApprovedPartners } = relationshipData();
+
 
 defineOptions({
   name: 'TableTasksPartner',
@@ -14,28 +18,30 @@ defineOptions({
 
 const partners = ref<UserDto[]>([]);
 const partnerIds = ref<number[]>([]);
+const partnerTasks = ref<TaskData[]>([]);
 
 onMounted(async () => {
-  await api.get<UserDto[]>('/relationships/get-approved-partners')
-    .then(res => {
-      partners.value = res.data;
+  partners.value = await getApprovedPartners();
 
-      for(let i = 0; i < partners.value.length; i++) {
-        partnerIds.value.push(partners.value[i].id);
-      }
-    }).catch(err => {
-      console.error(err);
-    })
+  partners.value.forEach((partner) => {
+    partnerIds.value.push(partner.id);
+  })
 
-  await api.get<TaskData[]>(`/tasks/get-tasks-by-partner-id?ids=${partnerIds.value}`)
-    .then(res => tasks.value = res.data)
-
+  partnerTasks.value = await getTasksByUserId(partnerIds.value);
 });
 
-async function updateStatus(status: string, taskId: number) {
-  const { updateStatus } = editTask(status, taskId);
-  await updateStatus();
+async function updateStatus(statusEnum: TaskStatus, taskId: number) {
+  let status = <TaskStatusDto>({
+    status: statusEnum
+  })
+  const updated = await updateTaskStatus(taskId, status);
+    for(let i=0; i<partnerTasks.value.length; i++) {
+      if(partnerTasks.value[i].id === taskId) {
+        partnerTasks.value.splice(i, 1, updated);
+      }
+    }
 }
+
 
 </script>
 
@@ -63,16 +69,16 @@ async function updateStatus(status: string, taskId: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="task in tasks" :key="task.id">
+        <tr v-for="task in partnerTasks" :key="task.id">
           <template v-if="task.status === 'COMPLETED'">
             <td v-text="task.userName" />
             <td v-text="task.id" />
             <td v-text="task.description" />
             <td v-text="task.status" />
             <td v-text="task.durationString" />
-            <td><q-btn @click="updateStatus('APPROVED', task.id)"
+            <td><q-btn @click="updateStatus(TaskStatus.APPROVED, task.id)"
                        label="ACCEPT" type="submit" color="primary"/></td>
-            <td><q-btn @click="updateStatus('REJECTED', task.id)"
+            <td><q-btn @click="updateStatus(TaskStatus.REJECTED, task.id)"
                        label="REJECT" type="submit" color="primary"/></td>
           </template>
           <template v-else>

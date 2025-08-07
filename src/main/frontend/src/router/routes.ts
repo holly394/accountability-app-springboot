@@ -42,6 +42,10 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/partner-wallet-graph',
         component: () => import('components/charts/PartnerWalletsGraph.vue')
+      },
+      {
+        path: '/pagination-test-page',
+        component: () => import('pages/PaginationTestPage.vue')
       }
     ],
   },

@@ -1,30 +1,51 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { QMarkupTable } from 'quasar';
-import { taskRelated } from 'src/composables/tasks/taskList.ts'
-import { changeTaskById } from 'src/composables/tasks/changeTaskById.ts';
-import {taskListUpdate} from "src/composables/tasks/taskListUpdate.ts";
+import { taskData } from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
-
-const { tasks, getCurrentUserTaskList } = taskRelated();
+import { ref, watch, computed } from "vue";
+const { deleteTask, startTask } = taskData();
 
 defineOptions({
   name: 'TableTasksPlanned'
 });
 
-onMounted(async () => {
-  await getCurrentUserTaskList();
-});
+const props = defineProps<{
+  taskList: TaskData[]
+}>()
 
-async function deleteTask(task: TaskData) {
-  const { removeTask } = taskListUpdate(task);
-  await removeTask();
+const listCopy = ref(props.taskList)
+
+async function deleteTaskButton(taskId: number) {
+  await deleteTask(taskId);
+  for(let i=0; i<listCopy.value.length; i++) {
+    if(listCopy.value[i].id === taskId) {
+      listCopy.value.splice(i, 1);
+    }
+  }
 }
 
-async function startTaskById(taskId: number) {
-  const { startTask } = changeTaskById(taskId);
-  await startTask();
+async function startTaskButton(taskId: number) {
+  const started = await startTask(taskId);
+  for(let i=0; i<listCopy.value.length; i++) {
+    if(listCopy.value[i].id === taskId) {
+      listCopy.value.splice(i, 1, started);
+    }
+  }
 }
+
+const page = ref<number>(1)
+const currentPage = ref<number>(1)
+const totalPages = ref<number>(5)
+
+const getTaskData = computed<TaskData[]>(() => {
+  const start = (page.value - 1) * totalPages.value
+  const end = start + totalPages.value
+  return listCopy.value.slice(start, end)
+})
+
+watch (() => props.taskList, (newList) => {
+  listCopy.value = newList;
+})
 
 </script>
 
@@ -49,18 +70,28 @@ async function startTaskById(taskId: number) {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="task in tasks" :key="task.id">
+      <tr v-for="task in getTaskData" :key="task.id" v-ripple>
         <template v-if="task.status === 'PENDING'">
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
           <td v-text="task.durationString" />
-          <td><button @click="startTaskById(task.id)">Start</button></td>
-          <td><button @click="deleteTask(task)">Delete</button></td>
+          <td><button @click="startTaskButton(task.id)">Start</button></td>
+          <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
         </template>
       </tr>
       </tbody>
     </q-markup-table>
     </q-card-section>
+    <q-card-actions align="center">
+      <q-pagination
+        v-model="page"
+        :min="currentPage"
+        :max="Math.ceil(listCopy.length/totalPages)"
+        :input="true"
+        input-class="text-orange-10"
+      >
+      </q-pagination>
+    </q-card-actions>
   </q-card>
 </template>

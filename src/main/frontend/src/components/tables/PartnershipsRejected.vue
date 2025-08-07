@@ -47,8 +47,7 @@ async function deleteRequest(relationshipId: number) {
         style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
       >
         <q-card-section>
-          <div class="text-h6">Rejected Partners</div>
-          <div class="text-subtitle2">Requests you've rejected</div>
+          <div class="text-h6">Rejected Partnerships</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">

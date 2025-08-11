@@ -1,38 +1,65 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
-import { TaskEditRequestDto } from 'components/dto/TaskEditRequestDto.ts';
+import {TaskEditRequestDto} from 'components/dto/TaskEditRequestDto.ts';
 import TableTasksCompleted from 'components/tables/TableTasksCompleted.vue';
 import TableTasksInProgress from "components/tables/TableTasksInProgress.vue";
-import TableTasksPlanned from "components/tables/TableTasksPlanned.vue";
-import { taskData } from 'src/composables/taskData.ts'
-import {TaskData} from "components/dto/TaskData.ts";
+import TableTasksPending from "components/tables/TableTasksPending.vue";
+import {taskData} from 'src/composables/taskData.ts'
 import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
+import {TaskData} from "components/dto/TaskData.ts";
+import {TaskStatus} from "components/dto/TaskStatus.ts";
+import {DefaultPage, Page} from "components/paging/Page.ts";
 
-const { getTasks, addTask, calculatePaymentInProgress,
-  calculatePaymentCompleted } = taskData();
+const { getTasks, getTasksForStatus, addTask, calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
 
 defineOptions({
   name: 'TaskPage'
 });
 
-let list = ref<TaskData[]>([]);
-let totalInProgressPayment = ref<TaskCalculatorDto>();
-let totalCompletedPayment = ref<TaskCalculatorDto>();
+const currentUserTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const pendingTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const inProgressTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const completedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const totalInProgressPayment = ref<TaskCalculatorDto>();
+const totalCompletedPayment = ref<TaskCalculatorDto>();
 
 onMounted(async () => {
-  list.value = await getTasks();
+
+  currentUserTasks.value = await getTasks();
+  await Promise.all([reloadCompleted(), reloadInProgress(), reloadPending()] );
+
   totalCompletedPayment.value = await calculatePaymentCompleted();
   totalInProgressPayment.value = await calculatePaymentInProgress();
 });
+
 
 // this should be a ref<TaskData> - you want to send TaskData to the backend - or maybe a new class like TaskEditRequestDto.ts
 const formData = ref<TaskEditRequestDto>({
   description: ''
 });
 
+const reloadPending = async () => {
+  pendingTasks.value = await getTasksForStatus(TaskStatus.PENDING);
+};
+
+const reloadInProgress = async () => {
+  inProgressTasks.value = await getTasksForStatus(TaskStatus.IN_PROGRESS);
+};
+
+const reloadCompleted = async () => {
+  completedTasks.value = await getTasksForStatus(TaskStatus.COMPLETED);
+};
+
+const refreshPendingAndInProgressLists = async () => {
+  await Promise.all([reloadInProgress(), reloadPending()] );
+}
+const refreshInProgressAndCompletedLists = async () => {
+  await Promise.all([reloadCompleted(), reloadInProgress()] );
+}
+
 const addTaskForm = async () => {
-  const newTask = await addTask(formData.value);
-  list.value.push(newTask);
+  await addTask(formData.value);
+  await reloadInProgress();
   formData.value.description = '';
 };
 
@@ -54,12 +81,16 @@ const addTaskForm = async () => {
     </q-form>
 
     <br>
-    <TableTasksCompleted :taskList="list" :completedPayment="totalCompletedPayment"/>
+    <TableTasksPending :taskList="pendingTasks"
+                       @start-task="refreshPendingAndInProgressLists"
+                       @delete-task="reloadPending"/>
     <br>
-    <TableTasksInProgress :taskList="list" :inProgressPayment="totalInProgressPayment"/>
+    <TableTasksInProgress :taskList="inProgressTasks"
+                          @end-task="refreshInProgressAndCompletedLists"
+                          @delete-task="reloadInProgress"/>
     <br>
-    <TableTasksPlanned :taskList="list" />
-
+    <TableTasksCompleted :taskList="completedTasks"
+                          @delete-task="reloadCompleted"/>
   </q-page>
 </div>
 </template>

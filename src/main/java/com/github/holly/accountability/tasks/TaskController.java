@@ -8,6 +8,9 @@ import com.github.holly.accountability.users.UserDto;
 import com.github.holly.accountability.wallet.Wallet;
 import com.github.holly.accountability.wallet.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -44,21 +47,20 @@ public class TaskController {
     private RelationshipService relationshipService;
 
     @GetMapping("")
-    public List<TaskDto> getAllTasks(@AuthenticationPrincipal AccountabilitySessionUser user){
+    public Page<TaskDto> getAllTasks(
+            @AuthenticationPrincipal AccountabilitySessionUser user,
+            @RequestParam(defaultValue = "") List<Long> userIds,
+            @RequestParam(defaultValue = "APPROVED, PENDING, COMPLETED, IN_PROGRESS, REJECTED") List<TaskStatus> statuses,
+            @PageableDefault(size = 20) Pageable pageable
+            ){
 
-        List<Task> taskListToConvert = taskRepository.findByUserId(user.getId());
-        return taskListToConvert.stream()
-                .map(this::convertTaskToDto)
-                .toList();
-    }
+        if (userIds.isEmpty()) {
+            return taskRepository.findByUserId(user.getId(), statuses, pageable)
+                    .map(this::convertTaskToDto);
+        }
 
-    @GetMapping("/get-tasks-by-partner-id")
-    public List<TaskDto> getTasksByUserId(@RequestParam List<Long> ids){
-        List<Task> eachTaskList = taskRepository.findByUserIdIn(ids);
-
-        return eachTaskList.stream()
-                .map(this::convertTaskToDto)
-                .toList();
+        return taskRepository.findByUserIdIn(userIds, pageable)
+                .map(this::convertTaskToDto);
     }
 
     @GetMapping("/calculatePaymentCompleted")
@@ -67,6 +69,8 @@ public class TaskController {
         if(taskRepository.findCompleted(user.getId())==null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
         }
+
+        // FIXME CALCULATE DURATION IN DATABASE
 
         List<Task> taskList = taskRepository.findCompleted(user.getId());
         List<TaskDto> taskDtoList = taskList.stream()
@@ -85,6 +89,8 @@ public class TaskController {
         if(taskRepository.findApproved(user.getId()) == null){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found");
         }
+
+        // FIXME CALCULATE DURATION IN DATABASE
 
         List<Task> taskList = taskRepository.findInProgress(user.getId());
         List<TaskDto> taskDtoList = taskList.stream()
@@ -157,7 +163,7 @@ public class TaskController {
         return convertTaskToDto(task);
     }
 
-    @PostMapping("/{taskId}/update-status")
+    @PostMapping("/{taskId}/process")
     public TaskDto updateTaskStatus(@AuthenticationPrincipal AccountabilitySessionUser user,
                                     @PathVariable Long taskId,
                                     @RequestBody TaskStatusDto newStatus){
@@ -169,22 +175,18 @@ public class TaskController {
                 .findById(taskId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
 
-        boolean partnerTask = false;
-        for(UserDto partner: cleanPartnerList){
-            if(partner.getId().equals(task.getUser().getId())){
-                partnerTask = true;
-            }
-        }
+        boolean partnerTask = cleanPartnerList.stream()
+                .anyMatch( partner -> partner.getId().equals(task.getUser().getId()));
 
-        if(!partnerTask){
+        if (!partnerTask) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if(!task.getStatus().equals(TaskStatus.COMPLETED)){
+        if (!task.getStatus().equals(TaskStatus.COMPLETED)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if(newStatus.getStatus() == TaskStatus.APPROVED){
+        if (newStatus.getStatus() == TaskStatus.APPROVED) {
             task.setStatus(TaskStatus.APPROVED);
             TaskDto taskDto = convertTaskToDto(task);
             Float payment = taskService.calculateFromTaskDto(taskDto);
@@ -193,7 +195,7 @@ public class TaskController {
             walletRepository.save(wallet);
         }
 
-        if(newStatus.getStatus() == TaskStatus.REJECTED){
+        if (newStatus.getStatus() == TaskStatus.REJECTED) {
             task.setStatus(TaskStatus.REJECTED);
         }
 

@@ -1,18 +1,26 @@
 package com.github.holly.accountability.tasks;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
-    List<Task> findByUserId(Long userId);
+
+    @Query("""
+        FROM Task t
+        WHERE t.status in (:statuses)
+        AND t.user.id = :userId
+        """)
+    Page<Task> findByUserId(Long userId, List<TaskStatus> statuses, Pageable pageable);
 
     @Query("""
         FROM Task t
         WHERE t.user.id in (:userIds)
         """)
-    List<Task> findByUserIdIn(List<Long> userIds);
+    Page<Task> findByUserIdIn(List<Long> userIds, Pageable pageable);
 
 
     @Query("""
@@ -42,5 +50,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         AND t.user.id =:userId
         """)
     List<Task> findApproved(Long userId);
+
+    List<Long> userId(Long userId);
 }
 

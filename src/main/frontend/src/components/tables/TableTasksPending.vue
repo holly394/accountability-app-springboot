@@ -1,35 +1,33 @@
 <script setup lang="ts">
-import { ref} from 'vue';
-import { QMarkupTable } from 'quasar';
-import { taskData } from 'src/composables/taskData.ts'
+import {QMarkupTable} from 'quasar';
+import {taskData} from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
 
-const { deleteTask, endTask, calculatePaymentInProgress } = taskData();
+const { deleteTask, startTask } = taskData();
 
 defineOptions({
-  name: 'TableTasksInProgress',
+  name: 'TableTasksPending'
 });
 
 const props = defineProps<{
   taskList: Page<TaskData>
 }>()
 
-const emit = defineEmits(['endTask', 'deleteTask'])
-
-const totalInProgressPayment = ref();
+const emit = defineEmits(['startTask', 'deleteTask'])
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
-  totalInProgressPayment.value = await calculatePaymentInProgress();
   emit('deleteTask');
 }
 
-async function endTaskButton(taskId: number) {
-  await endTask(taskId);
-  totalInProgressPayment.value = await calculatePaymentInProgress();
-  emit('endTask');
+async function startTaskButton(taskId: number) {
+  await startTask(taskId);
+  emit('startTask');
 }
+
+
+
 
 </script>
 
@@ -39,10 +37,10 @@ async function endTaskButton(taskId: number) {
     style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
   >
     <q-card-section>
-      <div class="text-h6">Tasks in progress</div>
+      <div class="text-h6">Tasks planned</div>
     </q-card-section>
-    <q-card-section title="TASKS IN PROGRESS" class="q-pt-none">
-    <q-markup-table>
+    <q-card-section class="q-pt-none">
+      <q-markup-table title="PLANNED TASKS" class="q-pt-none">
       <thead>
       <tr>
         <th>Task ID</th>
@@ -54,17 +52,13 @@ async function endTaskButton(taskId: number) {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="task in props.taskList.content" :key="task.id">
+      <tr v-for="task in props.taskList.content" :key="task.id" v-ripple >
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
           <td v-text="task.durationString" />
-          <td><button @click="endTaskButton(task.id)">End</button></td>
+          <td><button @click="startTaskButton(task.id)">Start</button></td>
           <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
-      </tr>
-      <tr>
-        <td>TOTAL VALUE: </td>
-        <td>{{ totalInProgressPayment?.payment?.toFixed(2) }}</td>
       </tr>
       </tbody>
     </q-markup-table>

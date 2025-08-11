@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue';
+import {ref} from 'vue';
 import {QMarkupTable} from 'quasar';
-import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 import {taskData} from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
+import {Page} from "components/paging/Page.ts";
 
 const { deleteTask, calculatePaymentCompleted } = taskData();
 
@@ -12,34 +12,19 @@ defineOptions({
 });
 
 const props = defineProps<{
-  taskList: TaskData[]
-  completedPayment: TaskCalculatorDto | undefined
+  taskList: Page<TaskData>
 }>()
 
+const emit = defineEmits(['deleteTask'])
 
-const listCopy = ref(props.taskList)
-const totalCompletedPayment = ref(props.completedPayment)
-
-onMounted(async () => {
-});
+const totalCompletedPayment = ref()
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
   totalCompletedPayment.value = await calculatePaymentCompleted();
-  for(let i=0; i<listCopy.value.length; i++) {
-    if(listCopy.value[i].id === taskId) {
-      listCopy.value.splice(i, 1);
-    }
-  }
+  emit('deleteTask');
 }
 
-watch (() => props.taskList, (newList) => {
-  listCopy.value = newList;
-})
-
-watch (() => props.completedPayment, (newPayment) => {
-  totalCompletedPayment.value = newPayment;
-})
 
 </script>
 
@@ -64,19 +49,17 @@ watch (() => props.completedPayment, (newPayment) => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="task in listCopy" :key="task.id">
-          <template v-if="task.status === 'COMPLETED'">
+        <tr v-for="task in props.taskList.content" :key="task.id">
             <td v-text="task.id" />
             <td v-text="task.description" />
             <td v-text="task.status" />
             <td v-text="task.durationString" />
             <td />
             <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
-          </template>
         </tr>
         <tr>
           <td>TOTAL VALUE: </td>
-          <td>{{ totalCompletedPayment?.payment.toFixed(2) }}</td>
+          <td>{{ totalCompletedPayment?.payment?.toFixed(2) }}</td>
         </tr>
       </tbody>
     </q-markup-table>

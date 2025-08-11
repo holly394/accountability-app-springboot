@@ -7,6 +7,7 @@ import { taskData } from 'src/composables/taskData.ts'
 import { relationshipData } from 'src/composables/relationshipData.ts'
 import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {TaskStatusDto} from "components/dto/TaskStatusDto.ts";
+import {DefaultPage, Page} from "components/paging/Page.ts";
 
 const { updateTaskStatus, getTasksByUserId } = taskData();
 const { getApprovedPartners } = relationshipData();
@@ -18,9 +19,14 @@ defineOptions({
 
 const partners = ref<UserDto[]>([]);
 const partnerIds = ref<number[]>([]);
-const partnerTasks = ref<TaskData[]>([]);
+const partnerTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 
 onMounted(async () => {
+
+  // FIXME:
+  // BAD INSECURE CODE
+  // HOLLY NEEDS TO MAKE SURE FRONTEND DOESNT DECIDE WHICH RELATIONSHIPS IT ASKS THE BACKEND ABOUT
+  // BACKEND HAS ACCESS TO RELATIONSHIPS - USE IN getTasksBzUserId MAYBE
   partners.value = await getApprovedPartners();
 
   partners.value.forEach((partner) => {
@@ -34,12 +40,8 @@ async function updateStatus(statusEnum: TaskStatus, taskId: number) {
   let status = <TaskStatusDto>({
     status: statusEnum
   })
-  const updated = await updateTaskStatus(taskId, status);
-    for(let i=0; i<partnerTasks.value.length; i++) {
-      if(partnerTasks.value[i].id === taskId) {
-        partnerTasks.value.splice(i, 1, updated);
-      }
-    }
+  await updateTaskStatus(taskId, status);
+  // TODO REFRESH DATA
 }
 
 
@@ -69,7 +71,7 @@ async function updateStatus(statusEnum: TaskStatus, taskId: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="task in partnerTasks" :key="task.id">
+        <tr v-for="task in partnerTasks.content" :key="task.id">
           <template v-if="task.status === 'COMPLETED'">
             <td v-text="task.userName" />
             <td v-text="task.id" />

@@ -1,5 +1,7 @@
 package com.github.holly.accountability.users;
 
+import java.util.Objects;
+
 public class UserDto {
     private Long id;
 
@@ -26,17 +28,10 @@ public class UserDto {
             return true;
         }
 
-        if(!(this instanceof UserDto)){
-            return false;
-        }
-
         UserDto userDtoCompared = (UserDto) compared;
 
-        if(this.id == userDtoCompared.id &&
-                this.username == userDtoCompared.username){
-            return true;
-        }
-        return false;
+        return Objects.equals(this.id, userDtoCompared.id) &&
+                Objects.equals(this.username, userDtoCompared.username);
 
     }
 }

@@ -1,11 +1,10 @@
 
 import {api} from "boot/axios.ts";
-import {UserDto} from "components/dto/UserDto.ts";
 
 export function relationshipData() {
-  const getApprovedPartners = async (): Promise<UserDto[]> => {
-    return (await api.get<UserDto[]>(`/relationships/get-approved-partners`)).data;
+  const getApprovedPartnerIds = async (): Promise<number[]> => {
+    return (await api.get<number[]>(`/relationships/get-approved-partner-id-list`)).data;
   }
 
-  return { getApprovedPartners };
+  return { getApprovedPartners: getApprovedPartnerIds };
 }

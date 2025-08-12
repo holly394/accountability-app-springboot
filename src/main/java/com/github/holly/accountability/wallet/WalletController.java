@@ -7,6 +7,7 @@ import com.github.holly.accountability.relationships.Relationship;
 import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
+import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
 import com.github.holly.accountability.users.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +51,9 @@ public class WalletController {
     @GetMapping("/get-partner-wallets")
     public List<WalletDto> getPartnerWallets(@AuthenticationPrincipal AccountabilitySessionUser user){
         List<Relationship> partnerships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<UserDto> partnerDtos = relationshipService.getCleanPartnerList(partnerships, user.getId());
+        List<User> partners = relationshipService.getCleanPartnerList(partnerships, user.getId());
 
-        return partnerDtos.stream()
+        return partners.stream()
                 .map(response -> walletRepository.findByUserId(response.getId()))
                 .map(res -> walletService.convertWalletToWalletDto(res))
                 .toList();

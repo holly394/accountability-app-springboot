@@ -5,10 +5,10 @@ import TableTasksCompleted from 'components/tables/TableTasksCompleted.vue';
 import TableTasksInProgress from "components/tables/TableTasksInProgress.vue";
 import TableTasksPending from "components/tables/TableTasksPending.vue";
 import {taskData} from 'src/composables/taskData.ts'
-import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 import {TaskData} from "components/dto/TaskData.ts";
 import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {DefaultPage, Page} from "components/paging/Page.ts";
+import {DefaultTaskCalculatorDto, TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 
 const { getTasks, getTasksForStatus, addTask, calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
 
@@ -20,16 +20,15 @@ const currentUserTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const pendingTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const inProgressTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const completedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
-const totalInProgressPayment = ref<TaskCalculatorDto>();
-const totalCompletedPayment = ref<TaskCalculatorDto>();
+
+const inProgressPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
+const completedPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 
 onMounted(async () => {
-
   currentUserTasks.value = await getTasks();
+  inProgressPayment.value = await calculatePaymentInProgress();
+  completedPayment.value = await calculatePaymentCompleted();
   await Promise.all([reloadCompleted(), reloadInProgress(), reloadPending()] );
-
-  totalCompletedPayment.value = await calculatePaymentCompleted();
-  totalInProgressPayment.value = await calculatePaymentInProgress();
 });
 
 
@@ -44,10 +43,13 @@ const reloadPending = async () => {
 
 const reloadInProgress = async () => {
   inProgressTasks.value = await getTasksForStatus(TaskStatus.IN_PROGRESS);
+  inProgressPayment.value = await calculatePaymentInProgress();
+  completedPayment.value = await calculatePaymentCompleted();
 };
 
 const reloadCompleted = async () => {
   completedTasks.value = await getTasksForStatus(TaskStatus.COMPLETED);
+  completedPayment.value = await calculatePaymentCompleted();
 };
 
 const refreshPendingAndInProgressLists = async () => {
@@ -59,7 +61,7 @@ const refreshInProgressAndCompletedLists = async () => {
 
 const addTaskForm = async () => {
   await addTask(formData.value);
-  await reloadInProgress();
+  await reloadPending();
   formData.value.description = '';
 };
 
@@ -69,12 +71,13 @@ const addTaskForm = async () => {
 <div>
   <q-page class="column items-center justify-evenly">
 
-    <q-form @submit="addTaskForm">
+    <q-form>
       <q-input
         v-model="formData.description"
         label="description"
         filled
         @keyup.enter="addTaskForm"
+        @submit="addTaskForm"
         type="textarea"
       />
       <q-btn label="Submit" type="submit" color="primary"/>
@@ -86,10 +89,12 @@ const addTaskForm = async () => {
                        @delete-task="reloadPending"/>
     <br>
     <TableTasksInProgress :taskList="inProgressTasks"
+                          :payment="inProgressPayment"
                           @end-task="refreshInProgressAndCompletedLists"
                           @delete-task="reloadInProgress"/>
     <br>
     <TableTasksCompleted :taskList="completedTasks"
+                         :payment="completedPayment"
                           @delete-task="reloadCompleted"/>
   </q-page>
 </div>

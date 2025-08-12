@@ -8,6 +8,10 @@ import {Page} from "components/paging/Page.ts";
 
 export function taskData() {
 
+  const getPartnerTasks = async (): Promise<Page<TaskData>> => {
+    return (await api.get<Page<TaskData>>(`/relationships/get-partner-tasks`)).data;
+  }
+
   const addTask = async (description: TaskEditRequestDto): Promise<TaskData> => {
     return (await api.post<TaskData>(`/tasks/add`, description)).data;
   }
@@ -63,7 +67,7 @@ export function taskData() {
     return (await api.get(`/tasks/calculatePaymentInProgress`)).data;
   }
 
-  return { getTasks, getTasksForStatus, startTask, endTask, getTasksByUserId,
+  return { getPartnerTasks, getTasks, getTasksForStatus, startTask, endTask, getTasksByUserId,
     updateTaskStatus: processTaskForPartner, addTask, editTask: editTaskDescription, deleteTask,
     calculatePaymentCompleted, calculatePaymentInProgress};
 }

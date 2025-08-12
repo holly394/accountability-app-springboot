@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import {ref} from 'vue';
 import {QMarkupTable} from 'quasar';
 import {taskData} from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
+import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 
-const { deleteTask, calculatePaymentCompleted } = taskData();
+const { deleteTask } = taskData();
 
 defineOptions({
   name: 'TableTasksCompleted',
@@ -13,18 +13,15 @@ defineOptions({
 
 const props = defineProps<{
   taskList: Page<TaskData>
+  payment: TaskCalculatorDto
 }>()
 
 const emit = defineEmits(['deleteTask'])
 
-const totalCompletedPayment = ref()
-
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
-  totalCompletedPayment.value = await calculatePaymentCompleted();
   emit('deleteTask');
 }
-
 
 </script>
 
@@ -59,7 +56,7 @@ async function deleteTaskButton(taskId: number) {
         </tr>
         <tr>
           <td>TOTAL VALUE: </td>
-          <td>{{ totalCompletedPayment?.payment?.toFixed(2) }}</td>
+          <td>{{ props.payment.payment.toFixed(2) }}</td>
         </tr>
       </tbody>
     </q-markup-table>

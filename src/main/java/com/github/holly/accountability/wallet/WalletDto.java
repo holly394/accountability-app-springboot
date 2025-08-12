@@ -5,13 +5,13 @@ public class WalletDto {
 
     private String userName;
 
-    private Float balance = 0.00F;
+    private Double balance = 0.00D;
 
-    public Float getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(Float balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 

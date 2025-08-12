@@ -16,7 +16,7 @@ public class Wallet {
     private User user;
 
     @Column(name="balance")
-    private float balance = 0.00F;
+    private double balance = 0.00D;
 
     public Wallet(){
 
@@ -42,19 +42,19 @@ public class Wallet {
         this.user = user;
     }
 
-    public float getBalance() {
+    public double getBalance() {
         return balance;
     }
 
-    public void setBalance(float balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 
-    public void addBalance(float balance) {
+    public void addBalance(double balance) {
         this.balance += balance;
     }
 
-    public void subtractBalance(float balance) {
+    public void subtractBalance(double balance) {
         if(this.balance - balance < 0) {
             throw new IllegalArgumentException("Balance cannot be negative");
         }

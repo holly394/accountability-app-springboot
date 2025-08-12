@@ -2,7 +2,7 @@ package com.github.holly.accountability.tasks;
 
 import java.time.Duration;
 
-public class TaskDto {
+public class TaskData {
     private Long id;
 
     private Long userId;
@@ -17,7 +17,7 @@ public class TaskDto {
 
     private String durationString;
 
-    public TaskDto() {
+    public TaskData() {
     }
 
     public void setId(Long id) {

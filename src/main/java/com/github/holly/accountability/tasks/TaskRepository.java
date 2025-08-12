@@ -6,8 +6,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
-
 public interface TaskRepository extends JpaRepository<Task, Long> {
+
+    @Query(value = """
+        SELECT SUM(TIMESTAMPDIFF('SECOND', t.time_start, t.time_end)) as total
+        FROM tasks t
+        WHERE t.status = :#{#status.name()}
+        AND t.user_id = :userId
+        """, nativeQuery = true)
+    Double getTotalSecondsWithEndTime(Long userId, TaskStatus status);
+
+    @Query(value = """
+        SELECT SUM(TIMESTAMPDIFF('SECOND', t.time_start, CURRENT_TIMESTAMP)) as total
+        FROM tasks t
+        WHERE t.status = :#{#status.name()}
+        AND t.user_id = :userId
+        """, nativeQuery = true)
+    Double getTotalSecondsNoEndTime(Long userId, TaskStatus status);
 
     @Query("""
         FROM Task t
@@ -36,13 +51,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         AND t.user.id =:userId
         """)
     List<Task> findInProgress(Long userId);
-
-    @Query("""
-        FROM Task t
-        WHERE t.status = com.github.holly.accountability.tasks.TaskStatus.PENDING
-        AND t.user.id =:userId
-        """)
-    List<Task> findPending(Long userId);
 
     @Query("""
         FROM Task t

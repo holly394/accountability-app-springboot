@@ -26,9 +26,6 @@ async function startTaskButton(taskId: number) {
   emit('startTask');
 }
 
-
-
-
 </script>
 
 <template>

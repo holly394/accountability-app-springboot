@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref} from 'vue';
 import { QMarkupTable } from 'quasar';
 import { taskData } from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
+import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 
-const { deleteTask, endTask, calculatePaymentInProgress } = taskData();
+const { deleteTask, endTask } = taskData();
 
 defineOptions({
   name: 'TableTasksInProgress',
@@ -13,21 +13,18 @@ defineOptions({
 
 const props = defineProps<{
   taskList: Page<TaskData>
+  payment: TaskCalculatorDto
 }>()
 
 const emit = defineEmits(['endTask', 'deleteTask'])
 
-const totalInProgressPayment = ref();
-
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
-  totalInProgressPayment.value = await calculatePaymentInProgress();
   emit('deleteTask');
 }
 
 async function endTaskButton(taskId: number) {
   await endTask(taskId);
-  totalInProgressPayment.value = await calculatePaymentInProgress();
   emit('endTask');
 }
 
@@ -64,7 +61,7 @@ async function endTaskButton(taskId: number) {
       </tr>
       <tr>
         <td>TOTAL VALUE: </td>
-        <td>{{ totalInProgressPayment?.payment?.toFixed(2) }}</td>
+        <td>{{ props.payment.payment.toFixed(2) }}</td>
       </tr>
       </tbody>
     </q-markup-table>

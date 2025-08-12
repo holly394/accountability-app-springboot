@@ -1,10 +1,16 @@
 package com.github.holly.accountability.relationships;
 
+import com.github.holly.accountability.tasks.TaskData;
+import com.github.holly.accountability.tasks.TaskRepository;
+import com.github.holly.accountability.tasks.TaskService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
 import com.github.holly.accountability.users.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +28,16 @@ public class RelationshipController {
     private RelationshipRepository relationshipRepository;
 
     @Autowired
+    private TaskRepository taskRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RelationshipService relationshipService;
+
+    @Autowired
+    private TaskService taskService;
 
     @GetMapping("/this-user")
     public UserDto getUser(@AuthenticationPrincipal AccountabilitySessionUser user) {
@@ -42,10 +54,20 @@ public class RelationshipController {
                 .toList();
     }
 
-    @GetMapping("/get-approved-partners")
-    public List<UserDto> getPartners(@AuthenticationPrincipal AccountabilitySessionUser user) {
+    @GetMapping("/get-approved-partner-id-list")
+    public List<Long> getPartners(@AuthenticationPrincipal AccountabilitySessionUser user) {
         List<Relationship> relationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        return relationshipService.getCleanPartnerList(relationships, user.getId());
+        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
+        return partners.stream().map(User::getId).toList();
+    }
+
+    @GetMapping("/get-partner-tasks")
+    public Page<TaskData> getPartnerTasks(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        List<Relationship> relationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
+        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
+        List<Long> partnerIds = partners.stream().map(User::getId).toList();
+        return taskRepository.findByUserIdIn(partnerIds, pageable)
+                .map(taskService::convertTaskToDto);
     }
 
     @GetMapping("/search")

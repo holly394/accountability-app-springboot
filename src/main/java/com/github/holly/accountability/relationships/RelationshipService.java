@@ -13,20 +13,18 @@ import java.util.Objects;
 
 @Component
 public class RelationshipService {
-    public List<UserDto> getCleanPartnerList(List<Relationship> relationships, Long userId) {
+    public List<User> getCleanPartnerList(List<Relationship> relationships, Long userId) {
 
-        List<UserDto> allPartners = new ArrayList<>();
-        List<UserDto> usersNotCurrent = relationships.stream()
+        List<User> allPartners = new ArrayList<>();
+        List<User> usersNotCurrent = relationships.stream()
                 .map(Relationship::getUser)
                 .filter(responseUser -> !Objects.equals(responseUser.getId(), userId))
-                .map(this::convertUserToUserDto)
                 .distinct()
                 .toList();
 
-        List<UserDto> partnersNotCurrent = relationships.stream()
+        List<User> partnersNotCurrent = relationships.stream()
                 .map(Relationship::getPartner)
                 .filter(responsePartner -> !Objects.equals(responsePartner.getId(), userId))
-                .map(this::convertUserToUserDto)
                 .distinct()
                 .toList();
 

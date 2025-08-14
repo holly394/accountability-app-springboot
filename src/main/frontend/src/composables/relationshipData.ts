@@ -1,10 +1,50 @@
+//relationshipData.ts composable
+//Specifically for relationship-related data
+//This frontend composable is meant to organize commonly used API calls in one place
+//the API calls from here to the backend (via controllers)
+//we don't manipulate the data here!
+//Data manipulation stays in the backend mainly in the controller
 
 import {api} from "boot/axios.ts";
+import {Page} from "components/paging/Page.ts";
+import {RelationshipData} from "components/dto/RelationshipData.ts";
+import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
+import {RelationshipStatusDto} from "components/dto/RelationshipStatusDto.ts";
 
 export function relationshipData() {
-  const getApprovedPartnerIds = async (): Promise<number[]> => {
-    return (await api.get<number[]>(`/relationships/get-approved-partner-id-list`)).data;
+
+  const getPartnersByStatus = async (status: RelationshipStatus): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships`, {
+      params: {
+        status: status,
+      }
+    })).data;
   }
 
-  return { getApprovedPartners: getApprovedPartnerIds };
+  const getUnansweredRelationshipData = async (): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships/get-unanswered-requests`)).data;
+  }
+
+  const updateRelationship = async (relationshipId: number, newStatus: RelationshipStatusDto): Promise<RelationshipData> => {
+    return (await api.post<RelationshipData>(`/relationships/${relationshipId}`, newStatus)).data;
+  }
+
+  const deleteRelationship = async (relationshipId: number): Promise<void> => {
+    await api.delete(`/relationships/${relationshipId}`)
+  }
+
+  async function sendRequest(partnerId: number) {
+    await api.put(`/relationships/request/${partnerId}`)
+  }
+
+  async function search(inputName: string): Promise<RelationshipData[]> {
+    return (await api.get<RelationshipData[]>(`/relationships/search`, {
+      params: {
+        username: inputName,
+      }
+    })).data;
+  }
+
+
+  return { getPartnersByStatus, deleteRelationship, sendRequest, search, getUnansweredRelationshipData, updateRelationship };
 }

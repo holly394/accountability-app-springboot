@@ -17,7 +17,7 @@ const thisUser = ref<UserDto>({
 const everythingList = ref<RelationshipData[]>([]);
 
 onMounted(async () => {
-  thisUser.value = await api.get<UserDto>('/relationships/this-user').then(res => res.data)
+  thisUser.value = await api.get<UserDto>('/user').then(res => res.data)
   everythingList.value = await api.get<RelationshipData[]>('/relationships').then(res => res.data)
 });
 

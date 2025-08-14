@@ -19,7 +19,7 @@ const router = useRouter();
 const $q = useQuasar();
 
 onMounted(async () => {
-  user.value = await api.get<UserDto>('relationships/this-user').then(res => res.data)
+  user.value = await api.get<UserDto>('/user').then(res => res.data)
 });
 
 const attemptLogOut = async () => {

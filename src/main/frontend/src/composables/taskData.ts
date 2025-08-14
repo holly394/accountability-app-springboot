@@ -1,3 +1,10 @@
+//TaskData.ts composable
+//Specifically for Task-related data
+//This frontend composable is meant to organize commonly used API calls in one place
+//the API calls from here to the backend (via controllers)
+//we don't manipulate the data here!
+//Data manipulation stays in the backend mainly in the controller
+
 import { TaskData } from 'components/dto/TaskData.ts';
 import {TaskEditRequestDto} from "components/dto/TaskEditRequestDto.ts";
 import {api} from "boot/axios.ts";
@@ -8,10 +15,14 @@ import {Page} from "components/paging/Page.ts";
 
 export function taskData() {
 
-  const getPartnerTasks = async (): Promise<Page<TaskData>> => {
-    return (await api.get<Page<TaskData>>(`/relationships/get-partner-tasks`)).data;
+  const getPartnerTasks = async (status: TaskStatus): Promise<Page<TaskData>> => {
+    return (await api.get<Page<TaskData>>(`/tasks/get-partner-tasks`, {
+      params: {
+        statuses: status,
+      }
+    })).data;
   }
-
+  //all other calls go to the TaskController
   const addTask = async (description: TaskEditRequestDto): Promise<TaskData> => {
     return (await api.post<TaskData>(`/tasks/add`, description)).data;
   }
@@ -68,6 +79,6 @@ export function taskData() {
   }
 
   return { getPartnerTasks, getTasks, getTasksForStatus, startTask, endTask, getTasksByUserId,
-    updateTaskStatus: processTaskForPartner, addTask, editTask: editTaskDescription, deleteTask,
+    processTaskForPartner, addTask, editTask: editTaskDescription, deleteTask,
     calculatePaymentCompleted, calculatePaymentInProgress};
 }

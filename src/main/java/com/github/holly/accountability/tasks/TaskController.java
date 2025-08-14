@@ -21,6 +21,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+//Backend controller to handle API calls from frontend for our task-related data
+
+//Repositories: TaskRepository, UserRepository, WalletRepository, RelationshipRepository
+//Services: TaskService, RelationshipService
+//DTOs: convertTaskToDto (TaskData), taskCalculator, TaskEditRequest, TaskStatusDto
 
 @Controller
 @RequestMapping("/api/tasks")
@@ -58,9 +63,24 @@ public class TaskController {
                     .map(taskService::convertTaskToDto);
         }
 
-        return taskRepository.findByUserIdIn(userIds, pageable)
+        return taskRepository.findByUserIdIn(userIds, statuses, pageable)
                 .map(taskService::convertTaskToDto);
     }
+
+    @GetMapping("/get-partner-tasks")
+    public Page<TaskData> getPartnerTasks(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                          @RequestParam(defaultValue = "APPROVED, PENDING, COMPLETED, IN_PROGRESS, REJECTED") List<TaskStatus> statuses,
+                                          @PageableDefault(size = 20) Pageable pageable) {
+
+        List<Relationship> relationships = relationshipRepository
+                .getApprovedRelationshipsByUserIdBothDirections(user.getId());
+        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
+        List<Long> partnerIds = partners.stream().map(User::getId).toList();
+
+        return taskRepository.findByUserIdIn(partnerIds, statuses, pageable)
+                .map(taskService::convertTaskToDto);
+    }
+
 
     @GetMapping("/calculatePaymentCompleted")
     public TaskCalculator calculatePaymentCompleted(@AuthenticationPrincipal AccountabilitySessionUser user){

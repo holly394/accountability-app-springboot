@@ -1,4 +1,20 @@
 <script setup lang="ts">
+//Main Task Page for current user
+//Lists all tasks belonging to the current user
+//As well as has a form to add new tasks
+
+//Expects composable:
+// TaskData() from TaskData.ts composable with
+// methods:
+// getTasksForStatus (gets all tasks with given status for current user)
+// addTask (adds new task for current user, sets tasks to PENDING)
+// calculatePaymentInProgress (calculates tasks in progress for current user)
+// calculatePaymentCompleted (calculates tasks completed for current user)
+
+//Children components:
+//TableTasksCompleted, TableTasksInProgress, TableTasksPending
+
+
 import {onMounted, ref} from 'vue';
 import {TaskEditRequestDto} from 'components/dto/TaskEditRequestDto.ts';
 import TableTasksCompleted from 'components/tables/TableTasksCompleted.vue';
@@ -10,13 +26,12 @@ import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {DefaultPage, Page} from "components/paging/Page.ts";
 import {DefaultTaskCalculatorDto, TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
 
-const { getTasks, getTasksForStatus, addTask, calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
+const { getTasksForStatus, addTask, calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
 
 defineOptions({
   name: 'TaskPage'
 });
 
-const currentUserTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const pendingTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const inProgressTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const completedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
@@ -25,7 +40,6 @@ const inProgressPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 const completedPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 
 onMounted(async () => {
-  currentUserTasks.value = await getTasks();
   inProgressPayment.value = await calculatePaymentInProgress();
   completedPayment.value = await calculatePaymentCompleted();
   await Promise.all([reloadCompleted(), reloadInProgress(), reloadPending()] );

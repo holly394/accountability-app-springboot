@@ -1,5 +1,5 @@
 export enum RelationshipStatus {
-  REQUESTED= 'REQUESTED',
+  REQUESTED = 'REQUESTED',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
   PENDING = 'PENDING'

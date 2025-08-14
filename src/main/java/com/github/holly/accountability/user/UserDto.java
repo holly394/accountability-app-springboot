@@ -1,4 +1,7 @@
-package com.github.holly.accountability.users;
+//WHY: object that holds a user's data needed for frontend
+//excludes password for security reasons
+
+package com.github.holly.accountability.user;
 
 import java.util.Objects;
 

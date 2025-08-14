@@ -11,7 +11,7 @@
           aria-label="Menu"
         />
         <q-toolbar-title>
-          <ThisUserName />'s accountability app
+          {{currentUser.username}}'s accountability app
         </q-toolbar-title>
         <q-space/>
         <div class="q-gutter-sm row items-center no-wrap">
@@ -216,21 +216,23 @@
   </q-layout>
 </template>
 
+
+
 <script>
 import Messages from 'layouts/Messages.vue';
-import ThisUserName from 'layouts/ThisUserName.vue';
 
 import { defineComponent, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router';
 import { api } from 'boot/axios';
+import { userData } from 'src/composables/UserData.ts';
+const { getCurrentUserInfo } = userData();
 
 export default defineComponent({
   name: 'MainLayout',
 
   components: {
-    Messages,
-    ThisUserName
+    Messages
   },
   methods: {
     async attemptLogOut() {
@@ -248,6 +250,7 @@ export default defineComponent({
         }
       }
     }
+
   },
 
   setup() {
@@ -255,10 +258,19 @@ export default defineComponent({
     const quasar = useQuasar()
     const router = useRouter()
 
+    const currentUser = ref(null);
+
+    async function getCurrentUserName(){
+      currentUser.value = await getCurrentUserInfo();
+    }
+
+    getCurrentUserName();
+
     return {
       quasar,
       router,
       leftDrawerOpen,
+      currentUser,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value
       }

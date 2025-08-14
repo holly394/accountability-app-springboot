@@ -1,31 +1,36 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+//Table of tasks belonging to the partners of the current user
+//Includes buttons where the current user can approve or reject their partners'
+//completed tasks.
+
+//Expects as dependencies: TaskData composable (updateTaskStatus, getPartnerTasks)
+
 import {TaskData} from 'components/dto/TaskData.ts';
 import {QMarkupTable} from 'quasar';
-import { taskData } from 'src/composables/taskData.ts'
 import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {TaskStatusDto} from "components/dto/TaskStatusDto.ts";
-import {DefaultPage, Page} from "components/paging/Page.ts";
+import {Page} from "components/paging/Page.ts";
+import {taskData} from "src/composables/taskData.ts";
 
-const { updateTaskStatus, getPartnerTasks } = taskData();
-
+const { processTaskForPartner } = taskData();
 
 defineOptions({
-  name: 'TableTasksPartner',
+  name: 'TableTasksPartner'
 });
 
-const partnerTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const props = defineProps<{
+  taskList: Page<TaskData>
+}>()
 
-onMounted(async () => {
-  partnerTasks.value = await getPartnerTasks();
-});
+const emit = defineEmits(['updateStatus'])
 
-async function updateStatus(statusEnum: TaskStatus, taskId: number) {
+async function updateStatusButton(taskId: number, statusEnum: TaskStatus) {
   let status = <TaskStatusDto>({
     status: statusEnum
   })
-  await updateTaskStatus(taskId, status);
-  await getPartnerTasks();
+
+  await processTaskForPartner(taskId, status);
+  emit('updateStatus');
 }
 
 
@@ -55,27 +60,16 @@ async function updateStatus(statusEnum: TaskStatus, taskId: number) {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="task in partnerTasks.content" :key="task.id">
-          <template v-if="task.status === 'COMPLETED'">
+        <tr v-for="task in props.taskList.content" :key="task.id">
             <td v-text="task.userName" />
             <td v-text="task.id" />
             <td v-text="task.description" />
             <td v-text="task.status" />
             <td v-text="task.durationString" />
-            <td><q-btn @click="updateStatus(TaskStatus.APPROVED, task.id)"
+            <td><q-btn @click="updateStatusButton(task.id, TaskStatus.APPROVED)"
                        label="ACCEPT" type="submit" color="primary"/></td>
-            <td><q-btn @click="updateStatus(TaskStatus.REJECTED, task.id)"
+            <td><q-btn @click="updateStatusButton(task.id, TaskStatus.REJECTED)"
                        label="REJECT" type="submit" color="primary"/></td>
-          </template>
-          <template v-else>
-            <td v-text="task.userName" />
-            <td v-text="task.id" />
-            <td v-text="task.description" />
-            <td v-text="task.status" />
-            <td v-text="task.durationString" />
-            <td></td>
-            <td></td>
-          </template>
         </tr>
       </tbody>
     </q-markup-table>

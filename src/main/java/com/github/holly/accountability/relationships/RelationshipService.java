@@ -2,7 +2,6 @@ package com.github.holly.accountability.relationships;
 
 
 import com.github.holly.accountability.user.User;
-import com.github.holly.accountability.users.UserDto;
 import org.springframework.stereotype.Component;
 
 
@@ -13,6 +12,7 @@ import java.util.Objects;
 
 @Component
 public class RelationshipService {
+    //returns just the partner users, not relationship statuses
     public List<User> getCleanPartnerList(List<Relationship> relationships, Long userId) {
 
         List<User> allPartners = new ArrayList<>();
@@ -50,13 +50,6 @@ public class RelationshipService {
         }
 
         return allPartners.stream().distinct().toList();
-    }
-
-    public UserDto convertUserToUserDto(User user) {
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setUsername(user.getUsername());
-        return userDto;
     }
 
 }

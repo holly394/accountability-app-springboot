@@ -34,8 +34,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Query("""
         FROM Task t
         WHERE t.user.id in (:userIds)
+        AND t.status in (:statuses)
         """)
-    Page<Task> findByUserIdIn(List<Long> userIds, Pageable pageable);
+    Page<Task> findByUserIdIn(List<Long> userIds, List<TaskStatus> statuses,  Pageable pageable);
 
 
     @Query("""

@@ -1,12 +1,9 @@
 package com.github.holly.accountability.relationships;
 
-import com.github.holly.accountability.tasks.TaskData;
-import com.github.holly.accountability.tasks.TaskRepository;
-import com.github.holly.accountability.tasks.TaskService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
-import com.github.holly.accountability.users.UserDto;
+import com.github.holly.accountability.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +12,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+//Backend controller to handle API calls from frontend for our relationship-related data
+
+//Repositories: UserRepository, RelationshipRepository
+//Services: UserService, RelationshipService
+//DTOs: UserDto, RelationshipData
 
 @Controller
 @RequestMapping("/api/relationships")
@@ -28,30 +30,20 @@ public class RelationshipController {
     private RelationshipRepository relationshipRepository;
 
     @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private RelationshipService relationshipService;
 
-    @Autowired
-    private TaskService taskService;
-
-    @GetMapping("/this-user")
-    public UserDto getUser(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        UserDto userDto = new UserDto();
-        userDto.setUsername(user.getUsername());
-        userDto.setId(user.getId());
-        return userDto;
-    }
 
     @GetMapping("")
-    public List<RelationshipData> getAllRelationships(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        return relationshipRepository.getAllByUserId(user.getId()).stream()
-                .map(this::convertRelationshipToRelationshipData)
-                .toList();
+    public Page<RelationshipData> getRelationshipsByStatus(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                      @RequestParam(defaultValue = "REQUESTED, APPROVED, REJECTED, PENDING") List<RelationshipStatus> status,
+                                                      @PageableDefault(size = 20) Pageable pageable) {
+
+        return relationshipRepository.getRelationshipsByUserIdAndStatus(user.getId(), status, pageable)
+                .map(this::convertRelationshipToRelationshipData);
+        //if pageable is input, can only map with functions that don't need another param
     }
 
     @GetMapping("/get-approved-partner-id-list")
@@ -61,26 +53,24 @@ public class RelationshipController {
         return partners.stream().map(User::getId).toList();
     }
 
-    @GetMapping("/get-partner-tasks")
-    public Page<TaskData> getPartnerTasks(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
-        List<Relationship> relationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
-        List<Long> partnerIds = partners.stream().map(User::getId).toList();
-        return taskRepository.findByUserIdIn(partnerIds, pageable)
-                .map(taskService::convertTaskToDto);
-    }
-
     @GetMapping("/search")
     public List<RelationshipData> search(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam String username) {
-        List<User> partnerList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
+        List<User> searchList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
         User thisUser = userRepository.findUserById(user.getId());
-        return partnerList.stream()
-                .filter(thisPartner -> !thisPartner.getUsername().equals(user.getUsername()))
-                .map(partner -> {
-                    assert thisUser != null;
-                    return findOrMakeRelationshipData(thisUser, partner);
-                })
-                .toList();
+        if(!Objects.equals(username, "")){ //WHY: when pressing backspace in search bar, all users were listed before
+            return searchList.stream()
+                    .filter(thisPartner -> !thisPartner.getUsername().equals(user.getUsername()))
+                    .map(partner -> findOrMakeRelationshipData(thisUser, partner))
+                    .map(relationship -> convertToRelationshipDataWhereCurrentUserIsNeverPartner(user.getId(), relationship))
+                    .toList();
+        }
+        return List.of(); //return empty list
+    }
+
+    @GetMapping("/get-unanswered-requests")
+    public Page<RelationshipData> getUnansweredRequests(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        return relationshipRepository.getUnansweredRelationships(user.getId(), pageable)
+                .map(this::convertRelationshipToRelationshipData);
     }
 
     @PutMapping("/request/{partnerId}")
@@ -106,18 +96,15 @@ public class RelationshipController {
 
     //delete request
     @DeleteMapping("/{relationshipId}")
-    public List<Long> deleteRequest(@PathVariable Long relationshipId) {
+    public void deleteRequest(@PathVariable Long relationshipId) {
         Relationship relationshipToDelete = relationshipRepository.getById(relationshipId);
         Relationship relationshipOtherDirection =
-                relationshipRepository.findRelationship(relationshipToDelete.getPartner().getId(), relationshipToDelete.getUser().getId());
-
-        List<Long> idsToDelete = new ArrayList<>();
-        idsToDelete.add(relationshipToDelete.getId());
-        idsToDelete.add(relationshipOtherDirection.getId());
+                relationshipRepository
+                .findRelationship(relationshipToDelete.getPartner().getId(),
+                        relationshipToDelete.getUser().getId());
 
         relationshipRepository.delete(relationshipToDelete);
         relationshipRepository.delete(relationshipOtherDirection);
-        return idsToDelete;
     }
 
     @PostMapping("/{relationshipId}")
@@ -141,10 +128,17 @@ public class RelationshipController {
         return convertRelationshipToRelationshipData(relationship);
     }
 
+    //either finds whether there is an existing relationship between the two users
+    //or creates a new relationship where the STATUS is NULL
     private RelationshipData findOrMakeRelationshipData(User thisUser, User partner) {
-        if(relationshipRepository.findRelationship(thisUser.getId(), partner.getId()) != null){
-            Relationship existing = relationshipRepository.findRelationship(thisUser.getId(), partner.getId());
-            return convertRelationshipToRelationshipData(existing);
+        Relationship checkIfExisting = relationshipRepository.findRelationship(thisUser.getId(), partner.getId());
+        if(checkIfExisting != null){
+            //WHY: because REQUESTED stays the same in one direction even if updated
+            //need to find status of relationship in other direction to see if PENDING, APPROVED, or REJECTED
+            if(checkIfExisting.getStatus() == RelationshipStatus.REQUESTED) {
+                checkIfExisting = relationshipRepository.findRelationship(partner.getId(), thisUser.getId());
+            }
+            return convertRelationshipToRelationshipData(checkIfExisting);
         }
 
         Relationship relationship = new Relationship();
@@ -153,16 +147,60 @@ public class RelationshipController {
         return convertRelationshipToRelationshipData(relationship);
     }
 
+    //takes Relationship and converts to RelationshipData AS IS
     private RelationshipData convertRelationshipToRelationshipData(Relationship relationship) {
         RelationshipData relationshipData = new RelationshipData();
 
         relationshipData.setUserId(relationship.getUser().getId());
-        relationshipData.setPartnerId(relationship.getPartner().getId());
         relationshipData.setUserName(relationship.getUser().getUsername());
+        relationshipData.setPartnerId(relationship.getPartner().getId());
         relationshipData.setPartnerName(relationship.getPartner().getName());
         relationshipData.setId(relationship.getId());
         relationshipData.setStatus(relationship.getStatus());
 
         return relationshipData;
     }
+
+    //WHY: FOR THE 2 PRIVATE FUNCTIONS BELOW
+    //for lists, if there is a list of relationships where the current user
+    //switches between being the User and Partner in the relationship
+    //it would make it difficult to sort through partners.
+    //so here, IF the partner ID of a relationship object equals the current user's ID that we give as a param
+    //we will make it so that our current user will ALWAYS be set as the User in the relationship that is returned
+    //HOWEVER, we keep relationship ID and STATUS info the same
+    // so we can reference the database for a specific relationship with the correct ID
+
+    //RELATIONSHIP -> RELATIONSHIPDATA
+    private RelationshipData convertRelationshipToRelationshipDataWhereCurrentUserIsNeverPartner(Long currentUserId, Relationship relationship){
+        RelationshipData newRelationshipData = new RelationshipData();
+
+        if(Objects.equals(relationship.getPartner().getId(), currentUserId)) {
+            newRelationshipData.setUserId(relationship.getPartner().getId());
+            newRelationshipData.setUserName(relationship.getPartner().getUsername());
+            newRelationshipData.setPartnerId(relationship.getUser().getId());
+            newRelationshipData.setPartnerName(relationship.getUser().getUsername());
+            newRelationshipData.setId(relationship.getId());
+            newRelationshipData.setStatus(relationship.getStatus());
+            return newRelationshipData;
+        }
+        return convertRelationshipToRelationshipData(relationship);
+    }
+
+    //RELATIONSHIPDATA -> RELATIONSHIPDATA
+    private RelationshipData convertToRelationshipDataWhereCurrentUserIsNeverPartner(Long currentUserId, RelationshipData relationshipData){
+        RelationshipData newRelationshipData = new RelationshipData();
+
+        if(Objects.equals(relationshipData.getPartnerId(), currentUserId)) {
+            newRelationshipData.setUserId(relationshipData.getPartnerId());
+            newRelationshipData.setUserName(relationshipData.getPartnerName());
+            newRelationshipData.setPartnerId(relationshipData.getUserId());
+            newRelationshipData.setPartnerName(relationshipData.getUserName());
+            newRelationshipData.setId(relationshipData.getId());
+            newRelationshipData.setStatus(relationshipData.getStatus());
+            return newRelationshipData;
+        }
+        return relationshipData;
+    }
+
+
 }

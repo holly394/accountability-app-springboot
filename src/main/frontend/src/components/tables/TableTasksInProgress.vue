@@ -1,4 +1,21 @@
 <script setup lang="ts">
+//Table with current user's in-progress tasks only
+//tasks include buttons for deleting and ending a task
+//ending a task will set that task to COMPLETED and will be listed in the completed table
+
+//Expects props:
+// taskList = inProgressTasks (gets current user's in-progress tasks)
+// payment = inProgressPayment (gets minimum-wage earnings of total time
+// spent on in-progress tasks from start to current time)
+
+//Expects composable:
+// TaskData() from TaskData.ts composable with methods:
+// deleteTask (deletes task from current user's list),
+// endTask (sets task to status: COMPLETED)
+
+//Quirks:
+//Parent TaskPage.vue listens to emitted events endTask and deleteTask
+
 import { QMarkupTable } from 'quasar';
 import { taskData } from 'src/composables/taskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";

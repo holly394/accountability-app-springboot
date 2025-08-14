@@ -14,14 +14,11 @@
       </q-card-section>
     </q-card>
 
-
-    <PartnershipsApproved />
   </q-page>
 </template>
 
 <script setup lang="ts">
 import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
-import PartnershipsApproved from 'components/tables/PartnershipsApproved.vue';
 
 defineOptions({
   name: 'IndexPage'

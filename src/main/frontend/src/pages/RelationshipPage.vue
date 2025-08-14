@@ -1,20 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { api } from 'boot/axios'
+import { ref, onMounted } from 'vue';
 import { QMarkupTable } from 'quasar';
 import { RelationshipData } from 'components/dto/RelationshipData.ts';
 import { UserDto } from 'components/dto/UserDto.ts';
-import PartnershipsApproved from 'components/tables/PartnershipsApproved.vue';
 import PartnershipsPending from 'components/tables/PartnershipsPending.vue';
 import PartnershipsRejected from 'components/tables/PartnershipsRejected.vue';
 import PartnershipsUnanswered from 'components/tables/PartnershipsUnanswered.vue';
+import {relationshipData} from 'src/composables/relationshipData.ts'
+import {DefaultPage, Page} from "components/paging/Page.ts";
+import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
+import PartnershipsApproved from "components/tables/PartnershipsApproved.vue";
+import {userData} from "src/composables/UserData.ts";
+const { getCurrentUserInfo } = userData();
 
+const { search, sendRequest, getPartnersByStatus, getUnansweredRelationshipData } = relationshipData();
 
 defineOptions({
   name: 'RelationshipPage'
 });
 
-const thisUser = ref<UserDto>({
+const currentUser = ref<UserDto>({
   id: 0,
   username: ''
 });
@@ -25,34 +30,35 @@ const userSearch = ref<UserDto>({
 });
 
 const searchResult = ref<RelationshipData[]>([]);
-const everythingList = ref<RelationshipData[]>([]);
+const approvedRelationships = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const unansweredRelationships = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
 
-onMounted(async () => {
-  thisUser.value = await api.get<UserDto>('/relationships/this-user').then(res => res.data)
-  everythingList.value = await api.get<RelationshipData[]>('/relationships').then(res => res.data)
-});
+onMounted( async () => {
+  currentUser.value = await getCurrentUserInfo();
+  approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
+  unansweredRelationships.value = await getUnansweredRelationshipData();
+})
 
 const searchFriend = async () => {
-  await api.get<RelationshipData[]>(`/relationships/search?username=${userSearch.value.username}`)
-    .then(response => {
-      searchResult.value = response.data;
-    })
-    .catch(error => {
-      console.log(error);
-    })
+  searchResult.value = await search(userSearch.value.username);
 };
 
-async function sendRequest(partnerId: number) {
-  await api.put(`/relationships/request/${partnerId}`)
-    .then (response => {
-      for(let i=0; i < response.data.length; i++) {
-        everythingList.value.splice(everythingList.value.length, 0, response.data[i]);
-      }
-      window.location.reload();
-    })
-    .catch(error => {
-      console.log(error);
-    })
+async function sendPartnershipRequest(partnerId: number) {
+  await sendRequest(partnerId);
+  await searchFriend();
+}
+
+async function reloadApprovedPartnerList() {
+  approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
+}
+
+async function reloadUnansweredList() {
+  unansweredRelationships.value = await getUnansweredRelationshipData();
+}
+
+async function reloadApprovedAndUnansweredList() {
+  await reloadApprovedPartnerList();
+  await reloadUnansweredList();
 }
 
 </script>
@@ -75,7 +81,6 @@ async function sendRequest(partnerId: number) {
             />
         </q-card-section>
 
-
         <q-card-section>
           <q-markup-table title="EXISTING USERS">
             <thead>
@@ -91,7 +96,7 @@ async function sendRequest(partnerId: number) {
                 <td v-text="partner.partnerId" />
                 <td v-text="partner.partnerName" />
               <template v-if="partner.status === null">
-                <q-btn @click="sendRequest(partner.partnerId)" label="Request" type="submit" color="primary"/>
+                <q-btn @click="sendPartnershipRequest(partner.partnerId)" label="Request" type="submit" color="primary"/>
               </template>
               <template v-else>
                 <td v-text="partner.status" />
@@ -102,9 +107,17 @@ async function sendRequest(partnerId: number) {
         </q-card-section>
       </q-card>
 
+      <PartnershipsApproved
+        :currentUser="currentUser"
+        :partnerList="approvedRelationships"
+        @delete-relationship="reloadApprovedPartnerList"
+      />
 
-      <PartnershipsApproved />
-      <PartnershipsUnanswered />
+      <PartnershipsUnanswered
+        :partnerList="unansweredRelationships"
+        @update-relationship="reloadApprovedAndUnansweredList"
+      />
+
       <PartnershipsPending />
       <PartnershipsRejected />
 

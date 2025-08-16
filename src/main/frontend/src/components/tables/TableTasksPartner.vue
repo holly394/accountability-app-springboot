@@ -10,7 +10,7 @@ import {QMarkupTable} from 'quasar';
 import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {TaskStatusDto} from "components/dto/TaskStatusDto.ts";
 import {Page} from "components/paging/Page.ts";
-import {taskData} from "src/composables/taskData.ts";
+import {taskData} from "src/composables/TaskData.ts";
 
 const { processTaskForPartner } = taskData();
 

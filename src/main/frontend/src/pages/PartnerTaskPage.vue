@@ -13,7 +13,7 @@
 // getPartnerTasks (gets complete list of partners' tasks)
 
 import TableTasksPartner from 'components/tables/TableTasksPartner.vue';
-import {taskData} from "src/composables/taskData.ts";
+import {taskData} from "src/composables/TaskData.ts";
 import {ref, onMounted} from "vue";
 import {DefaultPage, Page} from "components/paging/Page.ts";
 import {TaskData} from "components/dto/TaskData.ts";

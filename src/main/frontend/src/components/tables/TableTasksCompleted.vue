@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {taskData} from 'src/composables/taskData.ts'
+import {taskData} from 'src/composables/TaskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
 import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";

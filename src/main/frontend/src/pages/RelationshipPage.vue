@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { QMarkupTable } from 'quasar';
-import { RelationshipData } from 'components/dto/RelationshipData.ts';
-import { UserDto } from 'components/dto/UserDto.ts';
-import PartnershipsPending from 'components/tables/PartnershipsPending.vue';
+import {onMounted, ref} from 'vue';
+import {QMarkupTable} from 'quasar';
+import {RelationshipData} from 'components/dto/RelationshipData.ts';
+import {UserDto} from 'components/dto/UserDto.ts';
+import PartnershipsRequestsToWait from 'components/tables/PartnershipsRequestsToWait.vue';
 import PartnershipsRejected from 'components/tables/PartnershipsRejected.vue';
-import PartnershipsUnanswered from 'components/tables/PartnershipsUnanswered.vue';
-import {relationshipData} from 'src/composables/relationshipData.ts'
+import PartnershipsRequestsToAnswer from 'components/tables/PartnershipsRequestsToAnswer.vue';
+import {relationshipData} from 'src/composables/RelationshipData.ts'
 import {DefaultPage, Page} from "components/paging/Page.ts";
 import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
 import PartnershipsApproved from "components/tables/PartnershipsApproved.vue";
 import {userData} from "src/composables/UserData.ts";
+
 const { getCurrentUserInfo } = userData();
 
-const { search, sendRequest, getPartnersByStatus, getUnansweredRelationshipData } = relationshipData();
+const { search, sendRequest, getPartnersByStatus, getRequestsToAnswer,
+  getRequestsToWait, getRejectionsSent, getRejectionsReceived } = relationshipData();
 
 defineOptions({
   name: 'RelationshipPage'
@@ -31,12 +33,22 @@ const userSearch = ref<UserDto>({
 
 const searchResult = ref<RelationshipData[]>([]);
 const approvedRelationships = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
-const unansweredRelationships = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+
+const requestsToAnswer = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const requestsToWait = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+
+const rejectionsSent = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const rejectionsReceived = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
 
 onMounted( async () => {
   currentUser.value = await getCurrentUserInfo();
   approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
-  unansweredRelationships.value = await getUnansweredRelationshipData();
+
+  requestsToAnswer.value = await getRequestsToAnswer();
+  requestsToWait.value = await getRequestsToWait();
+
+  rejectionsSent.value = await getRejectionsSent();
+  rejectionsReceived.value = await getRejectionsReceived();
 })
 
 const searchFriend = async () => {
@@ -48,18 +60,26 @@ async function sendPartnershipRequest(partnerId: number) {
   await searchFriend();
 }
 
-async function reloadApprovedPartnerList() {
+async function reloadRequestsToAnswer() {
+  requestsToAnswer.value = await getRequestsToAnswer();
+}
+
+async function reloadRequestsToWait() {
+  requestsToAnswer.value = await getRequestsToWait();
+}
+
+async function reloadApprovedPartners() {
   approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
 }
 
-async function reloadUnansweredList() {
-  unansweredRelationships.value = await getUnansweredRelationshipData();
+async function reloadRejectedPartners() {
+  rejectionsSent.value = await getRejectionsSent();
 }
 
-async function reloadApprovedAndUnansweredList() {
-  await reloadApprovedPartnerList();
-  await reloadUnansweredList();
+async function reloadListsAfterAnswering() {
+  await Promise.all([reloadRequestsToAnswer(), reloadApprovedPartners(), reloadRejectedPartners()]);
 }
+
 
 </script>
 
@@ -78,6 +98,7 @@ async function reloadApprovedAndUnansweredList() {
               label="search for a friend"
               filled
               type="textarea"
+              name="partner search bar"
             />
         </q-card-section>
 
@@ -107,19 +128,29 @@ async function reloadApprovedAndUnansweredList() {
         </q-card-section>
       </q-card>
 
+      <PartnershipsRequestsToAnswer
+        :partnerList="requestsToAnswer"
+        @update-relationship="reloadListsAfterAnswering"
+      />
+
+      <PartnershipsRequestsToWait
+        :partnerList="requestsToWait"
+        @delete-relationship="reloadRequestsToWait"
+      />
+
       <PartnershipsApproved
         :currentUser="currentUser"
         :partnerList="approvedRelationships"
-        @delete-relationship="reloadApprovedPartnerList"
+        @delete-relationship="reloadApprovedPartners"
       />
 
-      <PartnershipsUnanswered
-        :partnerList="unansweredRelationships"
-        @update-relationship="reloadApprovedAndUnansweredList"
-      />
+      <!-- remember this is how comments in HTML work! -->
 
-      <PartnershipsPending />
-      <PartnershipsRejected />
+      <PartnershipsRejected
+       :rejectionsSent="rejectionsSent"
+       :rejectionsReceived="rejectionsReceived"
+       @delete-relationship="reloadRejectedPartners"
+      />
 
     </div>
 </template>

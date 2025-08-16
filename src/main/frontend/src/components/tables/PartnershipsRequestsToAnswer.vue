@@ -2,7 +2,7 @@
 import {QMarkupTable} from 'quasar';
 import {RelationshipData} from 'components/dto/RelationshipData.ts';
 import {Page} from "components/paging/Page.ts";
-import {relationshipData} from "src/composables/relationshipData.ts";
+import {relationshipData} from "src/composables/RelationshipData.ts";
 import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
 import {RelationshipStatusDto} from "components/dto/RelationshipStatusDto.ts";
 import {ref} from "vue";
@@ -10,7 +10,7 @@ import {ref} from "vue";
 const { updateRelationship } = relationshipData();
 
 defineOptions({
-  name: 'PartnershipsUnanswered'
+  name: 'PartnershipsRequestsToAnswer'
 });
 
 const props = defineProps<{

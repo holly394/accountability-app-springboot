@@ -1,41 +1,25 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { api } from 'boot/axios'
 import { QMarkupTable } from 'quasar';
 import { RelationshipData } from 'components/dto/RelationshipData.ts';
-import { UserDto } from 'components/dto/UserDto.ts';
+import {Page} from "components/paging/Page.ts";
+import {relationshipData} from "src/composables/RelationshipData.ts";
 
+const { deleteRelationship } = relationshipData();
 
 defineOptions({
   name: 'PartnershipsRejected'
 });
 
-const thisUser = ref<UserDto>({
-  id: 0,
-  username: ''
-});
+const props = defineProps<{
+  rejectionsSent: Page<RelationshipData>,
+  rejectionsReceived: Page<RelationshipData>
+}>()
 
-const everythingList = ref<RelationshipData[]>([]);
-
-onMounted(async () => {
-  thisUser.value = await api.get<UserDto>('/user').then(res => res.data)
-  everythingList.value = await api.get<RelationshipData[]>('/relationships').then(res => res.data)
-});
-
+const emit = defineEmits(['deleteRelationship']);
 
 async function deleteRequest(relationshipId: number) {
-  await api.delete(`/relationships/${relationshipId}`)
-    .then (response => {
-      for(let i=0; i < response.data.length; i++) {
-        const index = everythingList.value.findIndex(
-          (relationship) => relationship.id === response.data[i]
-        );
-        everythingList.value.splice(index, 1);
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    })
+  await deleteRelationship(relationshipId);
+  emit('deleteRelationship');
 }
 
 </script>
@@ -62,22 +46,18 @@ async function deleteRequest(relationshipId: number) {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="relationship in everythingList" :key="relationship.id">
-              <template v-if="relationship.status === 'REJECTED' ">
+            <tr v-for="relationship in props.rejectionsSent.content" :key="relationship.id">
                 <td v-text="relationship.id" />
-                <template v-if="relationship.userId === thisUser.id">
                   <td v-text="relationship.partnerId" />
                   <td v-text="relationship.partnerName" />
                   <td v-text="relationship.status" />
-                  <td><q-btn @click="deleteRequest(relationship.id)" label="DELETE" type="submit" color="primary"/></td>
-                </template>
-                <template v-else>
-                  <td v-text="relationship.userId" />
-                  <td v-text="relationship.userName" />
-                  <td v-text="relationship.status" />
-                  <td> </td>
-                </template>
-              </template>
+                  <td><q-btn @click="deleteRequest(relationship.id)" label="UNDO" type="submit" color="primary"/></td>
+            </tr>
+            <tr v-for="relationship in props.rejectionsReceived.content" :key="relationship.id">
+              <td v-text="relationship.id" />
+              <td v-text="relationship.userId" />
+              <td v-text="relationship.userName" />
+              <td v-text="relationship.status" />
             </tr>
             </tbody>
           </q-markup-table>

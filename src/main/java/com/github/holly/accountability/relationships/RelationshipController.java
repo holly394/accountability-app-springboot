@@ -3,7 +3,6 @@ package com.github.holly.accountability.relationships;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
-import com.github.holly.accountability.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,27 +31,6 @@ public class RelationshipController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private RelationshipService relationshipService;
-
-
-    @GetMapping("")
-    public Page<RelationshipData> getRelationshipsByStatus(@AuthenticationPrincipal AccountabilitySessionUser user,
-                                                      @RequestParam(defaultValue = "REQUESTED, APPROVED, REJECTED, PENDING") List<RelationshipStatus> status,
-                                                      @PageableDefault(size = 20) Pageable pageable) {
-
-        return relationshipRepository.getRelationshipsByUserIdAndStatus(user.getId(), status, pageable)
-                .map(this::convertRelationshipToRelationshipData);
-        //if pageable is input, can only map with functions that don't need another param
-    }
-
-    @GetMapping("/get-approved-partner-id-list")
-    public List<Long> getPartners(@AuthenticationPrincipal AccountabilitySessionUser user) {
-        List<Relationship> relationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
-        return partners.stream().map(User::getId).toList();
-    }
-
     @GetMapping("/search")
     public List<RelationshipData> search(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam String username) {
         List<User> searchList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
@@ -67,11 +45,45 @@ public class RelationshipController {
         return List.of(); //return empty list
     }
 
-    @GetMapping("/get-unanswered-requests")
-    public Page<RelationshipData> getUnansweredRequests(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
-        return relationshipRepository.getUnansweredRelationships(user.getId(), pageable)
+    @GetMapping("") //can't use when direction of request is important (mainly PENDING & REJECTED)
+    public Page<RelationshipData> getRelationshipsByStatus(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                      @RequestParam(defaultValue = "REQUESTED, APPROVED, REJECTED, PENDING") List<RelationshipStatus> status,
+                                                      @PageableDefault(size = 20) Pageable pageable) {
+
+        return relationshipRepository.getRelationshipsByUserIdAndStatus(user.getId(), status, pageable)
+                .map(this::convertRelationshipToRelationshipData);
+        //if pageable is input, can only map with functions that don't need another param
+    }
+
+    //list of pending requests the current user has RECEIVED
+    @GetMapping("/pending-requests-to-answer")
+    public Page<RelationshipData> getPendingRequestsToAnswer(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        return relationshipRepository.getToAnswerRequests(user.getId(), pageable)
                 .map(this::convertRelationshipToRelationshipData);
     }
+
+    //list of pending requests where the current user has to WAIT for an answer
+    @GetMapping("/pending-requests-to-wait")
+    public Page<RelationshipData> getPendingRequestsToWait(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        return relationshipRepository.getUnansweredRequests(user.getId(), pageable)
+                .map(this::convertRelationshipToRelationshipData);
+    }
+
+    //list of rejected requests where the current user gave the rejection
+    @GetMapping("/rejected-requests-sent")
+    public Page<RelationshipData> getRejectionsSent(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        return relationshipRepository.getRejectionsSent(user.getId(), pageable)
+                .map(this::convertRelationshipToRelationshipData);
+    }
+
+    //list of rejected requests where the current user received the rejection
+    @GetMapping("/rejected-requests-received")
+    public Page<RelationshipData> getRejectionsReceived(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+        return relationshipRepository.getRejectionsReceived(user.getId(), pageable)
+                .map(this::convertRelationshipToRelationshipData);
+    }
+
+
 
     @PutMapping("/request/{partnerId}")
     public List<RelationshipData> sendRequest(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long partnerId) {
@@ -169,22 +181,6 @@ public class RelationshipController {
     //we will make it so that our current user will ALWAYS be set as the User in the relationship that is returned
     //HOWEVER, we keep relationship ID and STATUS info the same
     // so we can reference the database for a specific relationship with the correct ID
-
-    //RELATIONSHIP -> RELATIONSHIPDATA
-    private RelationshipData convertRelationshipToRelationshipDataWhereCurrentUserIsNeverPartner(Long currentUserId, Relationship relationship){
-        RelationshipData newRelationshipData = new RelationshipData();
-
-        if(Objects.equals(relationship.getPartner().getId(), currentUserId)) {
-            newRelationshipData.setUserId(relationship.getPartner().getId());
-            newRelationshipData.setUserName(relationship.getPartner().getUsername());
-            newRelationshipData.setPartnerId(relationship.getUser().getId());
-            newRelationshipData.setPartnerName(relationship.getUser().getUsername());
-            newRelationshipData.setId(relationship.getId());
-            newRelationshipData.setStatus(relationship.getStatus());
-            return newRelationshipData;
-        }
-        return convertRelationshipToRelationshipData(relationship);
-    }
 
     //RELATIONSHIPDATA -> RELATIONSHIPDATA
     private RelationshipData convertToRelationshipDataWhereCurrentUserIsNeverPartner(Long currentUserId, RelationshipData relationshipData){

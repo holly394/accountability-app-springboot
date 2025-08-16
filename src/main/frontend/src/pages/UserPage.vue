@@ -55,14 +55,5 @@ const attemptLogOut = async () => {
     </q-card-section>
   </q-card>
 
-    <q-card dark bordered class="bg-grey-9 my-card">
-      <q-card-section>
-        <div class="text-h6">Your partners</div>
-      </q-card-section>
-      <q-card-section>
-
-      </q-card-section>
-    </q-card>
-
   </div>
 </template>

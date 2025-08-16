@@ -1,4 +1,4 @@
-//relationshipData.ts composable
+//RelationshipData.ts composable
 //Specifically for relationship-related data
 //This frontend composable is meant to organize commonly used API calls in one place
 //the API calls from here to the backend (via controllers)
@@ -21,8 +21,20 @@ export function relationshipData() {
     })).data;
   }
 
-  const getUnansweredRelationshipData = async (): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships/get-unanswered-requests`)).data;
+  const getRequestsToAnswer = async (): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships/pending-requests-to-answer`)).data;
+  }
+
+  const getRequestsToWait = async (): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships/pending-requests-to-wait`)).data;
+  }
+
+  const getRejectionsSent = async (): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships/rejected-requests-sent`)).data;
+  }
+
+  const getRejectionsReceived = async (): Promise<Page<RelationshipData>> => {
+    return (await api.get<Page<RelationshipData>>(`/relationships/rejected-requests-received`)).data;
   }
 
   const updateRelationship = async (relationshipId: number, newStatus: RelationshipStatusDto): Promise<RelationshipData> => {
@@ -46,5 +58,6 @@ export function relationshipData() {
   }
 
 
-  return { getPartnersByStatus, deleteRelationship, sendRequest, search, getUnansweredRelationshipData, updateRelationship };
+  return { getPartnersByStatus, deleteRelationship, sendRequest, search,
+    getRequestsToAnswer, updateRelationship, getRequestsToWait, getRejectionsSent, getRejectionsReceived};
 }

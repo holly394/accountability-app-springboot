@@ -1,8 +1,5 @@
 package com.github.holly.accountability.wallet;
 
-import com.github.holly.accountability.purchases.Purchase;
-import com.github.holly.accountability.purchases.PurchaseDto;
-import com.github.holly.accountability.purchases.PurchaseRepository;
 import com.github.holly.accountability.relationships.Relationship;
 import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
@@ -10,11 +7,14 @@ import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -59,11 +59,9 @@ public class WalletController {
     }
 
     @GetMapping("/getPurchases")
-    public List<PurchaseDto> getPurchases(@AuthenticationPrincipal AccountabilitySessionUser user){
-        List<Purchase> purchaseList = purchaseRepository.findByUserId(user.getId());
-        return purchaseList.stream()
-                .map(this::convertPurchaseToDto)
-                .toList();
+    public Page<PurchaseDto> getPurchases(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                          @PageableDefault(size=20) Pageable pageable){
+        return purchaseRepository.findByUserIdOrderByPurchaseTimeDesc(user.getId(), pageable).map(this::convertPurchaseToDto);
     }
 
     @PostMapping("/makePurchase")

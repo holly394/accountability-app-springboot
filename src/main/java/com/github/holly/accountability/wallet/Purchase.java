@@ -1,4 +1,4 @@
-package com.github.holly.accountability.purchases;
+package com.github.holly.accountability.wallet;
 
 
 import com.github.holly.accountability.user.User;

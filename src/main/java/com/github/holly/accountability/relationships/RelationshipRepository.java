@@ -20,13 +20,6 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
 
     @Query("""
         FROM Relationship r
-        WHERE r.user.id =:userId
-        OR r.partner.id =:userId
-        """)
-    List<Relationship> getAllByUserId(Long userId);
-
-    @Query("""
-        FROM Relationship r
         WHERE (r.user.id =:userId OR r.partner.id =:userId)
         AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.APPROVED
         """)
@@ -37,8 +30,30 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
         WHERE r.user.id =:userId
         AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
         """)
-    Page<Relationship> getUnansweredRelationships(Long userId,
+    Page<Relationship> getToAnswerRequests(Long userId,
+                                           Pageable pageable);
+    @Query("""
+        FROM Relationship r
+        WHERE r.partner.id =:userId
+        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
+        """)
+    Page<Relationship> getUnansweredRequests(Long userId,
                                                   Pageable pageable);
+
+    @Query("""
+        FROM Relationship r
+        WHERE r.user.id =:userId
+        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.REJECTED
+        """)
+    Page<Relationship> getRejectionsSent(Long userId,
+                                           Pageable pageable);
+    @Query("""
+        FROM Relationship r
+        WHERE r.partner.id =:userId
+        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.REJECTED
+        """)
+    Page<Relationship> getRejectionsReceived(Long userId,
+                                             Pageable pageable);
 
 
     @Query("""

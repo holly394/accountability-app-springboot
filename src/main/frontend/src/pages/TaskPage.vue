@@ -20,7 +20,7 @@ import {TaskEditRequestDto} from 'components/dto/TaskEditRequestDto.ts';
 import TableTasksCompleted from 'components/tables/TableTasksCompleted.vue';
 import TableTasksInProgress from "components/tables/TableTasksInProgress.vue";
 import TableTasksPending from "components/tables/TableTasksPending.vue";
-import {taskData} from 'src/composables/taskData.ts'
+import {taskData} from 'src/composables/TaskData.ts'
 import {TaskData} from "components/dto/TaskData.ts";
 import {TaskStatus} from "components/dto/TaskStatus.ts";
 import {DefaultPage, Page} from "components/paging/Page.ts";
@@ -93,6 +93,7 @@ const addTaskForm = async () => {
         @keyup.enter="addTaskForm"
         @submit="addTaskForm"
         type="textarea"
+        name=""
       />
       <q-btn label="Submit" type="submit" color="primary"/>
     </q-form>

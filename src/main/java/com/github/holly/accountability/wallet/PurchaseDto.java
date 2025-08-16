@@ -1,4 +1,4 @@
-package com.github.holly.accountability.purchases;
+package com.github.holly.accountability.wallet;
 
 public class PurchaseDto {
     private Long id;

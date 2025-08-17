@@ -25,6 +25,7 @@ import java.util.Objects;
 @RequestMapping("/api/relationships")
 @ResponseBody
 public class RelationshipController {
+
     @Autowired
     private RelationshipRepository relationshipRepository;
 
@@ -32,7 +33,8 @@ public class RelationshipController {
     private UserRepository userRepository;
 
     @GetMapping("/search")
-    public List<RelationshipData> search(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestParam String username) {
+    public List<RelationshipData> search(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                         @RequestParam String username) {
         List<User> searchList = userRepository.findUsersByUsernameContainsIgnoreCase(username);
         User thisUser = userRepository.findUserById(user.getId());
         if(!Objects.equals(username, "")){ //WHY: when pressing backspace in search bar, all users were listed before
@@ -57,28 +59,32 @@ public class RelationshipController {
 
     //list of pending requests the current user has RECEIVED
     @GetMapping("/pending-requests-to-answer")
-    public Page<RelationshipData> getPendingRequestsToAnswer(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<RelationshipData> getPendingRequestsToAnswer(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                             @PageableDefault(size = 20) Pageable pageable) {
         return relationshipRepository.getToAnswerRequests(user.getId(), pageable)
                 .map(this::convertRelationshipToRelationshipData);
     }
 
     //list of pending requests where the current user has to WAIT for an answer
     @GetMapping("/pending-requests-to-wait")
-    public Page<RelationshipData> getPendingRequestsToWait(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<RelationshipData> getPendingRequestsToWait(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                           @PageableDefault(size = 20) Pageable pageable) {
         return relationshipRepository.getUnansweredRequests(user.getId(), pageable)
                 .map(this::convertRelationshipToRelationshipData);
     }
 
     //list of rejected requests where the current user gave the rejection
     @GetMapping("/rejected-requests-sent")
-    public Page<RelationshipData> getRejectionsSent(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<RelationshipData> getRejectionsSent(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                    @PageableDefault(size = 20) Pageable pageable) {
         return relationshipRepository.getRejectionsSent(user.getId(), pageable)
                 .map(this::convertRelationshipToRelationshipData);
     }
 
     //list of rejected requests where the current user received the rejection
     @GetMapping("/rejected-requests-received")
-    public Page<RelationshipData> getRejectionsReceived(@AuthenticationPrincipal AccountabilitySessionUser user, @PageableDefault(size = 20) Pageable pageable) {
+    public Page<RelationshipData> getRejectionsReceived(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                                        @PageableDefault(size = 20) Pageable pageable) {
         return relationshipRepository.getRejectionsReceived(user.getId(), pageable)
                 .map(this::convertRelationshipToRelationshipData);
     }
@@ -86,7 +92,8 @@ public class RelationshipController {
 
 
     @PutMapping("/request/{partnerId}")
-    public List<RelationshipData> sendRequest(@AuthenticationPrincipal AccountabilitySessionUser user, @PathVariable Long partnerId) {
+    public List<RelationshipData> sendRequest(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                              @PathVariable Long partnerId) {
         if(relationshipRepository.findRelationship(user.getId(), partnerId) != null) {
             throw new IllegalArgumentException("Relationship already exists");
         }
@@ -173,7 +180,7 @@ public class RelationshipController {
         return relationshipData;
     }
 
-    //WHY: FOR THE 2 PRIVATE FUNCTIONS BELOW
+    //WHY:
     //for lists, if there is a list of relationships where the current user
     //switches between being the User and Partner in the relationship
     //it would make it difficult to sort through partners.

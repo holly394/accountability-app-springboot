@@ -39,13 +39,13 @@ public class TaskController {
     private UserRepository userRepository;
 
     @Autowired
-    private TaskService taskService;
-
-    @Autowired
     private WalletRepository walletRepository;
 
     @Autowired
     private RelationshipRepository relationshipRepository;
+
+    @Autowired
+    private TaskService taskService;
 
     @Autowired
     private RelationshipService relationshipService;

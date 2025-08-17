@@ -1,10 +1,10 @@
-package com.github.holly.accountability.relationships;
+//WHY: there are cases where only a list of partners (type: User) with no duplicates
+//is needed in other Controllers. (TaskController, WalletController)
 
+package com.github.holly.accountability.relationships;
 
 import com.github.holly.accountability.user.User;
 import org.springframework.stereotype.Component;
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

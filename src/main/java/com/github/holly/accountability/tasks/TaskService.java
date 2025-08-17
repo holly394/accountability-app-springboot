@@ -2,22 +2,16 @@ package com.github.holly.accountability.tasks;
 import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Component
 public class TaskService {
 
-    public Double calculateTotal(List<TaskData> taskList){
-        Duration combinedTime = taskList.stream()
-                .map(TaskData::getDuration)
-                .reduce(Duration.ZERO, Duration::plus);
-
-        return combinedTime.toMinutes() /60d * 13.0d;
-    }
+    public static final double MINUTES_IN_HOUR = 60;
+    public static final double GERMAN_MINIMUM_WAGE = 13;
 
     public Double calculateFromTaskDto(TaskData taskDto){
         Duration time = taskDto.getDuration();
-        return time.toMinutes() /60d * 13.0d;
+        return time.toMinutes() / (MINUTES_IN_HOUR * GERMAN_MINIMUM_WAGE);
     }
 
     public TaskData convertTaskToDto(Task task){

@@ -18,6 +18,10 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
         """)
     Relationship findRelationship(Long userId, Long partnerId);
 
+    /**
+     * Use RelationshipRepository#getRelationshipsByUserIdAndStatusIgnoreDirection instead
+     */
+    @Deprecated(forRemoval = true)
     @Query("""
         FROM Relationship r
         WHERE (r.user.id =:userId OR r.partner.id =:userId)
@@ -25,44 +29,32 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
         """)
     List<Relationship> getApprovedRelationshipsByUserIdBothDirections(Long userId);
 
-    @Query("""
-        FROM Relationship r
-        WHERE r.user.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
-        """)
-    Page<Relationship> getToAnswerRequests(Long userId,
-                                           Pageable pageable);
-    @Query("""
-        FROM Relationship r
-        WHERE r.partner.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.PENDING
-        """)
-    Page<Relationship> getUnansweredRequests(Long userId,
-                                                  Pageable pageable);
 
     @Query("""
         FROM Relationship r
-        WHERE r.user.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.REJECTED
-        """)
-    Page<Relationship> getRejectionsSent(Long userId,
-                                           Pageable pageable);
-    @Query("""
-        FROM Relationship r
-        WHERE r.partner.id =:userId
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.REJECTED
-        """)
-    Page<Relationship> getRejectionsReceived(Long userId,
-                                             Pageable pageable);
-
-
-    @Query("""
-        FROM Relationship r
-        WHERE (r.user.id =:userId OR r.partner.id =:userId)
+        WHERE (r.user.id = :userId)
         AND r.status in (:statuses)
         """)
     Page<Relationship> getRelationshipsByUserIdAndStatus(Long userId,
-                                              List<RelationshipStatus> statuses,
-                                              Pageable pageable);
+                                                         List<RelationshipStatus> statuses,
+                                                         Pageable pageable);
+
+    @Query("""
+        FROM Relationship r
+        WHERE (r.partner.id = :userId)
+        AND r.status in (:statuses)
+        """)
+    Page<Relationship> getRelationshipsByPartnerIdAndStatus(Long userId,
+                                                         List<RelationshipStatus> statuses,
+                                                         Pageable pageable);
+
+    @Query("""
+        FROM Relationship r
+        WHERE (r.user.id = :userId OR r.partner.id =:userId)
+        AND r.status in (:statuses)
+        """)
+    Page<Relationship> getRelationshipsByUserIdAndStatusIgnoreDirection(Long userId,
+                                                                        List<RelationshipStatus> statuses,
+                                                                        Pageable pageable);
 
 }

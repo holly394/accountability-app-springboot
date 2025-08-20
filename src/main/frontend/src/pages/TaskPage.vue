@@ -91,11 +91,11 @@ const addTaskForm = async () => {
         label="description"
         filled
         @keyup.enter="addTaskForm"
-        @submit="addTaskForm"
         type="textarea"
         name=""
       />
-      <q-btn label="Submit" type="submit" color="primary"/>
+      <!-- Don't use SUBMIT, it will reload the page before this asynchronous request via Axios can finish -->
+      <q-btn label="Submit" @click="addTaskForm" color="primary"/>
     </q-form>
 
     <br>

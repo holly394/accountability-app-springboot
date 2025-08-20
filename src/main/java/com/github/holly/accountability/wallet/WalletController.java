@@ -3,6 +3,7 @@ package com.github.holly.accountability.wallet;
 import com.github.holly.accountability.relationships.Relationship;
 import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
+import com.github.holly.accountability.relationships.RelationshipStatus;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
@@ -48,9 +49,11 @@ public class WalletController {
     }
 
     @GetMapping("/get-partner-wallets")
-    public List<WalletDto> getPartnerWallets(@AuthenticationPrincipal AccountabilitySessionUser user){
-        List<Relationship> partnerships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<User> partners = relationshipService.getCleanPartnerList(partnerships, user.getId());
+    public List<WalletDto> getPartnerWallets(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                             @PageableDefault(size=20) Pageable pageable){
+
+        List<Relationship> partnerships = relationshipRepository.getRelationshipsByUserIdAndStatusIgnoreDirection(user.getId(), List.of(RelationshipStatus.APPROVED), pageable).getContent();
+        List<User> partners = relationshipService.deduplicateRelationshipsForUser(partnerships, user.getId());
 
         return partners.stream()
                 .map(response -> walletRepository.findByUserId(response.getId()))
@@ -69,7 +72,7 @@ public class WalletController {
         Wallet wallet = walletRepository.findByUserId(user.getId());
         float price = purchaseDto.getPrice();
 
-        if(wallet.getBalance() < price){
+        if (wallet.getBalance() < price){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
 

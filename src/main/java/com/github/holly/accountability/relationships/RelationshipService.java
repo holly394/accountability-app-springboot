@@ -1,6 +1,3 @@
-//WHY: there are cases where only a list of partners (type: User) with no duplicates
-//is needed in other Controllers. (TaskController, WalletController)
-
 package com.github.holly.accountability.relationships;
 
 import com.github.holly.accountability.user.User;
@@ -12,8 +9,8 @@ import java.util.Objects;
 
 @Component
 public class RelationshipService {
-    //returns just the partner users, not relationship statuses
-    public List<User> getCleanPartnerList(List<Relationship> relationships, Long userId) {
+
+    public List<User> deduplicateRelationshipsForUser(List<Relationship> relationships, Long userId) {
 
         List<User> allPartners = new ArrayList<>();
         List<User> usersNotCurrent = relationships.stream()
@@ -30,24 +27,6 @@ public class RelationshipService {
 
         allPartners.addAll(usersNotCurrent);
         allPartners.addAll(partnersNotCurrent);
-
-        int indexDelete = 0;
-        boolean toDelete = false;
-
-        for(int i=0; i < allPartners.size()-1; i++) {
-            Long repeatId = allPartners.get(i).getId();
-
-            for(int j= i+1; j < allPartners.size(); j++) {
-                if(repeatId.equals(allPartners.get(j).getId())) {
-                    indexDelete = j;
-                    toDelete = true;
-                }
-            }
-            if(toDelete) {
-                allPartners.remove(indexDelete);
-                toDelete = false;
-            }
-        }
 
         return allPartners.stream().distinct().toList();
     }

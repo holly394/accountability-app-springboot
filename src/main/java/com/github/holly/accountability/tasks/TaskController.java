@@ -2,6 +2,7 @@ package com.github.holly.accountability.tasks;
 import com.github.holly.accountability.relationships.Relationship;
 import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
+import com.github.holly.accountability.relationships.RelationshipStatus;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
@@ -72,9 +73,9 @@ public class TaskController {
                                           @RequestParam(defaultValue = "APPROVED, PENDING, COMPLETED, IN_PROGRESS, REJECTED") List<TaskStatus> statuses,
                                           @PageableDefault(size = 20) Pageable pageable) {
 
-        List<Relationship> relationships = relationshipRepository
-                .getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<User> partners = relationshipService.getCleanPartnerList(relationships, user.getId());
+        Page<Relationship> relationships = relationshipRepository
+                .getRelationshipsByUserIdAndStatusIgnoreDirection(user.getId(), List.of(RelationshipStatus.APPROVED), pageable);
+        List<User> partners = relationshipService.deduplicateRelationshipsForUser(relationships.getContent(), user.getId());
         List<Long> partnerIds = partners.stream().map(User::getId).toList();
 
         return taskRepository.findByUserIdIn(partnerIds, statuses, pageable)
@@ -167,8 +168,9 @@ public class TaskController {
                                      @PathVariable Long taskId,
                                      @RequestBody TaskStatusDto newStatus){
 
+        // FIXME: This should query the database for a task belonging to a partner with which the user has an approved relationship, not reload all relationships from the database
         List<Relationship> partnerRelationships = relationshipRepository.getApprovedRelationshipsByUserIdBothDirections(user.getId());
-        List<User> cleanPartnerList = relationshipService.getCleanPartnerList(partnerRelationships, user.getId());
+        List<User> cleanPartnerList = relationshipService.deduplicateRelationshipsForUser(partnerRelationships, user.getId());
 
         Task task = taskRepository
                 .findById(taskId)

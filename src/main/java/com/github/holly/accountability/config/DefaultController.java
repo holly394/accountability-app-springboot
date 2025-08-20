@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Order(Ordered.LOWEST_PRECEDENCE)
 @Controller
 public class DefaultController {
+
     @Order(Ordered.LOWEST_PRECEDENCE)
     @GetMapping("{_:^(?!index\\.html|api|error|h2-console).*$}")
     public String fallback() {

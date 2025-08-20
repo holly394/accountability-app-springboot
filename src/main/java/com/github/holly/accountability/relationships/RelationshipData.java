@@ -1,51 +1,27 @@
 package com.github.holly.accountability.relationships;
 
+import com.github.holly.accountability.user.UserDto;
+
 public class RelationshipData {
+
     private Long id;
-    private Long userId;
-    private String userName;
-    private Long partnerId;
-    private String partnerName;
     private RelationshipStatus status;
 
-    public Long getId() {
-        return id;
+    private UserDto user;
+    private UserDto partner;
+
+    public RelationshipData() {
     }
 
-    public void setId(Long id) {
+    public RelationshipData(Long id, RelationshipStatus status, UserDto user, UserDto partner) {
         this.id = id;
+        this.status = status;
+        this.user = user;
+        this.partner = partner;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public Long getPartnerId() {
-        return partnerId;
-    }
-
-    public void setPartnerId(Long partnerId) {
-        this.partnerId = partnerId;
-    }
-
-    public String getPartnerName() {
-        return partnerName;
-    }
-
-    public void setPartnerName(String partnerName) {
-        this.partnerName = partnerName;
+    public RelationshipData flipped()  {
+        return new RelationshipData(id, status, partner, user);
     }
 
     public RelationshipStatus getStatus() {
@@ -54,5 +30,17 @@ public class RelationshipData {
 
     public void setStatus(RelationshipStatus status) {
         this.status = status;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public UserDto getUser() {
+        return user;
+    }
+
+    public UserDto getPartner() {
+        return partner;
     }
 }

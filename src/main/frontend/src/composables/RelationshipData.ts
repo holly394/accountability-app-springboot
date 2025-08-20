@@ -21,6 +21,7 @@ export function relationshipData() {
     })).data;
   }
 
+  // FIXME: See RelationshipController about parameterizing what's available
   const getRequestsToAnswer = async (): Promise<Page<RelationshipData>> => {
     return (await api.get<Page<RelationshipData>>(`/relationships/pending-requests-to-answer`)).data;
   }

@@ -1,6 +1,5 @@
 package com.github.holly.accountability.relationships;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
-    @NotNull Relationship getById(@NotNull Long id);
+
+    Relationship getById(Long id);
 
     @Query("""
         FROM Relationship r

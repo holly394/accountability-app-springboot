@@ -14,7 +14,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         WHERE t.status = :#{#status.name()}
         AND t.user_id = :userId
         """, nativeQuery = true)
-    Double getTotalSecondsWithEndTime(Long userId, TaskStatus status);
+    Double getTotalSecondsWithEndTime(Long userId,
+                                      TaskStatus status);
 
     @Query(value = """
         SELECT SUM(TIMESTAMPDIFF('SECOND', t.time_start, CURRENT_TIMESTAMP)) as total
@@ -22,7 +23,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         WHERE t.status = :#{#status.name()}
         AND t.user_id = :userId
         """, nativeQuery = true)
-    Double getTotalSecondsNoEndTime(Long userId, TaskStatus status);
+    Double getTotalSecondsNoEndTime(Long userId,
+                                    TaskStatus status);
 
     @Query("""
         FROM Task t
@@ -36,30 +38,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         WHERE t.user.id in (:userIds)
         AND t.status in (:statuses)
         """)
-    Page<Task> findByUserIdIn(List<Long> userIds, List<TaskStatus> statuses,  Pageable pageable);
+    Page<Task> findByUserIdIn(List<Long> userIds, List<TaskStatus> statuses, Pageable pageable);
 
-
-    @Query("""
-        FROM Task t
-        WHERE t.status = com.github.holly.accountability.tasks.TaskStatus.COMPLETED
-        AND t.user.id =:userId
-        """)
-    List<Task> findCompleted(Long userId);
-
-    @Query("""
-        FROM Task t
-        WHERE t.status = com.github.holly.accountability.tasks.TaskStatus.IN_PROGRESS
-        AND t.user.id =:userId
-        """)
-    List<Task> findInProgress(Long userId);
-
-    @Query("""
-        FROM Task t
-        WHERE t.status = com.github.holly.accountability.tasks.TaskStatus.APPROVED
-        AND t.user.id =:userId
-        """)
-    List<Task> findApproved(Long userId);
-
-    List<Long> userId(Long userId);
 }
 

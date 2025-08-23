@@ -7,16 +7,19 @@ import java.util.Objects;
 @Entity
 @Table(name="user")
 public class User {
+
     private String username;
+
     private String name;
+
     private String password;
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     public User() {
-
     }
+
     public User(String username, String name, String password) {
         this.username = username;
         this.name = name;
@@ -57,8 +60,11 @@ public class User {
 
     @Override
     public boolean equals(Object o) {
+
         if (o == null || getClass() != o.getClass()) return false;
+
         User user = (User) o;
+
         return Objects.equals(username, user.username) && Objects.equals(id, user.id);
     }
 

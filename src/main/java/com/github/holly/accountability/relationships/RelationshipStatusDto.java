@@ -1,6 +1,7 @@
 package com.github.holly.accountability.relationships;
 
 public class RelationshipStatusDto {
+
     private RelationshipStatus status;
 
     public RelationshipStatus getStatus() {

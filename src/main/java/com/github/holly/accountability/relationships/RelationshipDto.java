@@ -2,7 +2,7 @@ package com.github.holly.accountability.relationships;
 
 import com.github.holly.accountability.user.UserDto;
 
-public class RelationshipData {
+public class RelationshipDto {
 
     private Long id;
     private RelationshipStatus status;
@@ -10,18 +10,18 @@ public class RelationshipData {
     private UserDto user;
     private UserDto partner;
 
-    public RelationshipData() {
+    public RelationshipDto() {
     }
 
-    public RelationshipData(Long id, RelationshipStatus status, UserDto user, UserDto partner) {
+    public RelationshipDto(Long id, RelationshipStatus status, UserDto user, UserDto partner) {
         this.id = id;
         this.status = status;
         this.user = user;
         this.partner = partner;
     }
 
-    public RelationshipData flipped()  {
-        return new RelationshipData(id, status, partner, user);
+    public RelationshipDto flipped()  {
+        return new RelationshipDto(id, status, partner, user);
     }
 
     public RelationshipStatus getStatus() {

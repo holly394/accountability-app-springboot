@@ -9,25 +9,12 @@ import java.util.List;
 
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
 
-    Relationship getById(Long id);
-
     @Query("""
         FROM Relationship r
         WHERE r.user.id =:userId
         AND r.partner.id =:partnerId
         """)
     Relationship findRelationship(Long userId, Long partnerId);
-
-    /**
-     * Use RelationshipRepository#getRelationshipsByUserIdAndStatusIgnoreDirection instead
-     */
-    @Deprecated(forRemoval = true)
-    @Query("""
-        FROM Relationship r
-        WHERE (r.user.id =:userId OR r.partner.id =:userId)
-        AND r.status = com.github.holly.accountability.relationships.RelationshipStatus.APPROVED
-        """)
-    List<Relationship> getApprovedRelationshipsByUserIdBothDirections(Long userId);
 
 
     @Query("""
@@ -45,8 +32,8 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
         AND r.status in (:statuses)
         """)
     Page<Relationship> getRelationshipsByPartnerIdAndStatus(Long userId,
-                                                         List<RelationshipStatus> statuses,
-                                                         Pageable pageable);
+                                                            List<RelationshipStatus> statuses,
+                                                            Pageable pageable);
 
     @Query("""
         FROM Relationship r
@@ -57,4 +44,13 @@ public interface RelationshipRepository extends JpaRepository<Relationship, Long
                                                                         List<RelationshipStatus> statuses,
                                                                         Pageable pageable);
 
+    @Query("""
+        FROM Relationship r
+        WHERE (r.user.id = :userId AND r.partner.id =:partnerId)
+        OR (r.user.id = :partnerId AND r.partner.id =:userId)
+        AND r.status in (:statuses)
+        """)
+    List<Relationship> checkRelationshipExistsByStatusIgnoreDirection(Long userId,
+                                                                      Long partnerId,
+                                                                      List<RelationshipStatus> statuses);
 }

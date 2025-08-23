@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {RelationshipData} from 'components/dto/RelationshipData.ts';
+import {RelationshipDto} from 'components/dto/relationship/RelationshipDto.ts';
 import {Page} from "components/paging/Page.ts";
 import {relationshipData} from "src/composables/RelationshipData.ts";
-import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
-import {RelationshipStatusDto} from "components/dto/RelationshipStatusDto.ts";
+import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
+import {RelationshipStatusDto} from "components/dto/relationship/RelationshipStatusDto.ts";
 import {ref} from "vue";
 
 const { updateRelationship } = relationshipData();
@@ -14,7 +14,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-  partnerList: Page<RelationshipData>
+  partnerList: Page<RelationshipDto>
 }>()
 
 const emit = defineEmits(['updateRelationship'])
@@ -55,8 +55,8 @@ async function updateRelationshipButton(relationshipId: number, statusEnum: Rela
             <tbody>
             <tr v-for="relationship in props.partnerList.content" :key="relationship.id">
                 <td v-text="relationship.id" />
-                <td v-text="relationship.partnerId" />
-                <td v-text="relationship.partnerName" />
+                <td v-text="relationship.partner.id" />
+                <td v-text="relationship.partner.username" />
                 <td v-text="relationship.status" />
                 <td><q-btn @click="updateRelationshipButton(relationship.id, RelationshipStatus.APPROVED)"
                            label="APPROVE" type="submit" color="primary"/></td>

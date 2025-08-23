@@ -5,7 +5,7 @@ import com.github.holly.accountability.relationships.RelationshipRepository;
 import com.github.holly.accountability.relationships.RelationshipService;
 import com.github.holly.accountability.relationships.RelationshipStatus;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
-import com.github.holly.accountability.user.User;
+import com.github.holly.accountability.user.UserDto;
 import com.github.holly.accountability.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.PageableDefault;
@@ -53,7 +53,7 @@ public class WalletController {
                                              @PageableDefault(size=20) Pageable pageable){
 
         List<Relationship> partnerships = relationshipRepository.getRelationshipsByUserIdAndStatusIgnoreDirection(user.getId(), List.of(RelationshipStatus.APPROVED), pageable).getContent();
-        List<User> partners = relationshipService.deduplicateRelationshipsForUser(partnerships, user.getId());
+        List<UserDto> partners = relationshipService.getPartnersFromGivenListForGivenUser(user.getId(), partnerships);
 
         return partners.stream()
                 .map(response -> walletRepository.findByUserId(response.getId()))
@@ -63,7 +63,7 @@ public class WalletController {
 
     @GetMapping("/getPurchases")
     public Page<PurchaseDto> getPurchases(@AuthenticationPrincipal AccountabilitySessionUser user,
-                                          @PageableDefault(size=20) Pageable pageable){
+                                          @PageableDefault() Pageable pageable){
         return purchaseRepository.findByUserIdOrderByPurchaseTimeDesc(user.getId(), pageable).map(this::convertPurchaseToDto);
     }
 

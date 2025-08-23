@@ -1,4 +1,4 @@
-//RelationshipData.ts composable
+//RelationshipDto.ts composable
 //Specifically for relationship-related data
 //This frontend composable is meant to organize commonly used API calls in one place
 //the API calls from here to the backend (via controllers)
@@ -7,39 +7,42 @@
 
 import {api} from "boot/axios.ts";
 import {Page} from "components/paging/Page.ts";
-import {RelationshipData} from "components/dto/RelationshipData.ts";
-import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
-import {RelationshipStatusDto} from "components/dto/RelationshipStatusDto.ts";
+import {RelationshipDto} from "components/dto/relationship/RelationshipDto.ts";
+import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
+import {RelationshipStatusDto} from "components/dto/relationship/RelationshipStatusDto.ts";
+import {RelationshipDirection} from "components/dto/relationship/RelationshipDirection.ts";
 
 export function relationshipData() {
 
-  const getPartnersByStatus = async (status: RelationshipStatus): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships`, {
+  const getPartnerIdList = async (): Promise<number[]> => {
+    return (await api.get<number[]>(`/relationships/get-partner-id-list`)).data;
+  }
+
+  const getRelationshipsByStatus = async (status: RelationshipStatus): Promise<Page<RelationshipDto>> => {
+    return (await api.get<Page<RelationshipDto>>(`/relationships`,{
       params: {
-        status: status,
+        statuses: status
+      },
+      paramsSerializer: {
+        indexes: null
       }
     })).data;
   }
 
-  // FIXME: See RelationshipController about parameterizing what's available
-  const getRequestsToAnswer = async (): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships/pending-requests-to-answer`)).data;
+  const getRequests = async (status: RelationshipStatus, direction: RelationshipDirection): Promise<Page<RelationshipDto>> => {
+    return (await api.get<Page<RelationshipDto>>(`/relationships`,{
+      params: {
+        statuses: status,
+        directions: direction
+      },
+      paramsSerializer: {
+        indexes: null
+      }
+    })).data;
   }
 
-  const getRequestsToWait = async (): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships/pending-requests-to-wait`)).data;
-  }
-
-  const getRejectionsSent = async (): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships/rejected-requests-sent`)).data;
-  }
-
-  const getRejectionsReceived = async (): Promise<Page<RelationshipData>> => {
-    return (await api.get<Page<RelationshipData>>(`/relationships/rejected-requests-received`)).data;
-  }
-
-  const updateRelationship = async (relationshipId: number, newStatus: RelationshipStatusDto): Promise<RelationshipData> => {
-    return (await api.post<RelationshipData>(`/relationships/${relationshipId}`, newStatus)).data;
+  const updateRelationship = async (relationshipId: number, newStatus: RelationshipStatusDto): Promise<RelationshipDto> => {
+    return (await api.post<RelationshipDto>(`/relationships/${relationshipId}`, newStatus)).data;
   }
 
   const deleteRelationship = async (relationshipId: number): Promise<void> => {
@@ -50,15 +53,14 @@ export function relationshipData() {
     await api.put(`/relationships/request/${partnerId}`)
   }
 
-  async function search(inputName: string): Promise<RelationshipData[]> {
-    return (await api.get<RelationshipData[]>(`/relationships/search`, {
+  async function search(inputName: string): Promise<RelationshipDto[]> {
+    return (await api.get<RelationshipDto[]>(`/relationships/search`, {
       params: {
-        username: inputName,
+        username: inputName
       }
     })).data;
   }
 
 
-  return { getPartnersByStatus, deleteRelationship, sendRequest, search,
-    getRequestsToAnswer, updateRelationship, getRequestsToWait, getRejectionsSent, getRejectionsReceived};
+  return { getPartnerIdList, getRelationshipsByStatus, getRequests, deleteRelationship, sendRequest, search, updateRelationship };
 }

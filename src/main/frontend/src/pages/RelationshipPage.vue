@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import {onMounted, ref} from 'vue';
 import {QMarkupTable} from 'quasar';
-import {RelationshipData} from 'components/dto/RelationshipData.ts';
+import {RelationshipDto} from 'components/dto/relationship/RelationshipDto.ts';
 import {UserDto} from 'components/dto/UserDto.ts';
-import PartnershipsRequestsToWait from 'components/tables/PartnershipsRequestsToWait.vue';
-import PartnershipsRejected from 'components/tables/PartnershipsRejected.vue';
-import PartnershipsRequestsToAnswer from 'components/tables/PartnershipsRequestsToAnswer.vue';
+import PartnershipsRequestsToWait from 'components/tables/partnerships/PartnershipsRequestsToWait.vue';
+import PartnershipsRejected from 'components/tables/partnerships/PartnershipsRejected.vue';
+import PartnershipsRequestsToAnswer from 'components/tables/partnerships/PartnershipsRequestsToAnswer.vue';
 import {relationshipData} from 'src/composables/RelationshipData.ts'
 import {DefaultPage, Page} from "components/paging/Page.ts";
-import {RelationshipStatus} from "components/dto/RelationshipStatus.ts";
-import PartnershipsApproved from "components/tables/PartnershipsApproved.vue";
+import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
+import PartnershipsApproved from "components/tables/partnerships/PartnershipsApproved.vue";
 import {userData} from "src/composables/UserData.ts";
+import {RelationshipDirection} from "components/dto/relationship/RelationshipDirection.ts";
 
 const { getCurrentUserInfo } = userData();
 
-const { search, sendRequest, getPartnersByStatus, getRequestsToAnswer,
-  getRequestsToWait, getRejectionsSent, getRejectionsReceived } = relationshipData();
+const { search, sendRequest, getRelationshipsByStatus, getRequests } = relationshipData();
 
 defineOptions({
   name: 'RelationshipPage'
@@ -31,24 +31,24 @@ const userSearch = ref<UserDto>({
   username: ''
 });
 
-const searchResult = ref<RelationshipData[]>([]);
-const approvedRelationships = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const searchResult = ref<RelationshipDto[]>([]);
+const approvedRelationships = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
 
-const requestsToAnswer = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
-const requestsToWait = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const requestsToAnswer = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
+const requestsToWait = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
 
-const rejectionsSent = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
-const rejectionsReceived = ref<Page<RelationshipData>>(DefaultPage as Page<RelationshipData>);
+const rejectionsSent = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
+const rejectionsReceived = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
 
 onMounted( async () => {
   currentUser.value = await getCurrentUserInfo();
-  approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
+  approvedRelationships.value = await getRelationshipsByStatus(RelationshipStatus.APPROVED);
 
-  requestsToAnswer.value = await getRequestsToAnswer();
-  requestsToWait.value = await getRequestsToWait();
+  requestsToAnswer.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.SENDER);
+  requestsToWait.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.RECEIVER);
 
-  rejectionsSent.value = await getRejectionsSent();
-  rejectionsReceived.value = await getRejectionsReceived();
+  rejectionsSent.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.SENDER);
+  rejectionsReceived.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.RECEIVER);
 })
 
 const searchFriend = async () => {
@@ -61,19 +61,19 @@ async function sendPartnershipRequest(partnerId: number) {
 }
 
 async function reloadRequestsToAnswer() {
-  requestsToAnswer.value = await getRequestsToAnswer();
+  requestsToAnswer.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.SENDER);
 }
 
 async function reloadRequestsToWait() {
-  requestsToAnswer.value = await getRequestsToWait();
+  requestsToAnswer.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.RECEIVER);
 }
 
 async function reloadApprovedPartners() {
-  approvedRelationships.value = await getPartnersByStatus(RelationshipStatus.APPROVED);
+  approvedRelationships.value = await getRelationshipsByStatus(RelationshipStatus.APPROVED);
 }
 
 async function reloadRejectedPartners() {
-  rejectionsSent.value = await getRejectionsSent();
+  rejectionsSent.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.SENDER);
 }
 
 async function reloadListsAfterAnswering() {
@@ -113,14 +113,15 @@ async function reloadListsAfterAnswering() {
             </tr>
             </thead>
             <tbody>
-            <tr v-for="partner in searchResult" :key="partner.id">
-                <td v-text="partner.partnerId" />
-                <td v-text="partner.partnerName" />
-              <template v-if="partner.status === null">
-                <q-btn @click="sendPartnershipRequest(partner.partnerId)" label="Request" type="submit" color="primary"/>
+            <tr v-for="relationship in searchResult" :key="relationship.partner.id">
+                <td v-text="relationship.partner.id" />
+                <td v-text="relationship.partner.username" />
+              <!-- relationship.status is a RelationshipStatusDto that also has a status -->
+              <template v-if="relationship.status === null">
+                <q-btn @click="sendPartnershipRequest(relationship.partner.id)" label="Request" type="submit" color="primary"/>
               </template>
               <template v-else>
-                <td v-text="partner.status" />
+                <td v-text="relationship.status" />
               </template>
             </tr>
             </tbody>

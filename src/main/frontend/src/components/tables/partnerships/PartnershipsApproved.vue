@@ -1,14 +1,7 @@
 <script setup lang="ts">
-//List of current user's approved partnerships
-//Also includes buttons to delete partnership if desired
-
-//WHY: having a table component for existing and approved partners
-// will allow us to recreate this table in another page if needed
-
-//Expects dependencies:
 
 import { QMarkupTable } from 'quasar';
-import { RelationshipData } from 'components/dto/RelationshipData.ts';
+import { RelationshipDto } from 'components/dto/relationship/RelationshipDto.ts';
 import { UserDto } from 'components/dto/UserDto.ts';
 import {Page} from "components/paging/Page.ts";
 import { relationshipData } from "src/composables/RelationshipData.ts";
@@ -20,7 +13,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-  partnerList: Page<RelationshipData>
+  partnerList: Page<RelationshipDto>
   currentUser: UserDto
 }>()
 
@@ -56,14 +49,8 @@ async function deleteRequest(relationshipId: number) {
             <tbody>
             <tr v-for="relationship in props.partnerList.content" :key="relationship.id" v-ripple>
                 <td v-text="relationship.id" />
-                <template v-if="relationship.userId == props.currentUser.id">
-                  <td v-text="relationship.partnerId" />
-                  <td v-text="relationship.partnerName" />
-                </template>
-                <template v-else>
-                  <td v-text="relationship.userId" />
-                  <td v-text="relationship.userName" />
-                </template>
+                <td v-text="relationship.partner.id" />
+                <td v-text="relationship.partner.username" />
                 <td v-text="relationship.status" />
                 <td><q-btn @click="deleteRequest(relationship.id)" label="DELETE" type="submit" color="primary"/></td>
             </tr>

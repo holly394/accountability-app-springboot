@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {taskData} from 'src/composables/TaskData.ts'
-import {TaskData} from "components/dto/TaskData.ts";
-import {Page} from "components/paging/Page.ts";
+import {taskData} from 'src/composables/TaskData.ts';
+import {TaskData} from "components/dto/task/TaskData.ts";
+import { Page} from "components/paging/Page.ts";
 
 const { deleteTask, startTask } = taskData();
 
@@ -25,6 +25,7 @@ async function startTaskButton(taskId: number) {
   await startTask(taskId);
   emit('startTask');
 }
+
 
 </script>
 

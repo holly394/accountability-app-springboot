@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {taskData} from 'src/composables/TaskData.ts'
-import {TaskData} from "components/dto/TaskData.ts";
+import {taskData} from "src/composables/TaskData.ts";
+import {TaskData} from "components/dto/task/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
-import {TaskCalculatorDto} from "components/dto/TaskCalculatorDto.ts";
+import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
 
 const { deleteTask } = taskData();
 
@@ -55,7 +55,7 @@ async function deleteTaskButton(taskId: number) {
             <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
         </tr>
         <tr>
-          <td>TOTAL VALUE: </td>
+          <td>TOTAL STANDING VALUE: </td>
           <td>{{ props.payment.payment.toFixed(2) }}</td>
         </tr>
       </tbody>

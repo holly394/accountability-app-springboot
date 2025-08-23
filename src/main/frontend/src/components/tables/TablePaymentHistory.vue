@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { api } from 'boot/axios'
 import { PurchaseDto } from 'components/dto/PurchaseDto.ts';
 import {QMarkupTable} from 'quasar';
 import {Page} from "components/paging/Page.ts";
-
-const purchasingHistory = ref<PurchaseDto[]>([]);
 
 defineOptions({
   name: 'TablePaymentHistory',
@@ -14,10 +10,6 @@ defineOptions({
 const props = defineProps<{
   paymentHistory: Page<PurchaseDto>
 }>()
-
-onMounted(async () => {
-  purchasingHistory.value = await api.get<PurchaseDto[]>('/wallet/getPurchases').then(res => res.data)
-});
 
 </script>
 

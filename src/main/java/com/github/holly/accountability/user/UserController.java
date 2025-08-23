@@ -26,9 +26,12 @@ public class UserController {
 
     @GetMapping("")
     public UserDto getUser(@AuthenticationPrincipal AccountabilitySessionUser user) {
+
         UserDto userDto = new UserDto();
+
         userDto.setUsername(user.getUsername());
         userDto.setId(user.getId());
+
         return userDto;
     }
 
@@ -39,5 +42,4 @@ public class UserController {
         return userRepository.getAllExceptCurrentUser(user.getId(), pageable)
                 .map(res -> userService.convertUserToDto(res));
     }
-
 }

@@ -6,6 +6,7 @@ package com.github.holly.accountability.user;
 import java.util.Objects;
 
 public class UserDto {
+
     private Long id;
 
     private String username;
@@ -26,8 +27,10 @@ public class UserDto {
         this.username = username;
     }
 
-    public boolean equals(Object compared){
+    public boolean equals(Object compared) {
+
         if(this == compared){
+
             return true;
         }
 
@@ -35,6 +38,5 @@ public class UserDto {
 
         return Objects.equals(this.id, userDtoCompared.id) &&
                 Objects.equals(this.username, userDtoCompared.username);
-
     }
 }

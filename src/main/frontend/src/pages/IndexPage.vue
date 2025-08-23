@@ -1,3 +1,13 @@
+<script setup lang="ts">
+import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
+import TableTasksApproved from "components/tables/tasks/TableTasksApproved.vue";
+
+defineOptions({
+  name: 'IndexPage'
+});
+
+</script>
+
 <template>
   <q-page class="q-pa-md row items-start q-gutter-md">
 
@@ -14,14 +24,10 @@
       </q-card-section>
     </q-card>
 
+    <br>
+    <TableTasksApproved />
+    <br>
+
   </q-page>
 </template>
 
-<script setup lang="ts">
-import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
-
-defineOptions({
-  name: 'IndexPage'
-});
-
-</script>

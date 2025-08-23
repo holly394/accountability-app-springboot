@@ -21,6 +21,7 @@ import { taskData } from 'src/composables/TaskData.ts';
 import {TaskData} from "components/dto/task/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
 import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
+import {onMounted, ref} from "vue";
 
 const { deleteTask, endTask } = taskData();
 
@@ -28,12 +29,16 @@ defineOptions({
   name: 'TableTasksInProgress',
 });
 
+onMounted(async () => {
+  await changePage();
+});
+
 const props = defineProps<{
   taskList: Page<TaskData>
   payment: TaskCalculatorDto
 }>()
 
-const emit = defineEmits(['endTask', 'deleteTask'])
+const emit = defineEmits(['endTask', 'deleteTask', 'updateList'])
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
@@ -43,6 +48,12 @@ async function deleteTaskButton(taskId: number) {
 async function endTaskButton(taskId: number) {
   await endTask(taskId);
   emit('endTask');
+}
+
+const currentPage = ref<number>(0);
+
+async function changePage() {
+  emit('updateList', currentPage.value);
 }
 
 </script>
@@ -81,6 +92,11 @@ async function endTaskButton(taskId: number) {
         <td>{{ props.payment.payment.toFixed(2) }}</td>
       </tr>
       </tbody>
+      <q-pagination
+        v-model="currentPage"
+        :max="props.taskList.totalPages"
+        @click="changePage()"
+      />
     </q-markup-table>
     </q-card-section>
   </q-card>

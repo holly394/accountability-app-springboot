@@ -1,7 +1,6 @@
 <script setup lang="ts">
 
 import {onMounted, ref} from 'vue';
-import {TaskEditRequestDto} from 'components/dto/task/TaskEditRequestDto.ts';
 import TableTasksCompleted from 'components/tables/tasks/TableTasksCompleted.vue';
 import TableTasksInProgress from "components/tables/tasks/TableTasksInProgress.vue";
 import TableTasksPending from "components/tables/tasks/TableTasksPending.vue";
@@ -14,8 +13,9 @@ import TableTasksApproved from "components/tables/tasks/TableTasksApproved.vue";
 import TableTasksRejected from "components/tables/tasks/TableTasksRejected.vue";
 import {walletData} from "src/composables/WalletData.ts";
 import {WalletDto} from "components/dto/WalletDto.ts";
+import TaskForm from "components/forms/TaskForm.vue"
 
-const { getTasksByCurrentUserAndStatus, addTask,
+const { getTasksByCurrentUserAndStatus,
   calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
 
 const { getCurrentUserWallet } = walletData();
@@ -30,6 +30,12 @@ const wallet = ref<WalletDto>( {
   balance: 0.00
 });
 
+const pageSize = 5;
+
+const pendingCurrentPage = ref<number>(0);
+const inProgressCurrentPage = ref<number>(0);
+const completedCurrentPage = ref<number>(0);
+
 const pendingTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const inProgressTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
 const completedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
@@ -39,44 +45,44 @@ const completedPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 
 onMounted(async () => {
   wallet.value = await getCurrentUserWallet();
-  inProgressPayment.value = await calculatePaymentInProgress();
-  completedPayment.value = await calculatePaymentCompleted();
   await Promise.all([reloadCompleted(), reloadInProgress(), reloadPending()] );
 });
 
-// this should be a ref<TaskData> - you want to send TaskData to the backend - or maybe a new class like TaskEditRequestDto.ts
-const formData = ref<TaskEditRequestDto>({
-  description: ''
-});
-
-//have page and max size for each? pending, in progress, completed here??
 const reloadPending = async () => {
-  pendingTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.PENDING, 0);
+  pendingTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.PENDING, pendingCurrentPage.value, pageSize);
 };
+
+async function changePendingPage(currentPage: number) {
+  pendingTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.PENDING, currentPage-1, pageSize);
+  pendingCurrentPage.value = pendingTasks.value.pageNumber+1;
+}
 
 const reloadInProgress = async () => {
-  inProgressTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.IN_PROGRESS, 0);
+  inProgressTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.IN_PROGRESS, inProgressCurrentPage.value, pageSize);
   inProgressPayment.value = await calculatePaymentInProgress();
-  completedPayment.value = await calculatePaymentCompleted();
 };
+
+async function changeInProgressPage(currentPage: number) {
+  inProgressTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.IN_PROGRESS, currentPage-1, pageSize);
+  inProgressCurrentPage.value = inProgressTasks.value.pageNumber+1;
+}
 
 const reloadCompleted = async () => {
-  completedTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.COMPLETED, 0);
+  completedTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.COMPLETED, completedCurrentPage.value, pageSize);
   completedPayment.value = await calculatePaymentCompleted();
 };
 
-const refreshPendingAndInProgressLists = async () => {
-  await Promise.all([reloadInProgress(), reloadPending()] );
-}
-const refreshInProgressAndCompletedLists = async () => {
-  await Promise.all([reloadCompleted(), reloadInProgress()] );
+async function changeCompletedPage(currentPage: number) {
+  completedTasks.value = await getTasksByCurrentUserAndStatus(TaskStatus.COMPLETED, currentPage-1, pageSize);
+  completedCurrentPage.value = completedTasks.value.pageNumber+1;
 }
 
-const addTaskForm = async () => {
-  await addTask(formData.value);
-  await reloadPending();
-  formData.value.description = '';
-};
+const refreshPendingAndInProgressLists = async () => {
+  await Promise.all([reloadInProgress(), reloadPending()]);
+}
+const refreshInProgressAndCompletedLists = async () => {
+  await Promise.all([reloadCompleted(), reloadInProgress()]);
+}
 
 </script>
 
@@ -84,18 +90,7 @@ const addTaskForm = async () => {
 <div>
   <q-page class="column items-center justify-evenly">
 
-    <q-form>
-      <q-input
-        v-model="formData.description"
-        label="description"
-        filled
-        @keyup.enter="addTaskForm"
-        type="textarea"
-        name=""
-      />
-      <!-- Don't use SUBMIT, it will reload the page before this asynchronous request via Axios can finish -->
-      <q-btn label="Submit" @click="addTaskForm" color="primary"/>
-    </q-form>
+    <TaskForm @new-task="reloadPending"/>
 
     <q-card
       class="my-card text-white"
@@ -109,16 +104,19 @@ const addTaskForm = async () => {
     <br>
     <TableTasksPending :taskList="pendingTasks"
                        @delete-task="reloadPending"
-                       @start-task="refreshPendingAndInProgressLists"/>
+                       @start-task="refreshPendingAndInProgressLists"
+                       @update-list="changePendingPage"/>
     <br>
     <TableTasksInProgress :taskList="inProgressTasks"
                           :payment="inProgressPayment"
                           @end-task="refreshInProgressAndCompletedLists"
-                          @delete-task="reloadInProgress"/>
+                          @delete-task="reloadInProgress"
+                          @update-list="changeInProgressPage"/>
     <br>
     <TableTasksCompleted :taskList="completedTasks"
                          :payment="completedPayment"
-                          @delete-task="reloadCompleted"/>
+                          @delete-task="reloadCompleted"
+                         @update-list="changeCompletedPage"/>
     <br>
     <TableTasksApproved />
     <br>

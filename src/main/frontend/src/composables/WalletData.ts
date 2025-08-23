@@ -13,8 +13,19 @@ export function walletData() {
     return (await api.get<WalletDto>('/wallet')).data;
   }
 
-  const getCurrentUserPurchaseHistory = async (): Promise<Page<PurchaseDto>> => {
-    return (await api.get<Page<PurchaseDto>>('/wallet/getPurchases')).data;
+  const getCurrentUserPurchaseHistory
+        = async (page: number = 0,
+                 size: number = 20): Promise<Page<PurchaseDto>> => {
+
+    return (await api.get<Page<PurchaseDto>>('/wallet/getPurchases', {
+      params: {
+        page: page,
+        size: size
+      },
+      paramsSerializer: {
+        indexes: null
+      }
+    })).data;
   }
 
   return { getCurrentUserWallet, getCurrentUserPurchaseHistory, makePurchase };

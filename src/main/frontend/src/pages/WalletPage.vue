@@ -1,13 +1,25 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { PurchaseDto } from 'components/dto/PurchaseDto.ts';
 import {WalletDto} from 'components/dto/WalletDto.ts';
 import TablePaymentHistory from "components/tables/TablePaymentHistory.vue";
-import { QForm } from 'quasar';
 import { walletData } from 'src/composables/WalletData.ts';
+import PurchaseForm from "components/forms/PurchaseForm.vue"
 import {DefaultPage, Page} from "components/paging/Page.ts";
+import {PurchaseDto} from "components/dto/PurchaseDto.ts";
 
-const { getCurrentUserWallet, getCurrentUserPurchaseHistory, makePurchase } = walletData();
+const { getCurrentUserWallet, getCurrentUserPurchaseHistory } = walletData();
+
+const purchasingHistory = ref<Page<PurchaseDto>>(DefaultPage as Page<PurchaseDto>);
+
+const parentCurrentPage = ref<number>(0);
+const maxPages = ref<number>(0);
+const pageSize = 5;
+
+async function changePage(currentPage: number) {
+  purchasingHistory.value = await getCurrentUserPurchaseHistory(currentPage-1, pageSize);
+  parentCurrentPage.value = purchasingHistory.value.pageNumber+1;
+  maxPages.value = purchasingHistory.value.totalPages;
+}
 
 const wallet = ref<WalletDto>( {
   userId: 0,
@@ -15,37 +27,18 @@ const wallet = ref<WalletDto>( {
   balance: 0.00
 });
 
-const purchasingHistory = ref<Page<PurchaseDto>>(DefaultPage as Page<PurchaseDto>);
-
 defineOptions({
   name: 'WalletPage'
 });
 
 onMounted(async () => {
-  wallet.value = await getCurrentUserWallet();
-  purchasingHistory.value = await getCurrentUserPurchaseHistory();
+  await updateWalletPage();
 });
 
-const formData = ref<PurchaseDto>({
-  id: 0,
-  price: 0.00,
-  description: '',
-  purchaseTimeString: ''
-});
-
-const formRef = ref<QForm>();
-
-const makeNewPurchase = async () => {
-  await makePurchase(formData.value);
-  purchasingHistory.value = await getCurrentUserPurchaseHistory();
+const updateWalletPage = async () => {
+  purchasingHistory.value = await getCurrentUserPurchaseHistory(parentCurrentPage.value, pageSize);
   wallet.value = await getCurrentUserWallet();
-  await resetForm();
 };
-
-const resetForm = async () => {
-  formData.value.price = 0;
-  formData.value.description = '';
-}
 
 </script>
 
@@ -60,42 +53,13 @@ const resetForm = async () => {
       </q-card-section>
     </q-card>
 
-    <q-card
-      class="my-card text-white"
-      style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-    >
-      <q-card-section>
-        <div class="text-h6">Make a purchase</div>
-        <div class="text-subtitle2">Describe item and add price</div>
-      </q-card-section>
-
-      <q-card-section>
-        <q-form ref="formRef" @submit="makeNewPurchase">
-          <q-input
-            v-model="formData.description"
-            label="description"
-            filled
-            type="textarea"
-            bg-color="white"
-            name="itemDescription"
-          />
-          <q-input
-            v-model="formData.price"
-            label="price"
-            filled
-            type="number"
-            bg-color="white"
-            name="itemPrice"
-          />
-
-          <q-btn label="Submit"
-                 type="submit" color="primary"/>
-        </q-form>
-      </q-card-section>
-    </q-card>
+    <PurchaseForm
+      @new-purchase="updateWalletPage" />
 
     <TablePaymentHistory
-      :paymentHistory = "purchasingHistory"
-    />
+    @update-list="changePage"
+    :purchaseHistory="purchasingHistory"
+    :maxPages="maxPages"/>
+
   </div>
 </template>

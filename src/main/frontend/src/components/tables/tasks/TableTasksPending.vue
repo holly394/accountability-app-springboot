@@ -3,6 +3,7 @@ import {QMarkupTable} from 'quasar';
 import {taskData} from 'src/composables/TaskData.ts';
 import {TaskData} from "components/dto/task/TaskData.ts";
 import { Page} from "components/paging/Page.ts";
+import {onMounted, ref} from "vue";
 
 const { deleteTask, startTask } = taskData();
 
@@ -10,11 +11,15 @@ defineOptions({
   name: 'TableTasksPending'
 });
 
+onMounted(async () => {
+  await changePage();
+});
+
 const props = defineProps<{
   taskList: Page<TaskData>
 }>()
 
-const emit = defineEmits(['startTask', 'deleteTask'])
+const emit = defineEmits(['startTask', 'deleteTask', 'updateList'])
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
@@ -24,6 +29,12 @@ async function deleteTaskButton(taskId: number) {
 async function startTaskButton(taskId: number) {
   await startTask(taskId);
   emit('startTask');
+}
+
+const currentPage = ref<number>(0);
+
+async function changePage() {
+  emit('updateList', currentPage.value);
 }
 
 
@@ -50,7 +61,7 @@ async function startTaskButton(taskId: number) {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="task in props.taskList.content" :key="task.id" v-ripple >
+      <tr v-for="task in props.taskList.content" :key="task.id" v-ripple>
           <td v-text="task.id" />
           <td v-text="task.description" />
           <td v-text="task.status" />
@@ -59,6 +70,11 @@ async function startTaskButton(taskId: number) {
           <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
       </tr>
       </tbody>
+      <q-pagination
+        v-model="currentPage"
+        :max="props.taskList.totalPages"
+        @click="changePage()"
+      />
     </q-markup-table>
     </q-card-section>
   </q-card>

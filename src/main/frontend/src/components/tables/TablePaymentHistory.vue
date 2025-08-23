@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { PurchaseDto } from 'components/dto/PurchaseDto.ts';
 import {QMarkupTable} from 'quasar';
-import {Page} from "components/paging/Page.ts";
+import { Page} from "components/paging/Page.ts";
+import { onMounted, ref } from "vue";
 
 defineOptions({
   name: 'TablePaymentHistory',
 });
 
+onMounted(async () => {
+  await changePage();
+});
+
 const props = defineProps<{
-  paymentHistory: Page<PurchaseDto>
+  maxPages: number,
+  purchaseHistory: Page<PurchaseDto>
 }>()
+
+const emit = defineEmits(['updateList'])
+
+const currentPage = ref<number>(0);
+
+async function changePage() {
+  emit('updateList', currentPage.value);
+}
 
 </script>
 
@@ -33,13 +47,18 @@ const props = defineProps<{
         </tr>
         </thead>
         <tbody>
-        <tr v-for="item in props.paymentHistory.content" :key="item.id">
+        <tr v-for="item in props.purchaseHistory.content" :key="item.id">
             <td v-text="item.id" />
             <td v-text="item.description" />
             <td v-text="item.price" />
             <td v-text="item.purchaseTimeString" />
         </tr>
         </tbody>
+        <q-pagination
+          v-model="currentPage"
+          :max="props.maxPages"
+          @click="changePage()"
+        />
       </q-markup-table>
     </q-card-section>
   </q-card>

@@ -4,6 +4,7 @@ import {taskData} from "src/composables/TaskData.ts";
 import {TaskData} from "components/dto/task/TaskData.ts";
 import {Page} from "components/paging/Page.ts";
 import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
+import {onMounted, ref} from "vue";
 
 const { deleteTask } = taskData();
 
@@ -11,16 +12,26 @@ defineOptions({
   name: 'TableTasksCompleted',
 });
 
+onMounted(async () => {
+  await changePage();
+});
+
 const props = defineProps<{
   taskList: Page<TaskData>
   payment: TaskCalculatorDto
 }>()
 
-const emit = defineEmits(['deleteTask'])
+const emit = defineEmits(['deleteTask', 'updateList'])
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
   emit('deleteTask');
+}
+
+const currentPage = ref<number>(0);
+
+async function changePage() {
+  emit('updateList', currentPage.value);
 }
 
 </script>
@@ -59,6 +70,11 @@ async function deleteTaskButton(taskId: number) {
           <td>{{ props.payment.payment.toFixed(2) }}</td>
         </tr>
       </tbody>
+      <q-pagination
+        v-model="currentPage"
+        :max="props.taskList.totalPages"
+        @click="changePage()"
+      />
     </q-markup-table>
     </q-card-section>
   </q-card>

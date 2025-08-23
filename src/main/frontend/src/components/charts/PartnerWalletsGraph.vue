@@ -15,9 +15,14 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
-import {api} from 'boot/axios.js';
 import {WalletDto} from 'components/dto/WalletDto.js';
 import {ECharts} from 'echarts';
+import {walletData} from 'src/composables/WalletData.ts';
+import {DefaultPage, Page} from "components/paging/Page.ts";
+import {relationshipData} from "src/composables/RelationshipData.ts";
+
+const {getCurrentUserWallet, getWalletsByUserIds} = walletData();
+const { getPartnerIdList } = relationshipData();
 
 defineOptions({
   name: 'TestGraph'
@@ -36,30 +41,23 @@ const data = ({
   values: <number[]>[]
 })
 
+const currentUserWallet = ref<WalletDto>();
+const partners = ref<number[]>([]);
+const partnerWallets = ref<Page<WalletDto>>(DefaultPage as Page<WalletDto>);
+
 // Fetch data and initialize chart
 onMounted(async () => {
   // 1. Fetch data from API
-  await api.get<WalletDto>('/wallet')
-    .then(res => {
-      let wallet = res.data
-      data.labels.push('YOU');
-      data.values.push(wallet.balance);
-    })
-    .catch(error => {
-      console.log(error);
-    })
+  partners.value = await getPartnerIdList();
+  currentUserWallet.value = await getCurrentUserWallet();
+  data.labels.push('YOU');
+  data.values.push(currentUserWallet.value.balance);
 
-  await api.get<WalletDto[]>('/wallet/get-partner-wallets')
-    .then(res => {
-      let walletArray = res.data
-      walletArray.forEach(wallet => {
-        data.labels.push(wallet.userName);
-        data.values.push(wallet.balance);
-      })
-    })
-    .catch(error => {
-      console.log(error);
-    })
+  partnerWallets.value = await getWalletsByUserIds(partners.value);
+  partnerWallets.value.content.forEach(walletDto => {
+    data.labels.push(walletDto.userName);
+    data.values.push(walletDto.balance);
+  })
 
   // 2. Initialize ECharts and attach to DOM element <div ref="barchart">
   // barchart.value = points to DOM element

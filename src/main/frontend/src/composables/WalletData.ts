@@ -28,5 +28,16 @@ export function walletData() {
     })).data;
   }
 
-  return { getCurrentUserWallet, getCurrentUserPurchaseHistory, makePurchase };
+  const getWalletsByUserIds = async(userIds: number[]): Promise<Page<WalletDto>> => {
+    return (await api.get<Page<WalletDto>>('/wallet/get-wallets', {
+      params: {
+        userIds: userIds
+      },
+      paramsSerializer: {
+        indexes: null
+      }
+    })).data;
+  }
+
+  return { getWalletsByUserIds, getCurrentUserWallet, getCurrentUserPurchaseHistory, makePurchase };
 }

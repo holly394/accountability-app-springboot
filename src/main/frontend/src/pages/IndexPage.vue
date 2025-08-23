@@ -1,10 +1,25 @@
 <script setup lang="ts">
 import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
 import TableTasksApproved from "components/tables/tasks/TableTasksApproved.vue";
+import TableTasksGeneral from "components/tables/tasks/TableTasksGeneral.vue";
+import {TaskData} from "components/dto/task/TaskData.ts";
+import {onMounted, ref} from "vue";
+import {DefaultPage, Page} from "components/paging/Page.ts";
+import {taskData} from "src/composables/TaskData.ts";
+import {relationshipData} from "src/composables/RelationshipData.ts";
+const { getAllTasksByUserList } = taskData();
+const { getPartnerIdList } = relationshipData();
 
 defineOptions({
   name: 'IndexPage'
 });
+
+const recentPartnerTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const partnerList = ref<number[]>([]);
+onMounted(async () => {
+  partnerList.value = await getPartnerIdList();
+  recentPartnerTasks.value = await getAllTasksByUserList(partnerList.value);
+})
 
 </script>
 
@@ -27,6 +42,7 @@ defineOptions({
     <br>
     <TableTasksApproved />
     <br>
+    <TableTasksGeneral :taskList="recentPartnerTasks" :tableTitle="'Recent tasks by partners'" />
 
   </q-page>
 </template>

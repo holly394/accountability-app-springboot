@@ -49,6 +49,22 @@ export function taskData() {
     return (await api.post<TaskData>(`/tasks/${taskId}/process`,
       newStatus)).data;
   }
+  const getAllTasksByUserList
+    = async (usersById: number[],
+             page: number = 0,
+             size: number = 20): Promise<Page<TaskData>> => {
+
+    return (await api.get<Page<TaskData>>(`/tasks`, {
+      params: {
+        userIds: usersById,
+        page: page,
+        size: size
+      },
+      paramsSerializer: {
+        indexes: null
+      }
+    })).data;
+  }
 
   const getTasksByCurrentUserAndStatus
     = async (status: TaskStatus,
@@ -99,7 +115,7 @@ export function taskData() {
     return (await api.get(`/tasks/calculatePaymentInProgress`)).data;
   }
 
-  return { startTask, endTask, getTasksByCurrentUserAndStatus,
+  return { getAllTasksByUserList, startTask, endTask, getTasksByCurrentUserAndStatus,
     getTasksByUserListAndStatus, processTaskForPartner, addTask,
     editTask: editTaskDescription, deleteTask,
     calculatePaymentCompleted, calculatePaymentInProgress };

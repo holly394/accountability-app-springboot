@@ -1,11 +1,6 @@
 package com.github.holly.accountability.wallet;
 
-import com.github.holly.accountability.relationships.Relationship;
-import com.github.holly.accountability.relationships.RelationshipRepository;
-import com.github.holly.accountability.relationships.RelationshipService;
-import com.github.holly.accountability.relationships.RelationshipStatus;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
-import com.github.holly.accountability.user.UserDto;
 import com.github.holly.accountability.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.PageableDefault;
@@ -36,39 +31,33 @@ public class WalletController {
     @Autowired
     WalletService walletService;
 
-    @Autowired
-    RelationshipRepository relationshipRepository;
-
-    @Autowired
-    RelationshipService relationshipService;
-
     @GetMapping("")
     public WalletDto getWallet(@AuthenticationPrincipal AccountabilitySessionUser user){
+
         Wallet userWallet = walletRepository.findByUserId(user.getId());
         return walletService.convertWalletToWalletDto(userWallet);
     }
 
-    @GetMapping("/get-partner-wallets")
-    public List<WalletDto> getPartnerWallets(@AuthenticationPrincipal AccountabilitySessionUser user,
-                                             @PageableDefault(size=20) Pageable pageable){
+    @GetMapping("/get-wallets")
+    public Page<WalletDto> getWallets(@RequestParam List<Long> userIds,
+                                     @PageableDefault(size=20) Pageable pageable){
 
-        List<Relationship> partnerships = relationshipRepository.getRelationshipsByUserIdAndStatusIgnoreDirection(user.getId(), List.of(RelationshipStatus.APPROVED), pageable).getContent();
-        List<UserDto> partners = relationshipService.getPartnersFromGivenListForGivenUser(user.getId(), partnerships);
-
-        return partners.stream()
-                .map(response -> walletRepository.findByUserId(response.getId()))
-                .map(res -> walletService.convertWalletToWalletDto(res))
-                .toList();
+        return walletRepository.findByUserList(userIds, pageable).map(wallet ->
+                walletService.convertWalletToWalletDto(wallet));
     }
 
     @GetMapping("/getPurchases")
     public Page<PurchaseDto> getPurchases(@AuthenticationPrincipal AccountabilitySessionUser user,
                                           @PageableDefault() Pageable pageable){
-        return purchaseRepository.findByUserIdOrderByPurchaseTimeDesc(user.getId(), pageable).map(this::convertPurchaseToDto);
+
+        return purchaseRepository.findByUserIdOrderByPurchaseTimeDesc(user.getId(), pageable)
+                .map(this::convertPurchaseToDto);
     }
 
     @PostMapping("/makePurchase")
-    public PurchaseDto purchase(@AuthenticationPrincipal AccountabilitySessionUser user, @RequestBody PurchaseDto purchaseDto){
+    public PurchaseDto purchase(@AuthenticationPrincipal AccountabilitySessionUser user,
+                                @RequestBody PurchaseDto purchaseDto){
+
         Wallet wallet = walletRepository.findByUserId(user.getId());
         float price = purchaseDto.getPrice();
 

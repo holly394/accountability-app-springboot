@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {TaskData} from 'components/dto/task/TaskData.ts';
+import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
 import {QMarkupTable} from 'quasar';
 import {TaskStatus} from "components/dto/task/TaskStatus.ts";
 import {TaskStatusDto} from "components/dto/task/TaskStatusDto.ts";
@@ -19,7 +19,7 @@ const currentPage = ref<number>(0);
 const maxPages = ref<number>(0);
 const pageSize = 5;
 
-const partnerTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const partnerTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
 const partners = ref<number[]>([]);
 
 const newStatus = ref<TaskStatusDto>({

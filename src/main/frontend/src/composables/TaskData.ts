@@ -1,4 +1,4 @@
-import { TaskData } from 'components/dto/task/TaskData.ts';
+import { TaskDataDto } from 'components/dto/task/TaskDataDto.ts';
 import {TaskEditRequestDto} from "components/dto/task/TaskEditRequestDto.ts";
 import {api} from "boot/axios.ts";
 import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
@@ -10,30 +10,30 @@ export function taskData() {
 
   //all other calls go to the TaskController
   const addTask
-    = async (description: TaskEditRequestDto): Promise<TaskData> => {
+    = async (description: TaskEditRequestDto): Promise<TaskDataDto> => {
 
-    return (await api.post<TaskData>(`/tasks/add`,
+    return (await api.post<TaskDataDto>(`/tasks/add`,
       description)).data;
   }
 
   const editTaskDescription
     = async (taskId: number,
-             description: string): Promise<void | TaskData> => {
+             description: string): Promise<void | TaskDataDto> => {
 
-    return (await api.put<TaskData>(`/tasks/${taskId}`,
+    return (await api.put<TaskDataDto>(`/tasks/${taskId}`,
       description)).data;
   }
 
   const startTask
-    = async (taskId: number): Promise<TaskData> => {
+    = async (taskId: number): Promise<TaskDataDto> => {
 
-    return (await api.post<TaskData>(`/tasks/${taskId}/start`)).data;
+    return (await api.post<TaskDataDto>(`/tasks/${taskId}/start`)).data;
   }
 
   const endTask
-    = async (taskId: number): Promise<TaskData> => {
+    = async (taskId: number): Promise<TaskDataDto> => {
 
-    return (await api.post<TaskData>(`/tasks/${taskId}/end`)).data;
+    return (await api.post<TaskDataDto>(`/tasks/${taskId}/end`)).data;
   }
 
   const deleteTask
@@ -44,17 +44,17 @@ export function taskData() {
 
   const processTaskForPartner
     = async (taskId: number,
-             newStatus: TaskStatusDto): Promise<TaskData> => {
+             newStatus: TaskStatusDto): Promise<TaskDataDto> => {
 
-    return (await api.post<TaskData>(`/tasks/${taskId}/process`,
+    return (await api.post<TaskDataDto>(`/tasks/${taskId}/process`,
       newStatus)).data;
   }
   const getAllTasksByUserList
     = async (usersById: number[],
              page: number = 0,
-             size: number = 20): Promise<Page<TaskData>> => {
+             size: number = 20): Promise<Page<TaskDataDto>> => {
 
-    return (await api.get<Page<TaskData>>(`/tasks`, {
+    return (await api.get<Page<TaskDataDto>>(`/tasks`, {
       params: {
         userIds: usersById,
         page: page,
@@ -69,9 +69,9 @@ export function taskData() {
   const getTasksByCurrentUserAndStatus
     = async (status: TaskStatus,
              page: number = 0,
-             size: number = 20): Promise<Page<TaskData>> => {
+             size: number = 20): Promise<Page<TaskDataDto>> => {
 
-    return (await api.get<Page<TaskData>>(`/tasks`, {
+    return (await api.get<Page<TaskDataDto>>(`/tasks`, {
       params: {
         statuses: status,
         page: page,
@@ -88,9 +88,9 @@ export function taskData() {
     = async (usersById: number[],
              status: TaskStatus,
              page: number = 0,
-             size: number = 20): Promise<Page<TaskData>> => {
+             size: number = 20): Promise<Page<TaskDataDto>> => {
 
-      return (await api.get<Page<TaskData>>(`/tasks`, {
+      return (await api.get<Page<TaskDataDto>>(`/tasks`, {
         params: {
           userIds: usersById,
           statuses: status,
@@ -101,6 +101,25 @@ export function taskData() {
           indexes: null
         }
       })).data;
+  }
+
+  const getTasksByUserListAndStatusOrderByDuration
+    = async (usersById: number[],
+             status: TaskStatus,
+             page: number = 0,
+             size: number = 5): Promise<Page<TaskDataDto>> => {
+
+    return (await api.get<Page<TaskDataDto>>(`/tasks/order-by-duration`, {
+      params: {
+        userIds: usersById,
+        status: status,
+        page: page,
+        size: size,
+      },
+      paramsSerializer: {
+        indexes: null
+      }
+    })).data;
   }
 
   const calculatePaymentCompleted
@@ -115,7 +134,8 @@ export function taskData() {
     return (await api.get(`/tasks/calculatePaymentInProgress`)).data;
   }
 
-  return { getAllTasksByUserList, startTask, endTask, getTasksByCurrentUserAndStatus,
+  return { getTasksByUserListAndStatusOrderByDuration, getAllTasksByUserList, startTask,
+    endTask, getTasksByCurrentUserAndStatus,
     getTasksByUserListAndStatus, processTaskForPartner, addTask,
     editTask: editTaskDescription, deleteTask,
     calculatePaymentCompleted, calculatePaymentInProgress };

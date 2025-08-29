@@ -5,7 +5,7 @@ import TableTasksCompleted from 'components/tables/tasks/TableTasksCompleted.vue
 import TableTasksInProgress from "components/tables/tasks/TableTasksInProgress.vue";
 import TableTasksPending from "components/tables/tasks/TableTasksPending.vue";
 import {taskData} from 'src/composables/TaskData.ts'
-import {TaskData} from "components/dto/task/TaskData.ts";
+import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
 import {TaskStatus} from "components/dto/task/TaskStatus.ts";
 import {DefaultPage, Page} from "components/paging/Page.ts";
 import {DefaultTaskCalculatorDto, TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
@@ -36,9 +36,9 @@ const pendingCurrentPage = ref<number>(0);
 const inProgressCurrentPage = ref<number>(0);
 const completedCurrentPage = ref<number>(0);
 
-const pendingTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
-const inProgressTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
-const completedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const pendingTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
+const inProgressTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
+const completedTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
 
 const inProgressPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 const completedPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);

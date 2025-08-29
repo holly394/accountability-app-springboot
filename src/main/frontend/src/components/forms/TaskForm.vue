@@ -10,7 +10,7 @@ defineOptions({
   name: 'TaskPage'
 });
 
-// this should be a ref<TaskData> - you want to send TaskData to the backend - or maybe a new class like TaskEditRequestDto.ts
+// this should be a ref<TaskDataDto> - you want to send TaskDataDto to the backend - or maybe a new class like TaskEditRequestDto.ts
 const formData = ref<TaskEditRequestDto>({
   description: ''
 });

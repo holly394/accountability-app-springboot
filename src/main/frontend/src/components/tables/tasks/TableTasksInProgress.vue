@@ -9,7 +9,7 @@
 // spent on in-progress tasks from start to current time)
 
 //Expects composable:
-// TaskData() from TaskData.ts composable with methods:
+// TaskDataDto() from TaskDataDto.ts composable with methods:
 // deleteTask (deletes task from current user's list),
 // endTask (sets task to status: COMPLETED)
 
@@ -18,7 +18,7 @@
 
 import { QMarkupTable } from 'quasar';
 import { taskData } from 'src/composables/TaskData.ts';
-import {TaskData} from "components/dto/task/TaskData.ts";
+import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
 import {Page} from "components/paging/Page.ts";
 import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
 import {onMounted, ref} from "vue";
@@ -34,7 +34,7 @@ onMounted(async () => {
 });
 
 const props = defineProps<{
-  taskList: Page<TaskData>
+  taskList: Page<TaskDataDto>
   payment: TaskCalculatorDto
 }>()
 

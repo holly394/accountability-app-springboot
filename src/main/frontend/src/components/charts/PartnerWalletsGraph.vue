@@ -1,11 +1,15 @@
 <template>
   <div>
-    <q-card class="no-shadow" bordered>
-      <q-card-section class="text-h6">
-        Bar Chart
-      </q-card-section>
+    <q-card
+      class="rounded-outer-card text-white no-shadow q-pt-none"
+      bordered
+    >
       <q-card-section>
-        <div ref="barchart" style="width: 600px; height: 200px;" />
+        <div class="text-h6">Wallet overview</div>
+        <div class="text-subtitle2">How you compare</div>
+      </q-card-section>
+      <q-card-section class="rounded-inner-card" bordered>
+        <div ref="barchart" style="width: 500px; height: 500px;" />
       </q-card-section>
     </q-card>
   </div>
@@ -41,7 +45,12 @@ const data = ({
   values: <number[]>[]
 })
 
-const currentUserWallet = ref<WalletDto>();
+const currentUserWallet = ref<WalletDto>({
+  userId: 0,
+  userName: '',
+  balance: 0
+});
+
 const partners = ref<number[]>([]);
 const partnerWallets = ref<Page<WalletDto>>(DefaultPage as Page<WalletDto>);
 
@@ -78,5 +87,14 @@ onUnmounted(() => {
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '/home/holly/IdeaProjects/accountability-app-springboot/src/main/frontend/src/css/quasar.variables.scss';
+
+.rounded-outer-card {
+  @include card-style;
+}
+.rounded-inner-card {
+  @include card-section-style;
+}
+
 </style>

@@ -1,6 +1,5 @@
 package com.github.holly.accountability.wallet;
 
-
 import com.github.holly.accountability.user.User;
 import jakarta.persistence.*;
 

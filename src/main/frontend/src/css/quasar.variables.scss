@@ -23,3 +23,15 @@ $positive  : #21BA45;
 $negative  : #C10015;
 $info      : #31CCEC;
 $warning   : #F2C037;
+
+@mixin card-style {
+  background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
+  border-radius: 50px;
+  padding: 10px;
+}
+
+@mixin card-section-style {
+  background-color: white;
+  border-radius: 50px;
+  padding: 10px;
+}

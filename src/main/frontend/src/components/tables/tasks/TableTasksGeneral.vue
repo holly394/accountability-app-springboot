@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {TaskData} from "components/dto/task/TaskData.ts";
+import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
 import {Page} from "components/paging/Page.ts";
 
 defineOptions({
@@ -8,7 +8,7 @@ defineOptions({
 });
 
 const props = defineProps<{
-  taskList: Page<TaskData>,
+  taskList: Page<TaskDataDto>,
   tableTitle: string,
 }>()
 

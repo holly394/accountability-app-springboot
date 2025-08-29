@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
 import {taskData} from "src/composables/TaskData.ts";
-import {TaskData} from "components/dto/task/TaskData.ts";
+import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
 import {DefaultPage, Page} from "components/paging/Page.ts";
 import {onMounted, ref} from "vue";
 import {TaskStatus} from "components/dto/task/TaskStatus.ts";
@@ -15,7 +15,7 @@ defineOptions({
 const currentPage = ref<number>(0);
 const maxPages = ref<number>(0);
 const pageSize = 5;
-const approvedTasks = ref<Page<TaskData>>(DefaultPage as Page<TaskData>);
+const approvedTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
 
 onMounted(async () => {
   await reloadApproved();

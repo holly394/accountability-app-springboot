@@ -1,4 +1,4 @@
-package com.github.holly.accountability.wallet;
+package com.github.holly.accountability.purchase;
 
 
 import com.github.holly.accountability.user.User;
@@ -18,7 +18,7 @@ public class Purchase {
     private User user;
 
     @Column(name="price")
-    private Float price = 0.00F;
+    private Double price = 0.00D;
 
     @Column(name="description")
     private String description;
@@ -46,11 +46,11 @@ public class Purchase {
         this.user = user;
     }
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

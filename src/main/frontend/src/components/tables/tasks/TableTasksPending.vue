@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
 import {taskData} from 'src/composables/TaskData.ts';
-import {TaskData} from "components/dto/task/TaskData.ts";
+import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
 import { Page} from "components/paging/Page.ts";
 import {onMounted, ref} from "vue";
 
@@ -16,7 +16,7 @@ onMounted(async () => {
 });
 
 const props = defineProps<{
-  taskList: Page<TaskData>
+  taskList: Page<TaskDataDto>
 }>()
 
 const emit = defineEmits(['startTask', 'deleteTask', 'updateList'])

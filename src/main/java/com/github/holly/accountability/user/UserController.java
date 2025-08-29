@@ -28,7 +28,6 @@ public class UserController {
     public UserDto getUser(@AuthenticationPrincipal AccountabilitySessionUser user) {
 
         UserDto userDto = new UserDto();
-
         userDto.setUsername(user.getUsername());
         userDto.setId(user.getId());
 

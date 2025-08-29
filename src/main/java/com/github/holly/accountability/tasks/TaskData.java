@@ -17,6 +17,8 @@ public class TaskData {
 
     private String durationString;
 
+    private Long durationNumber;
+
     public TaskData() {
     }
 
@@ -38,6 +40,13 @@ public class TaskData {
 
     public void setDurationString(String durationString) {
         this.durationString = durationString;
+    }
+
+    public Long getDurationNumber() {
+        return this.durationNumber;
+    }
+    public void setDurationNumber() {
+        this.durationNumber = this.duration.toSeconds();
     }
 
     public Long getId() {

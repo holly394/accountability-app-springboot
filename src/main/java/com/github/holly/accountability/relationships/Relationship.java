@@ -64,4 +64,10 @@ public class Relationship {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public Relationship flipped()  {
+        Relationship flipped = new Relationship(this.getPartner(), this.getUser(), this.getStatus());
+        flipped.setId(this.getId());
+        return flipped;
+    }
 }

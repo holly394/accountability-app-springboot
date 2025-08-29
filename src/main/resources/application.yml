@@ -8,7 +8,7 @@ spring:
       hibernate:
         globally_quoted_identifiers: true
         globally_quoted_identifiers_skip_column_definitions: true
-    show-sql: true
+    show-sql: false
   threads:
     virtual:
       enabled: true
@@ -36,13 +36,3 @@ logging:
   level:
     org.flywaydb: DEBUG
 
-management:
-  server:
-    port: 8081
-  endpoints:
-    web:
-      base-path: "/"
-  endpoint:
-    health:
-      probes:
-        enabled: true

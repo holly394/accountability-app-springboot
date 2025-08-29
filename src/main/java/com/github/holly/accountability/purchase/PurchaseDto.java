@@ -1,16 +1,16 @@
-package com.github.holly.accountability.wallet;
+package com.github.holly.accountability.purchase;
 
 public class PurchaseDto {
     private Long id;
-    private Float price = 0.00F;
+    private Double price = 0.00D;
     private String description;
     private String purchaseTimeString;
 
-    public Float getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(Float price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 

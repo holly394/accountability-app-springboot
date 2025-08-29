@@ -1,11 +1,6 @@
 package com.github.holly.accountability.tasks;
 import com.github.holly.accountability.relationships.*;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
-import com.github.holly.accountability.user.UserDto;
-import com.github.holly.accountability.user.UserRepository;
-import com.github.holly.accountability.wallet.Wallet;
-import com.github.holly.accountability.wallet.WalletRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,8 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -27,20 +22,11 @@ import java.util.List;
 @ResponseBody
 public class TaskController {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskService taskService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private WalletRepository walletRepository;
-
-    @Autowired
-    private RelationshipRepository relationshipRepository;
-
-    @Autowired
-    private TaskService taskService;
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @GetMapping("")
     public Page<TaskData> getAllTasks(
@@ -52,75 +38,56 @@ public class TaskController {
             @PageableDefault(size = 20)
             @SortDefault.SortDefaults({
                     @SortDefault(sort = "t.id", direction = Sort.Direction.DESC)}) Pageable pageable
-            ){
+    ){
 
-        if (userIds == null) {
-            return taskRepository.findByUserId(user.getId(), statuses, pageable)
-                    .map(taskService::convertTaskToDto);
-        }
+        return taskService.getRelevantTasks(userIds, statuses, pageable, user.getId())
+                .map(this::convertTaskToDto);
+    }
 
-        return taskRepository.findByUserIdIn(userIds, statuses, pageable)
-                .map(taskService::convertTaskToDto);
+    @GetMapping("/order-by-duration")
+    public Page<TaskData> getTasksOrderByDuration(
+            @AuthenticationPrincipal AccountabilitySessionUser user,
+            @RequestParam(required = false) List<Long> userIds,
+            @RequestParam TaskStatus status,
+            @PageableDefault(size = 20) Pageable pageable
+    ){
+        return taskService.getTasksByDuration(userIds, status, pageable, user.getId())
+                .map(this::convertTaskToDto);
     }
 
 
     @GetMapping("/calculatePaymentCompleted")
     public TaskCalculator calculatePaymentCompleted(
-            @AuthenticationPrincipal AccountabilitySessionUser user){
-
-        TaskCalculator taskCalculator = new TaskCalculator();
-
-        Double totalCompletedTasksInSeconds = taskRepository
-                .getTotalSecondsWithEndTime(user.getId(), TaskStatus.COMPLETED);
-
-        if (totalCompletedTasksInSeconds != null) {
-            Double completedEarnings = (totalCompletedTasksInSeconds/3600)*13;
-            taskCalculator.setPayment(completedEarnings);
-        }
-
-        return taskCalculator;
+            @AuthenticationPrincipal AccountabilitySessionUser user
+    ){
+        return taskService.getWageFromSeconds(TaskStatus.COMPLETED, user.getId());
     }
 
     @GetMapping("/calculatePaymentInProgress")
     public TaskCalculator calculatePaymentInProgress(
-            @AuthenticationPrincipal AccountabilitySessionUser user){
-
-        TaskCalculator taskCalculator = new TaskCalculator();
-
-        Double totalInProgressTasksInSeconds = taskRepository
-                .getTotalSecondsNoEndTime(user.getId(), TaskStatus.IN_PROGRESS);
-
-        if (totalInProgressTasksInSeconds != null) {
-            Double completedEarnings = (totalInProgressTasksInSeconds/3600)*13;
-            taskCalculator.setPayment(completedEarnings);
-        }
-
-        return taskCalculator;
+            @AuthenticationPrincipal AccountabilitySessionUser user
+    ){
+        return taskService.getWageFromSeconds(TaskStatus.IN_PROGRESS, user.getId());
     }
 
     @PostMapping("/add")
-    public TaskData addTask(@AuthenticationPrincipal AccountabilitySessionUser user,
-                            @RequestBody TaskEditRequest request){
-
-        Task newTask = new Task();
-
-        newTask.setDescription(request.getDescription());
-
-        newTask.setUser(userRepository.findUserById(user.getId()));
-
-        taskRepository.save(newTask);
-
-        return taskService.convertTaskToDto(newTask);
+    public TaskData addTask(
+            @AuthenticationPrincipal AccountabilitySessionUser user,
+            @RequestBody TaskEditRequest request
+    ){
+        Task task = taskService.addNewTask(request, user.getId());
+        return convertTaskToDto(task);
     }
 
     @DeleteMapping("/{taskId}")
     public ResponseEntity<Void> deleteTask(
             @AuthenticationPrincipal AccountabilitySessionUser user,
-            @PathVariable Long taskId){
-
-        validateUserTask(taskId, user.getId());
-
-        taskRepository.deleteById(taskId);
+            @PathVariable Long taskId
+    ){
+        if (!taskService.deleteTask(taskId, user.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Task does not exist.");
+        }
 
         return ResponseEntity.noContent().build();
     }
@@ -132,57 +99,40 @@ public class TaskController {
             @RequestBody TaskEditRequest request
     ){
 
-        Task task = validateUserTask(taskId, user.getId());
-
-        task.setDescription(request.getDescription());
-
-        taskRepository.save(task);
-
-        return taskService.convertTaskToDto(task);
+        Task task = taskService.editTask(taskId, user.getId(), request);
+        return convertTaskToDto(task);
     }
 
     @PostMapping("/{taskId}/start")
-    public TaskData startTask(@AuthenticationPrincipal AccountabilitySessionUser user,
-                              @PathVariable Long taskId){
+    public TaskData startTask(
+            @AuthenticationPrincipal AccountabilitySessionUser user,
+            @PathVariable Long taskId
+    ){
 
-        Task task = validateUserTask(taskId, user.getId());
+        Task task = taskService.validateUserTask(taskId, user.getId());
 
-        if (task.getTimeStart() != null) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Task has already started.");
+        if (taskService.startOrEndTask(task, "start")) {
+            return convertTaskToDto(task);
         }
 
-        task.setTimeStart(LocalDateTime.now());
-
-        task.setStatus(TaskStatus.IN_PROGRESS);
-
-        taskRepository.save(task);
-
-        return taskService.convertTaskToDto(task);
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Task has already started.");
     }
 
     @PostMapping("/{taskId}/end")
     public TaskData endTask(@AuthenticationPrincipal AccountabilitySessionUser user,
                             @PathVariable Long taskId){
 
-        Task task = validateUserTask(taskId, user.getId());
+        Task task = taskService.validateUserTask(taskId, user.getId());
 
-        if (task.getTimeEnd() != null) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Task has already ended.");
+        if (taskService.startOrEndTask(task, "end")) {
+            return convertTaskToDto(task);
         }
 
-        task.setTimeEnd(LocalDateTime.now());
-
-        task.setStatus(TaskStatus.COMPLETED);
-
-        taskRepository.save(task);
-
-        return taskService.convertTaskToDto(task);
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Task has already ended.");
     }
 
     @PostMapping("/{taskId}/process")
@@ -190,63 +140,53 @@ public class TaskController {
                                      @PathVariable Long taskId,
                                      @RequestBody TaskStatusDto newStatus){
 
-        Task task = taskRepository
-                .findById(taskId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+        Task task = taskService.checkIfValidTaskProcess(user.getId(), taskId, newStatus);
 
-        List<Relationship> existingPartners =
-                relationshipRepository
-                .checkRelationshipExistsByStatusIgnoreDirection(
-                        user.getId(),
-                        task.getUser().getId(),
-                        List.of(RelationshipStatus.APPROVED));
-
-        if (existingPartners.isEmpty()) {
-
+        if (task == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if (!task.getStatus().equals(TaskStatus.COMPLETED)) {
-
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        TaskData taskDto = convertTaskToDto(task);
 
         if (newStatus.getStatus() == TaskStatus.APPROVED) {
-
-            task.setStatus(TaskStatus.APPROVED);
-            TaskData taskDto = taskService.convertTaskToDto(task);
-            Double payment = taskService.calculateFromTaskDto(taskDto);
-            Wallet wallet = walletRepository.findByUserId(task.getUser().getId());
-            wallet.addBalance(payment);
-            walletRepository.save(wallet);
+            taskService.addTaskAsPayment(user.getId(), taskDto);
         }
 
-        if (newStatus.getStatus() == TaskStatus.REJECTED) {
-
-            task.setStatus(TaskStatus.REJECTED);
-        }
-
-        taskRepository.save(task);
-
-        return taskService.convertTaskToDto(task);
+        return taskDto;
     }
 
-    private Task validateUserTask(Long taskId, Long userId){
+    private TaskData convertTaskToDto(Task task){
 
-        Task task = taskRepository
-                .findById(taskId)
-                .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                "Task does not exist."));
+        TaskData taskDto = new TaskData();
 
-        if (!task.getUser().getId().equals(userId)) {
+        taskDto.setId(task.getId());
+        taskDto.setDescription(task.getDescription());
+        taskDto.setStatus(task.getStatus());
+        taskDto.setUserId(task.getUser().getId());
+        taskDto.setUserName(task.getUser().getUsername());
 
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Task does not exist.");
+        if (task.getTimeStart() != null) {
+            Duration duration;
+
+            if (task.getTimeEnd() == null) {
+                duration = Duration.between(task.getTimeStart(), LocalDateTime.now());
+
+            } else {
+                duration = Duration.between(task.getTimeStart(), task.getTimeEnd());
+            }
+
+            taskDto.setDuration(duration);
+
+            long HH = duration.toHours();
+            long MM = duration.toMinutesPart();
+            long SS = duration.toSecondsPart();
+            String timeInHHMMSS = String.format("%02d:%02d:%02d", HH, MM, SS);
+
+            taskDto.setDurationNumber();
+            taskDto.setDurationString(timeInHHMMSS);
         }
 
-        return task;
+        return taskDto;
     }
+
 }

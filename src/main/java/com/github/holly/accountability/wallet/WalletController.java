@@ -1,8 +1,9 @@
 package com.github.holly.accountability.wallet;
 
+import com.github.holly.accountability.purchase.Purchase;
+import com.github.holly.accountability.purchase.PurchaseDto;
+import com.github.holly.accountability.purchase.PurchaseService;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
-import com.github.holly.accountability.user.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,60 +20,48 @@ import java.util.List;
 @RequestMapping("/api/wallet")
 @ResponseBody
 public class WalletController {
-    @Autowired
-    WalletRepository walletRepository;
 
-    @Autowired
-    PurchaseRepository purchaseRepository;
+    private final WalletService walletService;
 
-    @Autowired
-    UserRepository userRepository;
+    private final PurchaseService purchaseService;
 
-    @Autowired
-    WalletService walletService;
+    public WalletController(WalletService walletService, PurchaseService purchaseService) {
+        this.walletService = walletService;
+        this.purchaseService = purchaseService;
+    }
 
     @GetMapping("")
     public WalletDto getWallet(@AuthenticationPrincipal AccountabilitySessionUser user){
 
-        Wallet userWallet = walletRepository.findByUserId(user.getId());
-        return walletService.convertWalletToWalletDto(userWallet);
+        Wallet userWallet = walletService.findWalletByUserId(user.getId());
+        return convertWalletToWalletDto(userWallet);
     }
 
     @GetMapping("/get-wallets")
     public Page<WalletDto> getWallets(@RequestParam List<Long> userIds,
                                      @PageableDefault(size=20) Pageable pageable){
 
-        return walletRepository.findByUserList(userIds, pageable).map(wallet ->
-                walletService.convertWalletToWalletDto(wallet));
+        return walletService.findWalletsByUserIds(userIds, pageable)
+                .map(this::convertWalletToWalletDto);
     }
 
     @GetMapping("/getPurchases")
     public Page<PurchaseDto> getPurchases(@AuthenticationPrincipal AccountabilitySessionUser user,
                                           @PageableDefault() Pageable pageable){
 
-        return purchaseRepository.findByUserIdOrderByPurchaseTimeDesc(user.getId(), pageable)
+        return purchaseService.getPurchasesByUserIdDescTime(user.getId(), pageable)
                 .map(this::convertPurchaseToDto);
     }
 
     @PostMapping("/makePurchase")
     public PurchaseDto purchase(@AuthenticationPrincipal AccountabilitySessionUser user,
                                 @RequestBody PurchaseDto purchaseDto){
+        Purchase purchase = purchaseService.makePurchase(user.getId(), purchaseDto.getPrice(), purchaseDto.getDescription());
 
-        Wallet wallet = walletRepository.findByUserId(user.getId());
-        float price = purchaseDto.getPrice();
-
-        if (wallet.getBalance() < price){
+        if (purchase == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Insufficient balance");
         }
 
-        Purchase purchase = new Purchase();
-        purchase.setPrice(price);
-        purchase.setDescription(purchaseDto.getDescription());
-        purchase.setUser(userRepository.findUserById(user.getId()));
-        purchaseRepository.save(purchase);
-
-        wallet.subtractBalance(price);
-        walletRepository.save(wallet);
         return convertPurchaseToDto(purchase);
     }
 
@@ -87,5 +76,13 @@ public class WalletController {
             purchaseDto.setPurchaseTimeString(time);
         }
         return purchaseDto;
+    }
+
+    private WalletDto convertWalletToWalletDto(Wallet wallet){
+        WalletDto walletDto = new WalletDto();
+        walletDto.setBalance(wallet.getBalance());
+        walletDto.setUserId(wallet.getUser().getId());
+        walletDto.setUserName(wallet.getUser().getUsername());
+        return walletDto;
     }
 }

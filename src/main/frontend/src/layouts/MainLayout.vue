@@ -1,3 +1,66 @@
+
+
+<script>
+import Messages from 'layouts/Messages.vue';
+
+import { defineComponent, ref } from 'vue'
+import { useQuasar } from 'quasar'
+import { useRouter } from 'vue-router';
+import { api } from 'boot/axios';
+import { userData } from 'src/composables/UserData.ts';
+const { getCurrentUserInfo } = userData();
+
+export default defineComponent({
+  name: 'MainLayout',
+
+  components: {
+    Messages
+  },
+  methods: {
+    async attemptLogOut() {
+      try {
+        await api.post('/logout')
+        this.$router.push('/login')
+      } catch (err) {
+        if (err.response?.status === 401) {
+          this.$q.notify({
+            message: 'Log out failed.',
+            position: 'top-right',
+            color: 'red',
+            badgeColor: 'red'
+          })
+        }
+      }
+    }
+
+  },
+
+  setup() {
+    const leftDrawerOpen = ref(false)
+    const quasar = useQuasar()
+    const router = useRouter()
+
+    const currentUser = ref(null);
+
+    async function getCurrentUserName(){
+      currentUser.value = await getCurrentUserInfo();
+    }
+
+    getCurrentUserName();
+
+    return {
+      quasar,
+      router,
+      leftDrawerOpen,
+      currentUser,
+      toggleLeftDrawer() {
+        leftDrawerOpen.value = !leftDrawerOpen.value
+      }
+    }
+  }
+})
+</script>
+
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
@@ -11,7 +74,7 @@
           aria-label="Menu"
         />
         <q-toolbar-title>
-          {{currentUser.username}}'s accountability app
+          {{ currentUser.username }}'s accountability app
         </q-toolbar-title>
         <q-space/>
         <div class="q-gutter-sm row items-center no-wrap">
@@ -217,67 +280,6 @@
 </template>
 
 
-
-<script>
-import Messages from 'layouts/Messages.vue';
-
-import { defineComponent, ref } from 'vue'
-import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router';
-import { api } from 'boot/axios';
-import { userData } from 'src/composables/UserData.ts';
-const { getCurrentUserInfo } = userData();
-
-export default defineComponent({
-  name: 'MainLayout',
-
-  components: {
-    Messages
-  },
-  methods: {
-    async attemptLogOut() {
-      try {
-        await api.post('/logout')
-        this.$router.push('/login')
-      } catch (err) {
-        if (err.response?.status === 401) {
-          this.$q.notify({
-            message: 'Log out failed.',
-            position: 'top-right',
-            color: 'red',
-            badgeColor: 'red'
-          })
-        }
-      }
-    }
-
-  },
-
-  setup() {
-    const leftDrawerOpen = ref(false)
-    const quasar = useQuasar()
-    const router = useRouter()
-
-    const currentUser = ref(null);
-
-    async function getCurrentUserName(){
-      currentUser.value = await getCurrentUserInfo();
-    }
-
-    getCurrentUserName();
-
-    return {
-      quasar,
-      router,
-      leftDrawerOpen,
-      currentUser,
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
-    }
-  }
-})
-</script>
 
 <style>
 

@@ -88,7 +88,7 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@import '/home/holly/IdeaProjects/accountability-app-springboot/src/main/frontend/src/css/quasar.variables.scss';
+@import 'src/css/quasar.variables.scss';
 
 .rounded-outer-card {
   @include card-style;

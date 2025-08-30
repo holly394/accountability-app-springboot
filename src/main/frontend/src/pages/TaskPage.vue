@@ -15,6 +15,8 @@ import {walletData} from "src/composables/WalletData.ts";
 import {WalletDto} from "components/dto/WalletDto.ts";
 import TaskForm from "components/forms/TaskForm.vue"
 
+const loading = ref<boolean>(true);
+
 const { getTasksByCurrentUserAndStatus,
   calculatePaymentInProgress, calculatePaymentCompleted } = taskData();
 
@@ -44,8 +46,10 @@ const inProgressPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 const completedPayment = ref<TaskCalculatorDto>(DefaultTaskCalculatorDto);
 
 onMounted(async () => {
+  loading.value = true;
   wallet.value = await getCurrentUserWallet();
   await Promise.all([reloadCompleted(), reloadInProgress(), reloadPending()] );
+  loading.value = false;
 });
 
 const reloadPending = async () => {
@@ -82,6 +86,8 @@ const refreshPendingAndInProgressLists = async () => {
 }
 const refreshInProgressAndCompletedLists = async () => {
   await Promise.all([reloadCompleted(), reloadInProgress()]);
+
+
 }
 
 </script>
@@ -90,6 +96,25 @@ const refreshInProgressAndCompletedLists = async () => {
 <div>
   <q-page class="column items-center justify-evenly">
 
+    <!-- Skeleton Loading State -->
+    <div v-if="loading">
+      <q-card v-for="n in 3" :key="'skeleton-'+n" class="q-mb-md">
+        <q-item>
+          <q-item-section avatar>
+            <q-skeleton type="QAvatar" />
+          </q-item-section>
+          <q-item-section>
+            <q-skeleton type="text" width="120px" />
+          </q-item-section>
+        </q-item>
+        <q-card-section>
+          <q-skeleton type="text" height="100px" />
+        </q-card-section>
+      </q-card>
+    </div>
+
+    <!-- Loaded Content -->
+    <div v-else>
     <TaskForm @new-task="reloadPending"/>
 
     <q-card
@@ -121,6 +146,7 @@ const refreshInProgressAndCompletedLists = async () => {
     <TableTasksApproved />
     <br>
     <TableTasksRejected />
+    </div>
   </q-page>
 
 </div>

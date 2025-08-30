@@ -12,6 +12,7 @@ defineOptions({
   name: 'TableTasksApproved',
 });
 
+const expanded = ref<boolean>(false);
 const currentPage = ref<number>(0);
 const maxPages = ref<number>(0);
 const pageSize = 5;
@@ -42,12 +43,27 @@ async function changePage() {
 
 <template>
   <q-card
-    class="my-card text-white"
+    class="my-card text-white rounded-outer-card"
     style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
   >
     <q-card-section>
       <div class="text-h6">Tasks approved</div>
     </q-card-section>
+
+    <q-card-actions>
+      <q-btn
+        color="grey"
+        round
+        flat
+        dense
+        :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+        @click="expanded = !expanded"
+      />
+    </q-card-actions>
+
+    <q-slide-transition>
+      <div v-show="expanded">
+
     <q-card-section class="q-pt-none">
     <q-markup-table title="APPROVED TASKS" class="q-pt-none">
       <thead>
@@ -77,5 +93,16 @@ async function changePage() {
       />
     </q-markup-table>
     </q-card-section>
+      </div>
+    </q-slide-transition>
   </q-card>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.rounded-outer-card {
+  @include card-style-6-columns;
+}
+
+</style>

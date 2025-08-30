@@ -24,15 +24,40 @@ $negative  : #C10015;
 $info      : #31CCEC;
 $warning   : #F2C037;
 
-@mixin card-style {
+@mixin card-style-6-columns {
   background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
+  border-radius: 50px;
+  padding: 10px;
+  width: 100%;
+  max-width: 650px;
+  max-height: 500px;
+}
+
+@mixin card-style-5-columns {
+  background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
+  border-radius: 50px;
+  padding: 10px;
+  width: 100%;
+  max-width: 550px;
+  max-height: 500px;
+}
+
+@mixin card-section-style {
+  background: white radial-gradient(circle, #ffffff 0%, #ffffff 100%);
   border-radius: 50px;
   padding: 10px;
 }
 
-@mixin card-section-style {
-  background: radial-gradient(circle, #ffffff 0%, #ffffff 100%);
-  background-color: white;
+@mixin graph-style {
+  background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
   border-radius: 50px;
   padding: 10px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 700px;
+}
+@mixin inner-graph-size {
+  width: 100%;
+  max-width: 650px;
+  max-height: 450px
 }

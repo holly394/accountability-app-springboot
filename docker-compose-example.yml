@@ -1,0 +1,11 @@
+services:
+  accountability-app:
+    container_name: accountability-app
+    image: ghcr.io/holly394/accountability:master
+    ports:
+      - "8080:8080"
+    volumes:
+      - /accountability-app/logs:/workspace/logs
+      - /accountability-app/database:/workspace/database
+      - /accountability-app/application.yml:/workspace/application.yml
+

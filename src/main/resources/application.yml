@@ -19,7 +19,7 @@ spring:
     password: accountability-pw
   h2:
     console:
-      enabled: true
+      enabled: false
 
 logging:
   file:
@@ -30,9 +30,6 @@ logging:
       max-history: 14
       max-file-size: 100MB
       clean-history-on-start: true
-  threshold:
-    file: NONE
-    console: TRACE
   level:
-    org.flywaydb: DEBUG
+    com.github.holly: INFO
 

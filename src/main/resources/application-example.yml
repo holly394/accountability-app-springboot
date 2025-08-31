@@ -1,0 +1,14 @@
+# other users can control where the database goes, username and password, as well as where the log files go.
+spring:
+  datasource:
+    url: "jdbc:h2:file:./database/accountability;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"
+    username: accountability
+    password: accountability-pw
+
+logging:
+  file:
+    path: "./logs"
+    name: "./logs/accountability.log"
+  level:
+    com.github.holly: INFO
+

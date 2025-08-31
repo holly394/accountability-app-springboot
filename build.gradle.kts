@@ -110,7 +110,7 @@ extra {
     project.extra["build.revision.abbreviated"] = shortCommit
     project.extra["build.branch"] = branch
 
-    val containerImageName = "holly394/${project.name}"
+    val containerImageName = "holly394/accountability-app-springboot"
     val containerImageTags = mutableSetOf(shortCommit, branch)
     if (branch.startsWith("v")) {
         containerImageTags.add("stable")

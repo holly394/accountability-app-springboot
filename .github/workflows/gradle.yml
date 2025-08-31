@@ -21,6 +21,8 @@ on:
       - settings.gradle.kts
     tags:
       - '**'
+    branches:
+      - 'master'
 
   pull_request:
     paths:

@@ -12,6 +12,7 @@ CREATE TABLE "tasks"(
     status VARCHAR(255) NOT NULL,
     time_start TIMESTAMP,
     time_end TIMESTAMP,
+    duration BIGINT,
 
     FOREIGN KEY (user_id) REFERENCES "user"(id)
 );

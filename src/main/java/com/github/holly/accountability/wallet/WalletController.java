@@ -38,7 +38,7 @@ public class WalletController {
     }
 
     @GetMapping("/get-wallets")
-    public Page<WalletDto> getWallets(@RequestParam List<Long> userIds,
+    public Page<WalletDto> getWallets(@RequestParam(required = false) List<Long> userIds,
                                      @PageableDefault(size=20) Pageable pageable){
 
         return walletService.findWalletsByUserIds(userIds, pageable)

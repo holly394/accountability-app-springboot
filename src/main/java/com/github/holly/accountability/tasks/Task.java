@@ -25,6 +25,8 @@ public class Task {
     @Column(name = "time_end", columnDefinition = "TIMESTAMP")
     private LocalDateTime timeEnd;
 
+    //duration will be saved in seconds
+    @Column(name = "duration", columnDefinition = "BIGINT")
     private Duration duration = Duration.ZERO;
 
     @ManyToOne

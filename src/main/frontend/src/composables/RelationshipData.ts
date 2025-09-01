@@ -5,21 +5,21 @@
 //we don't manipulate the data here!
 //Data manipulation stays in the backend mainly in the controller
 
-import {api} from "boot/axios.ts";
-import {Page} from "components/paging/Page.ts";
-import {RelationshipDto} from "components/dto/relationship/RelationshipDto.ts";
-import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
-import {RelationshipStatusDto} from "components/dto/relationship/RelationshipStatusDto.ts";
-import {RelationshipDirection} from "components/dto/relationship/RelationshipDirection.ts";
+import {api} from 'boot/axios.ts';
+import {Page} from 'components/paging/Page.ts';
+import {RelationshipDto} from 'components/dto/relationship/RelationshipDto.ts';
+import {RelationshipStatus} from 'components/dto/relationship/RelationshipStatus.ts';
+import {RelationshipStatusDto} from 'components/dto/relationship/RelationshipStatusDto.ts';
+import {RelationshipDirection} from 'components/dto/relationship/RelationshipDirection.ts';
 
 export function relationshipData() {
 
   const getPartnerIdList = async (): Promise<number[]> => {
-    return (await api.get<number[]>(`/relationships/get-partner-id-list`)).data;
+    return (await api.get<number[]>('/relationships/get-partner-id-list')).data;
   }
 
   const getRelationshipsByStatus = async (status: RelationshipStatus): Promise<Page<RelationshipDto>> => {
-    return (await api.get<Page<RelationshipDto>>(`/relationships`,{
+    return (await api.get<Page<RelationshipDto>>('/relationships',{
       params: {
         statuses: status
       },
@@ -30,7 +30,7 @@ export function relationshipData() {
   }
 
   const getRequests = async (status: RelationshipStatus, direction: RelationshipDirection): Promise<Page<RelationshipDto>> => {
-    return (await api.get<Page<RelationshipDto>>(`/relationships`,{
+    return (await api.get<Page<RelationshipDto>>('/relationships',{
       params: {
         statuses: status,
         directions: direction
@@ -54,7 +54,7 @@ export function relationshipData() {
   }
 
   async function search(inputName: string): Promise<RelationshipDto[]> {
-    return (await api.get<RelationshipDto[]>(`/relationships/search`, {
+    return (await api.get<RelationshipDto[]>('/relationships/search', {
       params: {
         username: inputName
       }

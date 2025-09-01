@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
-import {Page} from "components/paging/Page.ts";
+import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
+import {Page} from 'components/paging/Page.ts';
 
 defineOptions({
   name: 'TableTasksGeneral',

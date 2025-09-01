@@ -1,24 +1,23 @@
 import { TaskDataDto } from 'components/dto/task/TaskDataDto.ts';
-import {TaskEditRequestDto} from "components/dto/task/TaskEditRequestDto.ts";
-import {api} from "boot/axios.ts";
-import {TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
-import {TaskStatusDto} from "components/dto/task/TaskStatusDto.ts";
-import {TaskStatus} from "components/dto/task/TaskStatus.ts";
-import {Page} from "components/paging/Page.ts";
+import {TaskEditRequestDto} from 'components/dto/task/TaskEditRequestDto.ts';
+import {api} from 'boot/axios.ts';
+import {TaskCalculatorDto} from 'components/dto/task/TaskCalculatorDto.ts';
+import {TaskStatusDto} from 'components/dto/task/TaskStatusDto.ts';
+import {TaskStatus} from 'components/dto/task/TaskStatus.ts';
+import {Page} from 'components/paging/Page.ts';
 
 export function taskData() {
 
-  //all other calls go to the TaskController
   const addTask
     = async (description: TaskEditRequestDto): Promise<TaskDataDto> => {
 
-    return (await api.post<TaskDataDto>(`/tasks/add`,
+    return (await api.post<TaskDataDto>('/tasks/add',
       description)).data;
   }
 
   const editTaskDescription
     = async (taskId: number,
-             description: string): Promise<void | TaskDataDto> => {
+             description: TaskEditRequestDto): Promise<void | TaskDataDto> => {
 
     return (await api.put<TaskDataDto>(`/tasks/${taskId}`,
       description)).data;
@@ -54,7 +53,7 @@ export function taskData() {
              page: number = 0,
              size: number = 20): Promise<Page<TaskDataDto>> => {
 
-    return (await api.get<Page<TaskDataDto>>(`/tasks`, {
+    return (await api.get<Page<TaskDataDto>>('/tasks', {
       params: {
         userIds: usersById,
         page: page,
@@ -71,7 +70,7 @@ export function taskData() {
              page: number = 0,
              size: number = 20): Promise<Page<TaskDataDto>> => {
 
-    return (await api.get<Page<TaskDataDto>>(`/tasks`, {
+    return (await api.get<Page<TaskDataDto>>('/tasks', {
       params: {
         statuses: status,
         page: page,
@@ -90,7 +89,7 @@ export function taskData() {
              page: number = 0,
              size: number = 20): Promise<Page<TaskDataDto>> => {
 
-      return (await api.get<Page<TaskDataDto>>(`/tasks`, {
+      return (await api.get<Page<TaskDataDto>>('/tasks', {
         params: {
           userIds: usersById,
           statuses: status,
@@ -109,7 +108,7 @@ export function taskData() {
              page: number = 0,
              size: number = 5): Promise<Page<TaskDataDto>> => {
 
-    return (await api.get<Page<TaskDataDto>>(`/tasks/order-by-duration`, {
+    return (await api.get<Page<TaskDataDto>>('/tasks/order-by-duration', {
       params: {
         userIds: usersById,
         status: status,
@@ -125,18 +124,18 @@ export function taskData() {
   const calculatePaymentCompleted
     = async (): Promise<TaskCalculatorDto> => {
 
-    return (await api.get(`/tasks/calculatePaymentCompleted`)).data;
+    return (await api.get('/tasks/calculatePaymentCompleted')).data;
   }
 
   const calculatePaymentInProgress
     = async (): Promise<TaskCalculatorDto> => {
 
-    return (await api.get(`/tasks/calculatePaymentInProgress`)).data;
+    return (await api.get('/tasks/calculatePaymentInProgress')).data;
   }
 
   return { getTasksByUserListAndStatusOrderByDuration, getAllTasksByUserList, startTask,
     endTask, getTasksByCurrentUserAndStatus,
     getTasksByUserListAndStatus, processTaskForPartner, addTask,
-    editTask: editTaskDescription, deleteTask,
+    editTaskDescription, deleteTask,
     calculatePaymentCompleted, calculatePaymentInProgress };
 }

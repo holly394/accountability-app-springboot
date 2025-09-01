@@ -2,18 +2,18 @@
 
 import {onMounted, ref} from 'vue';
 import TableTasksCompleted from 'components/tables/tasks/TableTasksCompleted.vue';
-import TableTasksInProgress from "components/tables/tasks/TableTasksInProgress.vue";
-import TableTasksPending from "components/tables/tasks/TableTasksPending.vue";
+import TableTasksInProgress from 'components/tables/tasks/TableTasksInProgress.vue';
+import TableTasksPending from 'components/tables/tasks/TableTasksPending.vue';
 import {taskData} from 'src/composables/TaskData.ts'
-import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
-import {TaskStatus} from "components/dto/task/TaskStatus.ts";
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {DefaultTaskCalculatorDto, TaskCalculatorDto} from "components/dto/task/TaskCalculatorDto.ts";
-import TableTasksApproved from "components/tables/tasks/TableTasksApproved.vue";
-import TableTasksRejected from "components/tables/tasks/TableTasksRejected.vue";
-import {walletData} from "src/composables/WalletData.ts";
-import {WalletDto} from "components/dto/WalletDto.ts";
-import TaskForm from "components/forms/TaskForm.vue"
+import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
+import {TaskStatus} from 'components/dto/task/TaskStatus.ts';
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {DefaultTaskCalculatorDto, TaskCalculatorDto} from 'components/dto/task/TaskCalculatorDto.ts';
+import TableTasksApproved from 'components/tables/tasks/TableTasksApproved.vue';
+import TableTasksRejected from 'components/tables/tasks/TableTasksRejected.vue';
+import {walletData} from 'src/composables/WalletData.ts';
+import {WalletDto} from 'components/dto/WalletDto.ts';
+import TaskForm from 'components/forms/TaskForm.vue'
 
 const loading = ref<boolean>(true);
 
@@ -130,18 +130,22 @@ const refreshInProgressAndCompletedLists = async () => {
     <TableTasksPending :taskList="pendingTasks"
                        @delete-task="reloadPending"
                        @start-task="refreshPendingAndInProgressLists"
-                       @update-list="changePendingPage"/>
+                       @update-list="changePendingPage"
+                       @edit-task="reloadPending"/>
     <br>
     <TableTasksInProgress :taskList="inProgressTasks"
                           :payment="inProgressPayment"
                           @end-task="refreshInProgressAndCompletedLists"
                           @delete-task="reloadInProgress"
-                          @update-list="changeInProgressPage"/>
+                          @update-list="changeInProgressPage"
+                          @edit-task="reloadInProgress"/>
     <br>
     <TableTasksCompleted :taskList="completedTasks"
                          :payment="completedPayment"
-                          @delete-task="reloadCompleted"
-                         @update-list="changeCompletedPage"/>
+                         @delete-task="reloadCompleted"
+                         @update-list="changeCompletedPage"
+                         @edit-task="reloadCompleted"
+                         @edit-task-duration="reloadCompleted"/>
     <br>
     <TableTasksApproved />
     <br>

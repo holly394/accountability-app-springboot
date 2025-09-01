@@ -94,8 +94,8 @@ public class TaskController {
 
     @PutMapping("/{taskId}")
     public TaskData editTask(
-            @PathVariable Long taskId,
             @AuthenticationPrincipal AccountabilitySessionUser user,
+            @PathVariable Long taskId,
             @RequestBody TaskEditRequest request
     ){
 
@@ -189,4 +189,31 @@ public class TaskController {
         return taskDto;
     }
 
+    private TaskData setNewDuration(Task task, TaskEditDuration request){
+
+        TaskData taskDto = new TaskData();
+
+        taskDto.setId(task.getId());
+        taskDto.setDescription(task.getDescription());
+        taskDto.setStatus(task.getStatus());
+        taskDto.setUserId(task.getUser().getId());
+        taskDto.setUserName(task.getUser().getUsername());
+
+        long hours = request.getHours();
+        long minutes = request.getMinutes();
+        long seconds = request.getSeconds();
+        long totalSeconds = seconds + (hours*3600) + (minutes*60);
+
+        Duration duration = taskDto.getDuration();
+        Duration newDuration = duration.withSeconds(totalSeconds);
+
+        taskDto.setDuration(newDuration);
+
+        String timeInHHMMSS = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+        taskDto.setDurationNumber();
+        taskDto.setDurationString(timeInHHMMSS);
+
+        return taskDto;
+    }
 }

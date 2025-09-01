@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
 import {taskData} from 'src/composables/TaskData.ts';
-import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
-import { Page} from "components/paging/Page.ts";
-import {onMounted, ref} from "vue";
+import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
+import { Page} from 'components/paging/Page.ts';
+import {onMounted, ref} from 'vue';
+import {TaskEditRequestDto} from "components/dto/task/TaskEditRequestDto.ts";
 
-const { deleteTask, startTask } = taskData();
+const { deleteTask, startTask, editTaskDescription } = taskData();
 
 defineOptions({
   name: 'TableTasksPending'
@@ -19,7 +20,7 @@ const props = defineProps<{
   taskList: Page<TaskDataDto>
 }>()
 
-const emit = defineEmits(['startTask', 'deleteTask', 'updateList'])
+const emit = defineEmits(['startTask', 'deleteTask', 'updateList', 'editTask'])
 
 async function deleteTaskButton(taskId: number) {
   await deleteTask(taskId);
@@ -29,6 +30,16 @@ async function deleteTaskButton(taskId: number) {
 async function startTaskButton(taskId: number) {
   await startTask(taskId);
   emit('startTask');
+}
+
+async function editTaskButton(taskId: number, description: string) {
+  let newDescription = ref<TaskEditRequestDto>({
+    description: ''
+  });
+
+  newDescription.value.description = description;
+  await editTaskDescription(taskId, newDescription.value);
+  emit('editTask');
 }
 
 const currentPage = ref<number>(0);
@@ -63,7 +74,12 @@ async function changePage() {
       <tbody>
       <tr v-for="task in props.taskList.content" :key="task.id" v-ripple>
           <td v-text="task.id" />
-          <td v-text="task.description" />
+        <td>{{ task.description }}
+          <q-popup-edit v-model="task.description" title="Edit Description" auto-save v-slot="scope">
+            <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set"
+                     @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
+          </q-popup-edit>
+        </td>
           <td v-text="task.status" />
           <td v-text="task.durationString" />
           <td><button @click="startTaskButton(task.id)">Start</button></td>

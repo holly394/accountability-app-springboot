@@ -172,9 +172,12 @@ public class TaskService {
     }
 
     public boolean deleteTask(Long taskId, Long userId){
-        if (validateUserTask(taskId, userId) == null) {
+        Task task = validateUserTask(taskId, userId);
+
+        if (task == null) {
             return false;
         }
+
 
         taskRepository.deleteById(taskId);
         return true;

@@ -3,6 +3,7 @@ package com.github.holly.accountability.tasks;
 import com.github.holly.accountability.user.User;
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +24,8 @@ public class Task {
 
     @Column(name = "time_end", columnDefinition = "TIMESTAMP")
     private LocalDateTime timeEnd;
+
+    private Duration duration = Duration.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -79,4 +82,10 @@ public class Task {
     public LocalDateTime getTimeEnd() {
         return this.timeEnd;
     }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public Duration getDuration() { return this.duration; }
 }

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import {WalletDto} from 'components/dto/WalletDto.ts';
-import TablePaymentHistory from "components/tables/TablePaymentHistory.vue";
+import TablePaymentHistory from 'components/tables/TablePaymentHistory.vue';
 import { walletData } from 'src/composables/WalletData.ts';
-import PurchaseForm from "components/forms/PurchaseForm.vue"
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {PurchaseDto} from "components/dto/PurchaseDto.ts";
+import PurchaseForm from 'components/forms/PurchaseForm.vue';
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {PurchaseDto} from 'components/dto/PurchaseDto.ts';
 
 const { getCurrentUserWallet, getCurrentUserPurchaseHistory } = walletData();
 

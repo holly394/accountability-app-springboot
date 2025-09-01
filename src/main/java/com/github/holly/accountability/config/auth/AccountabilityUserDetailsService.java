@@ -3,6 +3,7 @@ package com.github.holly.accountability.config.auth;
 import com.github.holly.accountability.user.AccountabilitySessionUser;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 public class AccountabilityUserDetailsService implements UserDetailsService {
+
     @Autowired
     private UserRepository userRepository;
 

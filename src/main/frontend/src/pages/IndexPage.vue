@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import PartnerWalletsGraph from 'components/charts/PartnerWalletsGraph.vue';
 import PartnerTaskDurationGraph from 'components/charts/PartnerTaskDurationGraph.vue';
-import TableTasksApproved from "components/tables/tasks/TableTasksApproved.vue";
-import TablePartnerTasksAll from "components/tables/tasks/TablePartnerTasksAll.vue";
+import TableTasksApproved from 'components/tables/tasks/TableTasksApproved.vue';
+import TablePartnerTasksAll from 'components/tables/tasks/TablePartnerTasksAll.vue';
 
 
 defineOptions({

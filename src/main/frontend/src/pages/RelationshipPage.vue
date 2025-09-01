@@ -7,11 +7,11 @@ import PartnershipsRequestsToWait from 'components/tables/partnerships/Partnersh
 import PartnershipsRejected from 'components/tables/partnerships/PartnershipsRejected.vue';
 import PartnershipsRequestsToAnswer from 'components/tables/partnerships/PartnershipsRequestsToAnswer.vue';
 import {relationshipData} from 'src/composables/RelationshipData.ts'
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
-import PartnershipsApproved from "components/tables/partnerships/PartnershipsApproved.vue";
-import {userData} from "src/composables/UserData.ts";
-import {RelationshipDirection} from "components/dto/relationship/RelationshipDirection.ts";
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {RelationshipStatus} from 'components/dto/relationship/RelationshipStatus.ts';
+import PartnershipsApproved from 'components/tables/partnerships/PartnershipsApproved.vue';
+import {userData} from 'src/composables/UserData.ts';
+import {RelationshipDirection} from 'components/dto/relationship/RelationshipDirection.ts';
 
 const { getCurrentUserInfo } = userData();
 

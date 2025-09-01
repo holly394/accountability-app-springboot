@@ -22,8 +22,8 @@ import * as echarts from 'echarts';
 import {WalletDto} from 'components/dto/WalletDto.js';
 import {ECharts} from 'echarts';
 import {walletData} from 'src/composables/WalletData.ts';
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {relationshipData} from "src/composables/RelationshipData.ts";
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {relationshipData} from 'src/composables/RelationshipData.ts';
 
 const {getCurrentUserWallet, getWalletsByUserIds} = walletData();
 const { getPartnerIdList } = relationshipData();

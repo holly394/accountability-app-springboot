@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
 import {QMarkupTable} from 'quasar';
-import {TaskStatus} from "components/dto/task/TaskStatus.ts";
-import {TaskStatusDto} from "components/dto/task/TaskStatusDto.ts";
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {taskData} from "src/composables/TaskData.ts";
-import {onMounted, ref} from "vue";
-import {relationshipData} from "src/composables/RelationshipData.ts";
+import {TaskStatus} from 'components/dto/task/TaskStatus.ts';
+import {TaskStatusDto} from 'components/dto/task/TaskStatusDto.ts';
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {taskData} from 'src/composables/TaskData.ts';
+import {onMounted, ref} from 'vue';
+import {relationshipData} from 'src/composables/RelationshipData.ts';
 
 const { processTaskForPartner, getTasksByUserListAndStatus } = taskData();
 const { getPartnerIdList } = relationshipData();

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { QMarkupTable } from 'quasar';
 import { RelationshipDto } from 'components/dto/relationship/RelationshipDto.ts';
-import {Page} from "components/paging/Page.ts";
-import {relationshipData} from "src/composables/RelationshipData.ts";
+import {Page} from 'components/paging/Page.ts';
+import {relationshipData} from 'src/composables/RelationshipData.ts';
 
 const { deleteRelationship } = relationshipData();
 

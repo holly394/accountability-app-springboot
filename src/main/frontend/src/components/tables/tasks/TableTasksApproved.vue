@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
-import {taskData} from "src/composables/TaskData.ts";
-import {TaskDataDto} from "components/dto/task/TaskDataDto.ts";
-import {DefaultPage, Page} from "components/paging/Page.ts";
-import {onMounted, ref} from "vue";
-import {TaskStatus} from "components/dto/task/TaskStatus.ts";
+import {taskData} from 'src/composables/TaskData.ts';
+import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
+import {DefaultPage, Page} from 'components/paging/Page.ts';
+import {onMounted, ref} from 'vue';
+import {TaskStatus} from 'components/dto/task/TaskStatus.ts';
 
 const { deleteTask, getTasksByCurrentUserAndStatus } = taskData();
 

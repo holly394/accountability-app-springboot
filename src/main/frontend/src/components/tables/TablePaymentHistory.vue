@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { PurchaseDto } from 'components/dto/PurchaseDto.ts';
 import {QMarkupTable} from 'quasar';
-import { Page} from "components/paging/Page.ts";
-import { onMounted, ref } from "vue";
+import { Page} from 'components/paging/Page.ts';
+import { onMounted, ref } from 'vue';
 
 defineOptions({
   name: 'TablePaymentHistory',

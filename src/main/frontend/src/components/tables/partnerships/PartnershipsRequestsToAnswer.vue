@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {QMarkupTable} from 'quasar';
 import {RelationshipDto} from 'components/dto/relationship/RelationshipDto.ts';
-import {Page} from "components/paging/Page.ts";
-import {relationshipData} from "src/composables/RelationshipData.ts";
-import {RelationshipStatus} from "components/dto/relationship/RelationshipStatus.ts";
-import {RelationshipStatusDto} from "components/dto/relationship/RelationshipStatusDto.ts";
-import {ref} from "vue";
+import {Page} from 'components/paging/Page.ts';
+import {relationshipData} from 'src/composables/RelationshipData.ts';
+import {RelationshipStatus} from 'components/dto/relationship/RelationshipStatus.ts';
+import {RelationshipStatusDto} from 'components/dto/relationship/RelationshipStatusDto.ts';
+import {ref} from 'vue';
 
 const { updateRelationship } = relationshipData();
 

@@ -2,14 +2,14 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import * as echarts from 'echarts';
 import {ECharts} from 'echarts';
-import {DefaultPage, Page} from "components/paging/Page.ts";
+import {DefaultPage, Page} from 'components/paging/Page.ts';
 import { taskData } from 'src/composables/TaskData.ts';
-import { relationshipData } from "src/composables/RelationshipData.ts";
-import { TaskDataDto } from "components/dto/task/TaskDataDto.ts";
-import {TaskStatus} from "components/dto/task/TaskStatus.ts";
-import {userData} from "src/composables/UserData.ts";
-import {UserDto} from "components/dto/UserDto.ts";
-import {datasetTypeDto} from "components/dto/datasetTypeDto.ts";
+import { relationshipData } from 'src/composables/RelationshipData.ts';
+import { TaskDataDto } from 'components/dto/task/TaskDataDto.ts';
+import {TaskStatus} from 'components/dto/task/TaskStatus.ts';
+import {userData} from 'src/composables/UserData.ts';
+import {UserDto} from 'components/dto/UserDto.ts';
+import {datasetTypeDto} from 'components/dto/datasetTypeDto.ts';
 
 const {getCurrentUserInfo} = userData();
 const {getTasksByUserListAndStatusOrderByDuration} = taskData();
@@ -63,7 +63,7 @@ onMounted(async () => {
   chartInstance.setOption({
     xAxis: {type: 'value', name: 'seconds'},
     yAxis: {type: 'category', inverse: true,
-      axisLabel: {formatter: ``}},
+      axisLabel: {formatter: ''}},
     series: [{
       realtimeSort: true,
       type: 'bar',

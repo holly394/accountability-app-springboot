@@ -1,7 +1,7 @@
-import {api} from "boot/axios.ts";
-import {WalletDto} from "components/dto/WalletDto.ts";
-import {Page} from "components/paging/Page.ts";
-import {PurchaseDto} from "components/dto/PurchaseDto.ts";
+import {api} from 'boot/axios.ts';
+import {WalletDto} from 'components/dto/WalletDto.ts';
+import {Page} from 'components/paging/Page.ts';
+import {PurchaseDto} from 'components/dto/PurchaseDto.ts';
 
 export function walletData() {
 

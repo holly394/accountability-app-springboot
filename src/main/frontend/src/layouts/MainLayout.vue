@@ -40,7 +40,10 @@ export default defineComponent({
     const quasar = useQuasar()
     const router = useRouter()
 
-    const currentUser = ref(null);
+    const currentUser = ref({
+      id: 0,
+      username: ''
+    });
 
     async function getCurrentUserName(){
       currentUser.value = await getCurrentUserInfo();

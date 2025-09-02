@@ -91,10 +91,10 @@ onUnmounted(() => {
 @import 'src/css/quasar.variables.scss';
 
 .rounded-outer-card {
-  @include graph-style;
+  @include outer-card;
 }
 .rounded-inner-card {
-  @include card-section-style;
+  @include inner-card-section;
 }
 
 </style>

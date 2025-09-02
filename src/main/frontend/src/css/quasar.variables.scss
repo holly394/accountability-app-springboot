@@ -42,22 +42,22 @@ $warning   : #F2C037;
   max-height: 500px;
 }
 
-@mixin card-section-style {
-  background: white radial-gradient(circle, #ffffff 0%, #ffffff 100%);
-  border-radius: 50px;
-  padding: 10px;
-}
-
-@mixin graph-style {
+@mixin outer-card {
   background: radial-gradient(circle, #35a2ff 0%, #014a88 100%);
   border-radius: 50px;
   padding: 10px;
-  width: 100%;
-  max-width: 800px;
-  max-height: 700px;
+  box-shadow: none;
+  color: white; //for text color!
+  flex-wrap: wrap;
+  align-items: center;
 }
-@mixin inner-graph-size {
-  width: 100%;
-  max-width: 650px;
-  max-height: 450px
+
+@mixin inner-card-section {
+  background: white radial-gradient(circle, #ffffff 0%, #ffffff 100%);
+  border-radius: 50px;
+  padding: 10px;
+  width: 450px;
+  height: 400px;
+  flex-wrap: wrap;
+  align-items: center;
 }

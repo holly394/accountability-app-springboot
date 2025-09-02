@@ -8,3 +8,8 @@
   gap: 12px;
 }
 
+@media (max-width: 800px) {
+  .flex-item-right, .flex-item-left {
+    flex: 50%;
+  }
+}

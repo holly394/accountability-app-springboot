@@ -61,13 +61,28 @@ onMounted(async () => {
 
   // 3. Update chart with API data
   chartInstance.setOption({
-    xAxis: {type: 'value', name: 'seconds'},
-    yAxis: {type: 'category', inverse: true,
-      axisLabel: {formatter: ''}},
+    grid: {
+      top: 15,
+      bottom: 25,
+      left: 15,
+      right: 15
+    },
+    xAxis: {
+      type: 'value',
+      name: 'seconds'
+    },
+    yAxis: {
+      type: 'category',
+      inverse: true,
+      axisLabel: {formatter: ''}
+    },
     series: [{
       realtimeSort: true,
       type: 'bar',
       data: barData,
+      barMaxWidth: '50%',
+      barGap: '5%',
+      barCategoryGap: '5%'
     }],
     tooltip: {formatter: function (params: datasetTypeDto) {
       return `<b>Task: ${params.name}</b><br/>
@@ -82,11 +97,20 @@ onMounted(async () => {
         color: ['#5470c6', '#91cc75', '#fac858'] // assign colors to categories
       },
       seriesIndex: 0, // applies to our scatter series
-      top: '10' // position it
+      top: '10', // position it
+      barCategoryGap: '5%'
     }
   });
 
+  chartInstance.resize();
 });
+
+async function onResize(){
+  if(chartInstance != null){
+    chartInstance.resize();
+  }
+}
+
 
 //to avoid memory leaks, dispose chart on unmount
 onUnmounted(() => {
@@ -96,33 +120,35 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div>
-    <q-card
-      class="rounded-outer-card text-white no-shadow q-pt-none" bordered>
-      <q-card-section class="sizing-graph" >
-        <div class="text-h6">Longest approved tasks</div>
-        <div class="text-subtitle2">Among yours and your partners' tasks</div>
-      </q-card-section>
-      <q-card-actions>
-        <q-btn
-          color="grey"
-          round
-          flat
-          dense
-          :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-          @click="expanded = !expanded"
-        />
-      </q-card-actions>
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3">
 
-      <q-slide-transition>
-        <div v-show="expanded">
+    <q-card class="outer-card col-auto" bordered>
+      <div class="col column" style="width: 600px">
 
-      <q-card-section class="rounded-inner-card sizing-graph" bordered>
-        <div ref="partnerTaskBarChart" style="width: 550px; height: 400px;" />
-      </q-card-section>
-        </div>
-      </q-slide-transition>
+        <q-card-section class="col-8 col-sm-6">
+          <div class="text-h6 header-text q-my-md">Longest approved tasks</div>
+          <div class="text-subtitle2">Among yours and your partners' tasks</div>
+          <q-card-actions>
+            <q-btn
+              color="grey"
+              round
+              flat
+              dense
+              :icon="expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
+              @click="expanded = !expanded"
+            />
+          </q-card-actions>
+        </q-card-section>
+
+          <q-card-section class="col-8 col-sm-6" style="flex-wrap: wrap; align-items: center;" bordered>
+            <q-slide-transition v-show="expanded">
+                <div ref="partnerTaskBarChart" class="inner-card-section" @resize="onResize"/>
+            </q-slide-transition>
+          </q-card-section>
+
+      </div>
     </q-card>
+
   </div>
 </template>
 
@@ -130,14 +156,12 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
-.rounded-outer-card {
-  @include graph-style;
+.outer-card {
+  @include outer-card;
 }
-.rounded-inner-card {
-  @include card-section-style;
-}
-.sizing-graph {
-  @include inner-graph-size;
+
+.inner-card-section {
+  @include inner-card-section;
 }
 
 </style>

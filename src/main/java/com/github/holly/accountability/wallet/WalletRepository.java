@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface WalletRepository extends JpaRepository<Wallet, Long> {
+
     Wallet findByUserId(Long userId);
 
     @Query("""

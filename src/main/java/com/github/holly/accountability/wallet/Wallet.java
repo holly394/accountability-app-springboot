@@ -20,7 +20,6 @@ public class Wallet {
     private double balance = 0.00D;
 
     public Wallet(){
-
     }
 
     public Wallet(User user) {

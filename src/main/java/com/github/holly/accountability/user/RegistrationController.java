@@ -46,7 +46,7 @@ public class RegistrationController {
             return new ResponseEntity<>(new BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST);
         }
 
-        User user = userRepository.save(new User(registerUser.getUsername(), registerUser.getName(),passwordEncoder.encode(registerUser.getPassword())));
+        User user = userRepository.save(new User(registerUser.getUsername(), registerUser.getName(), passwordEncoder.encode(registerUser.getPassword())));
         walletRepository.save(new Wallet(user));
 
         return new ResponseEntity<Void>(MultiValueMap.fromSingleValue(Map.of("Location", "/login")), HttpStatus.FOUND);

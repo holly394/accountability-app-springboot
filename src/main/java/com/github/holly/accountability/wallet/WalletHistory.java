@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "task_history")
+@Table(name = "wallet_history")
 public class WalletHistory {
 
     @Id
@@ -19,7 +19,7 @@ public class WalletHistory {
     private Long walletId;
 
     @Column(name="balance")
-    private double balance;
+    private Double balance;
 
     @Column(name = "timestamp", columnDefinition = "TIMESTAMP")
     private LocalDateTime timestamp;
@@ -28,7 +28,7 @@ public class WalletHistory {
 
     }
 
-    public WalletHistory(Long userId, Long walletId, double balance, LocalDateTime timestamp) {
+    public WalletHistory(Long walletId, Long userId, Double balance, LocalDateTime timestamp) {
         this.userId = userId;
         this.walletId = walletId;
         this.balance = balance;
@@ -59,11 +59,11 @@ public class WalletHistory {
         this.walletId = walletId;
     }
 
-    public double getBalance() {
+    public Double getBalance() {
         return balance;
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(Double balance) {
         this.balance = balance;
     }
 

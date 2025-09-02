@@ -4,7 +4,7 @@ import {taskData} from 'src/composables/TaskData.ts';
 import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
 import { Page} from 'components/paging/Page.ts';
 import {onMounted, ref} from 'vue';
-import {TaskEditRequestDto} from "components/dto/task/TaskEditRequestDto.ts";
+import {TaskEditRequestDto} from 'components/dto/task/TaskEditRequestDto.ts';
 
 const { deleteTask, startTask, editTaskDescription } = taskData();
 

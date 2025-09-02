@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@EntityListeners(TaskEntityListener.class)
 @Entity
 @Table(name = "tasks")
 public class Task {

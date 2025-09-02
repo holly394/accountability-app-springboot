@@ -3,6 +3,7 @@ import com.github.holly.accountability.user.User;
 
 import jakarta.persistence.*;
 
+@EntityListeners(RelationshipEntityListener.class)
 @Entity
 @Table(name = "relationships")
 public class Relationship {

@@ -5,7 +5,7 @@ import {TaskDataDto} from 'components/dto/task/TaskDataDto.ts';
 import {Page} from 'components/paging/Page.ts';
 import {TaskCalculatorDto} from 'components/dto/task/TaskCalculatorDto.ts';
 import {onMounted, ref} from 'vue';
-import {TaskEditRequestDto} from "components/dto/task/TaskEditRequestDto.ts";
+import {TaskEditRequestDto} from 'components/dto/task/TaskEditRequestDto.ts';
 
 const { deleteTask, editTaskDescription } = taskData();
 

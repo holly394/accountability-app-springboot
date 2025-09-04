@@ -51,47 +51,49 @@ async function editTaskButton(taskId: number, description: string) {
 <template>
   <q-card class="outer-card-style">
     <div class="col column">
+      <q-expansion-item
+        expand-separator
+        icon="military_tech"
+        label="Tasks completed"
+        header-class="text-h5"
+      >
 
-      <q-card-section>
-        <div class="card-title-style">Tasks completed</div>
-      </q-card-section>
+        <q-card-section class="inner-card-section expanded-items-size">
+          <q-markup-table title="COMPLETED TASKS">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in props.taskList.content" :key="task.id" class="text-center">
+                  <td>{{ task.description }}
+                    <q-popup-edit v-model="task.description" title="Edit Description" auto-save v-slot="scope">
+                      <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set"
+                               @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
+                    </q-popup-edit>
+                  </td>
+                  <q-tooltip>
+                    Duration: {{ task.durationString }}
+                  </q-tooltip>
+                  <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+              </tr>
+              <tr>
+                <td>COMPLETED BALANCE: </td>
+                <td>{{ props.payment.payment.toFixed(2) }}</td>
+              </tr>
+            </tbody>
 
-      <q-card-section class="inner-card-section expanded-items-size">
-        <q-markup-table title="COMPLETED TASKS">
-          <thead>
-            <tr>
-              <th>Task</th>
-              <th>Delete</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="task in props.taskList.content" :key="task.id" class="text-center">
-                <td>{{ task.description }}
-                  <q-popup-edit v-model="task.description" title="Edit Description" auto-save v-slot="scope">
-                    <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set"
-                             @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
-                  </q-popup-edit>
-                </td>
-                <q-tooltip>
-                  Duration: {{ task.durationString }}
-                </q-tooltip>
-                <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
-            </tr>
-            <tr>
-              <td>COMPLETED BALANCE: </td>
-              <td>{{ props.payment.payment.toFixed(2) }}</td>
-            </tr>
-          </tbody>
+            <q-pagination
+              v-model="currentPage"
+              :max="props.taskList.totalPages"
+              @click="changePage()"
+            />
 
-          <q-pagination
-            v-model="currentPage"
-            :max="props.taskList.totalPages"
-            @click="changePage()"
-          />
-
-        </q-markup-table>
-      </q-card-section>
-
+          </q-markup-table>
+        </q-card-section>
+      </q-expansion-item>
     </div>
   </q-card>
 </template>

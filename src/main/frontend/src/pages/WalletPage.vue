@@ -44,18 +44,20 @@ const updateWalletPage = async () => {
 
 <template>
     <div class="row q-pa-md q-col-gutter-md" style="height: 550px; max-height: 100%">
-      <div class="col-12 col-md-10">
+
+      <div class="col-12 col-md-6">
         <TablePaymentHistory
           @update-list="changePage"
           :purchaseHistory="purchasingHistory"
           :maxPages="maxPages"/>
       </div>
-      <div class="col-12 col-md-2 q-gutter-md">
+      <div class="col-12 col-md-6 q-gutter-md">
         <q-card class="outer-card-style">
           <div class="card-title-style text-center">Your balance: {{ wallet.balance.toFixed(2) }}</div>
         </q-card>
-        <PurchaseForm class="col-3" @new-purchase="updateWalletPage" />
+        <PurchaseForm class="col-12" @new-purchase="updateWalletPage" />
       </div>
+
     </div>
 </template>
 

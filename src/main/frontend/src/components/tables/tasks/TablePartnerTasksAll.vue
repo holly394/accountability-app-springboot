@@ -106,6 +106,5 @@ async function changePage() {
   @include card-subtitle-style;
 }
 
-
 </style>
 

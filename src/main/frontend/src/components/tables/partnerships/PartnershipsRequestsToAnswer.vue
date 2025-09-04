@@ -30,42 +30,67 @@ async function updateRelationshipButton(relationshipId: number, statusEnum: Rela
 </script>
 
 <template>
-    <div>
-      <q-card
-        class="my-card text-white"
-        style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-      >
+  <q-card class="outer-card-style" bordered>
+    <div class="col column">
+
         <q-card-section>
-          <div class="text-h6">Pending requests</div>
-          <div class="text-subtitle2">Answer partnership requests here</div>
+          <div class="card-title-style">Pending requests</div>
+          <div class="card-subtitle-style">Answer partnership requests here</div>
         </q-card-section>
 
-        <q-card-section class="q-pt-none">
-          <q-markup-table title="PARTNERSHIPS TO RESPOND TO">
-            <thead>
-            <tr>
-              <th>RELATIONSHIP ID</th>
-              <th>PARTNER ID</th>
-              <th>NAME</th>
-              <th>STATUS</th>
-              <th>ACCEPT</th>
-              <th>REJECT</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="relationship in props.partnerList.content" :key="relationship.id">
-                <td v-text="relationship.id" />
-                <td v-text="relationship.partner.id" />
+        <q-card-section class="inner-card-section">
+          <template v-if="props.partnerList.content.length">
+            <q-markup-table title="PARTNERSHIPS TO RESPOND TO">
+              <thead>
+              <tr>
+                <th>NAME</th>
+                <th>STATUS</th>
+                <th>ACCEPT</th>
+                <th>REJECT</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr v-for="relationship in props.partnerList.content" :key="relationship.id" class="text-center">
                 <td v-text="relationship.partner.username" />
                 <td v-text="relationship.status" />
                 <td><q-btn @click="updateRelationshipButton(relationship.id, RelationshipStatus.APPROVED)"
                            label="APPROVE" type="submit" color="primary"/></td>
                 <td><q-btn @click="updateRelationshipButton(relationship.id, RelationshipStatus.REJECTED)"
                            label="REJECT" type="submit" color="primary"/></td>
-            </tr>
-            </tbody>
-          </q-markup-table>
+              </tr>
+              </tbody>
+            </q-markup-table>
+          </template>
+          <template v-else>
+            <div class="text-center" style="color: white;">None yet!</div>
+          </template>
         </q-card-section>
-      </q-card>
     </div>
+  </q-card>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+  @include main-card-size;
+}
+
+.inner-card-section {
+  @include inner-card-section;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-subtitle-style {
+  @include card-subtitle-style;
+}
+
+.card-title-style {
+  @include card-title-style;
+}
+
+</style>

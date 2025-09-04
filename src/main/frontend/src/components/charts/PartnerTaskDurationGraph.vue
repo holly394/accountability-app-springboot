@@ -163,7 +163,7 @@ onUnmounted(() => {
           <q-expansion-item
             expand-separator
             icon="leaderboard"
-            label="Longest approved tasks"
+            label="Approved tasks by duration"
             header-class="text-h5"
           >
             <q-card-section>

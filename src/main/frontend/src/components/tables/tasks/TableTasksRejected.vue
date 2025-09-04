@@ -40,7 +40,7 @@ async function changePage() {
 </script>
 
 <template>
-  <q-card class="outer-card main-card-size" bordered>
+  <q-card class="outer-card-style">
     <div class="col column">
 
       <q-expansion-item
@@ -86,13 +86,12 @@ async function changePage() {
     </div>
   </q-card>
 </template>
+
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
-.outer-card {
+.outer-card-style {
   @include outer-card-style;
-}
-.main-card-size {
   @include main-card-size;
 }
 

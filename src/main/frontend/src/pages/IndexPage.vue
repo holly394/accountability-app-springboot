@@ -13,20 +13,32 @@ defineOptions({
 
 <template>
   <q-layout>
-    <q-page-container class="q-pa-md items-start q-gutter-md col-12 col-sm-6 col-md-4 col-lg-3">
+    <q-page-container class="q-pa-md q-gutter-md">
 
+      <div class="row q-gutter-md">
+        <div class="col-12 col-md-4">
+          <PartnerTaskDurationGraph />
+        </div>
+        <div class="col-12 col-md-4">
+          <PartnerWalletsGraph  />
+        </div>
+      </div>
 
-        <PartnerTaskDurationGraph />
-        <br>
-        <PartnerWalletsGraph />
-
-        <TableTasksApproved />
-        <br>
-        <TablePartnerTasksAll />
-
+      <div class="row q-gutter-md">
+        <div class="col-12 col-md-4">
+          <TableTasksApproved  />
+        </div>
+        <div class="col-12 col-md-4">
+          <TablePartnerTasksAll  />
+        </div>
+      </div>
 
     </q-page-container>
   </q-layout>
 
 </template>
+
+<style lang="scss" scoped>
+
+</style>
 

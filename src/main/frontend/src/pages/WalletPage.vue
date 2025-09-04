@@ -43,23 +43,36 @@ const updateWalletPage = async () => {
 </script>
 
 <template>
-  <div class="q-pa-md row items-start q-gutter-md">
-    <q-card
-      class="my-card text-white"
-      style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-    >
-      <q-card-section>
-        <div class="text-h6">Your balance: {{ wallet.balance.toFixed(2) }}</div>
-      </q-card-section>
-    </q-card>
-
-    <PurchaseForm
-      @new-purchase="updateWalletPage" />
-
-    <TablePaymentHistory
-    @update-list="changePage"
-    :purchaseHistory="purchasingHistory"
-    :maxPages="maxPages"/>
-
-  </div>
+    <div class="row q-pa-md q-col-gutter-md" style="height: 550px; max-height: 100%">
+      <div class="col-12 col-md-10">
+        <TablePaymentHistory
+          @update-list="changePage"
+          :purchaseHistory="purchasingHistory"
+          :maxPages="maxPages"/>
+      </div>
+      <div class="col-12 col-md-2 q-gutter-md">
+        <q-card class="outer-card-style">
+          <div class="card-title-style text-center">Your balance: {{ wallet.balance.toFixed(2) }}</div>
+        </q-card>
+        <PurchaseForm class="col-3" @new-purchase="updateWalletPage" />
+      </div>
+    </div>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+  @include main-card-size;
+}
+
+.inner-card-section {
+  @include inner-card-section;
+}
+
+.card-title-style {
+  @include card-title-style;
+}
+
+</style>

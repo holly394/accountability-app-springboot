@@ -35,40 +35,52 @@ const emit = defineEmits(['newPurchase'])
 </script>
 
 <template>
-  <div class="q-pa-md row items-start q-gutter-md">
-    <q-card
-      class="my-card text-white"
-      style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-    >
+    <q-card class="outer-card-style">
+
       <q-card-section>
         <div class="text-h6">Make a purchase</div>
-        <div class="text-subtitle2">Describe item and add price</div>
+        <div class="text-subtitle2">Describe what you want to buy <br> and add a price</div>
       </q-card-section>
 
-      <q-card-section>
+      <q-card-section class="q-pa-md">
         <q-form ref="formRef" @submit="makeNewPurchase">
-          <q-input
-            v-model="formData.description"
-            label="description"
-            filled
-            type="textarea"
-            bg-color="white"
-            name="itemDescription"
-          />
-          <q-input
-            v-model="formData.price"
-            label="price"
-            filled
-            type="number"
-            bg-color="white"
-            name="itemPrice"
-          />
 
-          <q-btn label="Submit"
-                 type="submit" color="primary"/>
+              <q-input
+                v-model="formData.description"
+                label="What do you want to buy?"
+                filled
+                style="width: 100%;"
+                type="textarea"
+                bg-color="white"
+                name="itemDescription"
+              />
+
+              <q-input
+                v-model="formData.price"
+                label="How much is it?"
+                filled
+                type="number"
+                bg-color="white"
+                name="itemPrice"
+                style="width:100%; padding-top: 10px;"
+              />
+
+            <div class="row justify-center" style="padding-top: 10px;">
+              <q-btn label="Submit"
+                     type="submit"
+                     color="primary"/>
+            </div>
 
         </q-form>
       </q-card-section>
     </q-card>
-  </div>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+}
+
+</style>

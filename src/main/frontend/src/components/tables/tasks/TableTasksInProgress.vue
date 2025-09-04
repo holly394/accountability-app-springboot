@@ -70,50 +70,73 @@ async function changePage() {
 </script>
 
 <template>
-  <q-card
-    class="my-card text-white"
-    style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-  >
+  <q-card class="outer-card-style">
+    <div class="col column">
+
     <q-card-section>
-      <div class="text-h6">Tasks in progress</div>
+      <div class="card-title-style">Tasks in progress</div>
     </q-card-section>
-    <q-card-section title="TASKS IN PROGRESS" class="q-pt-none">
-    <q-markup-table>
+
+    <q-card-section class="inner-card-section expanded-items-size">
+    <q-markup-table title="TASKS IN PROGRESS">
       <thead>
       <tr>
-        <th>Task ID</th>
-        <th>Task Description</th>
-        <th>Status</th>
-        <th>Time Spent</th>
-        <th>Action</th>
-        <th>Delete task</th>
+        <th>Task</th>
+        <th>End</th>
+        <th>Delete</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="task in props.taskList.content" :key="task.id">
-          <td v-text="task.id" />
+      <tr v-for="task in props.taskList.content" :key="task.id" class="text-center">
+          <q-tooltip>
+            Duration: {{ task.durationString }}
+          </q-tooltip>
           <td>{{ task.description }}
             <q-popup-edit v-model="task.description" title="Edit Description" auto-save v-slot="scope">
               <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set"
                        @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
             </q-popup-edit>
           </td>
-          <td v-text="task.status" />
-          <td v-text="task.durationString" />
           <td><button @click="endTaskButton(task.id)">End</button></td>
           <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
       </tr>
       <tr>
-        <td>TOTAL STANDING VALUE: </td>
+        <td>IN-PROGRESS BALANCE: </td>
         <td>{{ props.payment.payment.toFixed(2) }}</td>
       </tr>
       </tbody>
+
       <q-pagination
         v-model="currentPage"
         :max="props.taskList.totalPages"
         @click="changePage()"
       />
+
     </q-markup-table>
     </q-card-section>
+
+    </div>
   </q-card>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+  @include main-card-size;
+}
+
+.inner-card-section {
+  @include inner-card-section;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-title-style {
+  @include card-title-style;
+}
+
+</style>

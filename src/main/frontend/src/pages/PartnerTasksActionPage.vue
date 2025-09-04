@@ -59,7 +59,7 @@ async function changePage() {
   >
     <q-card-section>
       <div class="text-h6">Partner tasks</div>
-      <div class="text-subtitle2">Your partners' tasks</div>
+      <div class="text-subtitle2">Approve or reject your partners' tasks</div>
     </q-card-section>
     <q-card-section class="q-pt-none">
     <q-markup-table class="text-center" title="PARTNER TASKS">

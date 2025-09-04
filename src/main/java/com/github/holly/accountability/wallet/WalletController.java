@@ -72,8 +72,14 @@ public class WalletController {
         purchaseDto.setPrice(purchase.getPrice());
         if (purchase.getPurchaseTime() != null) {
             LocalDateTime purchaseTime = purchase.getPurchaseTime();
-            String time = purchaseTime.toString();
-            purchaseDto.setPurchaseTimeString(time);
+
+            String[] date = purchaseTime.toString().split("T");
+
+            String[] time = date[1].split(":");
+
+            String timestamp = date[0] + " " + time[0] + ":" + time[1];
+
+            purchaseDto.setPurchaseTimeString(timestamp);
         }
         return purchaseDto;
     }

@@ -86,45 +86,49 @@ async function reloadListsAfterAnswering() {
 <template>
     <div class="q-pa-md row items-start q-gutter-md">
 
-      <q-card dark bordered class="bg-grey-9 my-card">
+      <q-card class="outer-card-style">
         <q-card-section>
-          <div class="text-h6">Find a friend</div>
+          <div class="card-title-style">Find a friend</div>
         </q-card-section>
 
         <q-card-section>
             <q-input
               v-on:keyup="searchFriend"
               v-model="userSearch.username"
-              label="search for a friend"
+              label="To search, type in a username"
               filled
               type="textarea"
               name="partner search bar"
+              class="inner-card-section"
             />
         </q-card-section>
 
         <q-card-section>
           <q-markup-table title="EXISTING USERS">
-            <thead>
-            <tr><th>EXISTING USERS</th></tr>
-            <tr>
-              <th>ID</th>
-              <th>USERNAME</th>
-              <th>REQUEST</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="relationship in searchResult" :key="relationship.partner.id">
-                <td v-text="relationship.partner.id" />
-                <td v-text="relationship.partner.username" />
-              <!-- relationship.status is a RelationshipStatusDto that also has a status -->
-              <template v-if="relationship.status === null">
-                <q-btn @click="sendPartnershipRequest(relationship.partner.id)" label="Request" type="submit" color="primary"/>
-              </template>
-              <template v-else>
-                <td v-text="relationship.status" />
-              </template>
-            </tr>
-            </tbody>
+            <template v-if="searchResult.length">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>USERNAME</th>
+                  <th>REQUEST</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="relationship in searchResult" :key="relationship.partner.id" class = "text-center">
+                  <td v-text="relationship.partner.id" />
+                  <td v-text="relationship.partner.username" />
+                  <!-- relationship.status is a RelationshipStatusDto that also has a status -->
+                  <template v-if="relationship.status === null">
+                    <td><q-btn @click="sendPartnershipRequest(relationship.partner.id)" label="Request" type="submit" color="primary"/></td>
+                  </template>
+                  <template v-else>
+                    <td v-text="relationship.status" />
+                  </template>
+                </tr>
+              </tbody>
+            </template>
+            <template v-else>
+            </template>
           </q-markup-table>
         </q-card-section>
       </q-card>
@@ -155,3 +159,23 @@ async function reloadListsAfterAnswering() {
 
     </div>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+  @include main-card-size;
+}
+
+.inner-card-section {
+  @include inner-card-section;
+  @include white-background;
+}
+
+.card-title-style {
+  @include card-title-style;
+}
+
+</style>
+

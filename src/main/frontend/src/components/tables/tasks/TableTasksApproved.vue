@@ -12,7 +12,6 @@ defineOptions({
   name: 'TableTasksApproved',
 });
 
-const expanded = ref<boolean>(false);
 const currentPage = ref<number>(0);
 const maxPages = ref<number>(0);
 const pageSize = 5;
@@ -42,91 +41,75 @@ async function changePage() {
 </script>
 
 <template>
-  <div class="col-12 col-sm-6 col-md-4 col-lg-3 container">
-
-  <q-card class="outer-card" bordered>
+  <q-card class="outer-card main-card-size" bordered>
     <div class="col column">
 
-      <q-card-section class="col-8 col-sm-6"
-                      style="flex-wrap: wrap;
-                      align-items: center;"
-                      bordered>
+      <q-expansion-item
+        expand-separator
+        icon="thumb_up"
+        label="Your approved tasks"
+        header-class="text-h5"
+      >
+        <q-card-section>
+          <div class="card-subtitle-style">See your most recently approved tasks</div>
+        </q-card-section>
 
-        <div class="text-h6 header-text q-my-md">Your approved tasks</div>
-        <div class="text-subtitle2">See your most recently approved tasks</div>
+        <q-card-section class="inner-card-section expanded-items-size">
+          <q-markup-table title="APPROVED TASKS">
+            <thead>
+              <tr>
+                <th>Task Description</th>
+                <th>Delete task</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in approvedTasks.content" :key="task.id" class="text-center">
+                <q-tooltip>
+                  Duration: {{ task.durationString }}
+                </q-tooltip>
+                <td v-text="task.description" />
+                <td>
+                  <button @click="deleteTaskButton(task.id)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
 
-        <q-card-actions>
-          <q-btn
-            color="grey"
-            round
-            flat
-            dense
-            :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-            @click="expanded = !expanded"
-          />
-        </q-card-actions>
+            <q-pagination
+              v-model="currentPage"
+              :max="maxPages"
+              @click="changePage()"
+            />
+          </q-markup-table>
+        </q-card-section>
 
-      </q-card-section>
-
-
-      <q-card-section class="col-8 col-sm-6"
-                      style="flex-wrap: wrap;
-                      align-items: center;"
-                      bordered>
-
-        <q-slide-transition>
-          <div v-show="expanded">
-
-            <q-markup-table title="APPROVED TASKS" class="col-8 col-sm-6">
-
-              <thead>
-                <tr>
-                  <th>Task Description</th>
-                  <th>Time Spent</th>
-                  <th>Delete task</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                <tr v-for="task in approvedTasks.content" :key="task.id" class="text-center">
-                    <td v-text="task.description" />
-                    <td v-text="task.durationString" />
-                    <td>
-                      <button @click="deleteTaskButton(task.id)">
-                        Delete
-                      </button>
-                    </td>
-                </tr>
-              </tbody>
-
-              <q-pagination
-                v-model="currentPage"
-                :max="maxPages"
-                @click="changePage()"
-              />
-
-            </q-markup-table>
-
-          </div>
-        </q-slide-transition>
-
-      </q-card-section>
+      </q-expansion-item>
 
     </div>
   </q-card>
-
-  </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
 .outer-card {
-  @include outer-card;
+  @include outer-card-style;
+}
+.main-card-size {
+  @include main-card-size;
 }
 
 .inner-card-section {
   @include inner-card-section;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-subtitle-style {
+  @include card-subtitle-style;
 }
 
 </style>

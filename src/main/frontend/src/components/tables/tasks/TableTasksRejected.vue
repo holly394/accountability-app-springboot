@@ -40,41 +40,72 @@ async function changePage() {
 </script>
 
 <template>
-  <q-card
-    class="my-card text-white"
-    style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-  >
-    <q-card-section>
-      <div class="text-h6">Tasks rejected</div>
-    </q-card-section>
-    <q-card-section class="q-pt-none">
-    <q-markup-table title="REJECTED TASKS" class="q-pt-none">
-      <thead>
-        <tr>
-          <th>Task ID</th>
-          <th>Task Description</th>
-          <th>Status</th>
-          <th>Time Spent</th>
-          <th>Action</th>
-          <th>Delete task</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="task in rejectedTasks.content" :key="task.id">
-            <td v-text="task.id" />
-            <td v-text="task.description" />
-            <td v-text="task.status" />
-            <td v-text="task.durationString" />
-            <td />
-            <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
-        </tr>
-      </tbody>
-      <q-pagination
-        v-model="currentPage"
-        :max="maxPages"
-        @click="changePage()"
-      />
-    </q-markup-table>
-    </q-card-section>
+  <q-card class="outer-card main-card-size" bordered>
+    <div class="col column">
+
+      <q-expansion-item
+        expand-separator
+        icon="thumb_down"
+        label="Tasks rejected"
+        header-class="text-h5"
+      >
+
+        <q-card-section>
+          <div class="card-subtitle-style">Tasks rejected by partners</div>
+        </q-card-section>
+
+        <q-card-section class="inner-card-section expanded-items-size">
+          <q-markup-table title="REJECTED TASKS">
+            <thead>
+              <tr>
+                <th>Task Description</th>
+                <th>Action</th>
+                <th>Delete task</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="task in rejectedTasks.content" :key="task.id" class="text-center">
+                <q-tooltip>
+                  Duration: {{ task.durationString }}
+                </q-tooltip>
+                <td v-text="task.description" />
+                <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+              </tr>
+            </tbody>
+
+            <q-pagination
+              v-model="currentPage"
+              :max="maxPages"
+              @click="changePage()"
+            />
+
+          </q-markup-table>
+        </q-card-section>
+
+      </q-expansion-item>
+    </div>
   </q-card>
 </template>
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card {
+  @include outer-card-style;
+}
+.main-card-size {
+  @include main-card-size;
+}
+
+.inner-card-section {
+  @include inner-card-section;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-subtitle-style {
+  @include card-subtitle-style;
+}
+
+</style>

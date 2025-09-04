@@ -93,65 +93,93 @@ const refreshInProgressAndCompletedLists = async () => {
 </script>
 
 <template>
-<div>
-  <q-page class="column items-center justify-evenly">
+  <q-layout>
+    <q-page-container class="q-gutter-md">
 
-    <!-- Skeleton Loading State -->
-    <div v-if="loading">
-      <q-card v-for="n in 3" :key="'skeleton-'+n" class="q-mb-md">
-        <q-item>
-          <q-item-section avatar>
-            <q-skeleton type="QAvatar" />
-          </q-item-section>
-          <q-item-section>
-            <q-skeleton type="text" width="120px" />
-          </q-item-section>
-        </q-item>
-        <q-card-section>
-          <q-skeleton type="text" height="100px" />
-        </q-card-section>
-      </q-card>
-    </div>
+      <!-- Skeleton Loading State -->
+      <div v-if="loading">
 
-    <!-- Loaded Content -->
-    <div v-else>
-    <TaskForm @new-task="reloadPending"/>
+        <q-card v-for="n in 3" :key="'skeleton-'+n" class="q-mb-md">
+          <q-item>
+            <q-item-section avatar>
+              <q-skeleton type="QAvatar" />
+            </q-item-section>
+            <q-item-section>
+              <q-skeleton type="text" width="120px" />
+            </q-item-section>
+          </q-item>
+          <q-card-section>
+            <q-skeleton type="text" height="100px" />
+          </q-card-section>
+        </q-card>
 
-    <q-card
-      class="my-card text-white"
-      style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-    >
-      <q-card-section>
-        <div class="text-h6">Your current wallet balance: {{ wallet.balance.toFixed(2) }}</div>
-      </q-card-section>
-    </q-card>
+      </div>
 
-    <br>
-    <TableTasksPending :taskList="pendingTasks"
-                       @delete-task="reloadPending"
-                       @start-task="refreshPendingAndInProgressLists"
-                       @update-list="changePendingPage"
-                       @edit-task="reloadPending"/>
-    <br>
-    <TableTasksInProgress :taskList="inProgressTasks"
-                          :payment="inProgressPayment"
-                          @end-task="refreshInProgressAndCompletedLists"
-                          @delete-task="reloadInProgress"
-                          @update-list="changeInProgressPage"
-                          @edit-task="reloadInProgress"/>
-    <br>
-    <TableTasksCompleted :taskList="completedTasks"
-                         :payment="completedPayment"
-                         @delete-task="reloadCompleted"
-                         @update-list="changeCompletedPage"
-                         @edit-task="reloadCompleted"
-                         @edit-task-duration="reloadCompleted"/>
-    <br>
-    <TableTasksApproved />
-    <br>
-    <TableTasksRejected />
-    </div>
-  </q-page>
+      <!-- Loaded Content -->
+      <div v-else>
+        <div class="q-gutter-md justify-center">
 
-</div>
+          <div class="row q-gutter-md justify-center">
+            <div class="col-12 col-md-4">
+              <TaskForm @new-task="reloadPending"/>
+            </div>
+            <div class="col-12 col-md-4 self-center">
+              <q-card class="outer-card-style">
+                <q-card-section>
+                  <div class="text-h6">Your current wallet balance: {{ wallet.balance.toFixed(2) }}</div>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+
+          <div class="row q-gutter-md justify-center">
+            <div class="col-12 col-md-3">
+              <TableTasksPending :taskList="pendingTasks"
+                                 @delete-task="reloadPending"
+                                 @start-task="refreshPendingAndInProgressLists"
+                                 @update-list="changePendingPage"
+                                 @edit-task="reloadPending"/>
+            </div>
+            <div class="col-12 col-md-3">
+              <TableTasksInProgress :taskList="inProgressTasks"
+                                    :payment="inProgressPayment"
+                                    @end-task="refreshInProgressAndCompletedLists"
+                                    @delete-task="reloadInProgress"
+                                    @update-list="changeInProgressPage"
+                                    @edit-task="reloadInProgress"/>
+            </div>
+            <div class="col-12 col-md-3">
+              <TableTasksCompleted :taskList="completedTasks"
+                                   :payment="completedPayment"
+                                   @delete-task="reloadCompleted"
+                                   @update-list="changeCompletedPage"
+                                   @edit-task="reloadCompleted"
+                                   @edit-task-duration="reloadCompleted"/>
+            </div>
+          </div>
+
+          <div class="row q-gutter-md justify-center">
+            <div class="col-12 col-md-4">
+              <TableTasksApproved />
+            </div>
+            <div class="col-12 col-md-4">
+              <TableTasksRejected />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </q-page-container>
+  </q-layout>
 </template>
+
+<style lang="scss" scoped>
+@import 'src/css/quasar.variables.scss';
+
+.outer-card-style {
+  @include outer-card-style;
+}
+
+</style>
+
+

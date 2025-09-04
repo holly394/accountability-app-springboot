@@ -10,8 +10,6 @@ import {relationshipData} from 'src/composables/RelationshipData.ts';
 const {getCurrentUserWallet, getWalletsByUserIds} = walletData();
 const { getPartnerIdList } = relationshipData();
 
-const expanded = ref<boolean>(false);
-
 defineOptions({
   name: 'TestGraph'
 });
@@ -77,7 +75,10 @@ onMounted(async () => {
         encode: {
           x: 'name',
           y: 'value'
-        }
+        },
+        barGap: 0,
+        barCategoryGap: '15%',
+        barWidth: '30%',
       }],
       tooltip: {
         trigger: 'axis',
@@ -125,45 +126,35 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-
-    <q-card class="outer-card" bordered>
+    <q-card class="outer-card main-card-size" bordered>
       <div class="col column">
 
-        <q-card-section class="col-8 col-sm-6">
-          <div class="text-h6 header-text q-my-md">Wallet overview</div>
-          <div class="text-subtitle2">How you compare</div>
+        <q-expansion-item
+          expand-separator
+          icon="account_balance_wallet"
+          label="Wallet overview"
+          header-class="text-h5"
+        >
+          <q-card-section>
+            <div class="text-subtitle2">Yours and your partners' wallet balances</div>
+          </q-card-section>
 
-          <q-card-actions>
-            <q-btn
-              color="grey"
-              round
-              flat
-              dense
-              :icon="expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
-              @click="expanded = !expanded"
-            />
-
-          </q-card-actions>
-        </q-card-section>
-
-        <q-card-section class="col-8 col-sm-6" style="flex-wrap: wrap; align-items: center;" bordered>
-          <q-slide-transition v-show="expanded">
-            <div ref="walletBarChart" class="inner-card-section chart-container" @resize="onResize"/>
-          </q-slide-transition>
-        </q-card-section>
+          <div class="inner-card-section expanded-items-size">
+            <q-card-section class="white-background">
+              <div ref="walletBarChart" class="chart-container" @resize="onResize"/>
+            </q-card-section>
+          </div>
+        </q-expansion-item>
 
       </div>
     </q-card>
-
-  </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
 .outer-card {
-  @include outer-card;
+  @include outer-card-style;
 }
 
 .inner-card-section {
@@ -174,5 +165,16 @@ onUnmounted(() => {
   @include chart-container;
 }
 
+.main-card-size {
+  @include main-card-size;
+}
+
+.white-background {
+  @include white-background;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
 
 </style>

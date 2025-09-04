@@ -31,8 +31,6 @@ defineOptions({
   name: 'PartnerTaskDurationGraph'
 });
 
-const expanded = ref<boolean>(false);
-
 // ECharts instance (typed as ECharts or null)
 let chartInstance: ECharts | null = null;
 
@@ -160,43 +158,26 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+    <q-card class="outer-card main-card-size" bordered>
 
-    <q-card class="outer-card col-auto" bordered>
-      <div class="col column">
+          <q-expansion-item
+            expand-separator
+            icon="leaderboard"
+            label="Longest approved tasks"
+            header-class="text-h5"
+          >
+            <q-card-section>
+              <div class="card-subtitle-style">Among yours and your partners' tasks</div>
+            </q-card-section>
 
-        <q-card-section class="col-8 col-sm-6">
-          <div class="text-h6 header-text q-my-md">Longest approved tasks</div>
-          <div class="text-subtitle2">Among yours and your partners' tasks</div>
+            <div class="inner-card-section expanded-items-size">
+              <q-card-section class="white-background">
+                <div ref="partnerTaskBarChart" class="chart-container" @resize="onResize"/>
+              </q-card-section>
+            </div>
+        </q-expansion-item>
 
-          <q-card-actions>
-            <q-btn
-              color="grey"
-              round
-              flat
-              dense
-              :icon="expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
-              @click="expanded = !expanded"
-            />
-          </q-card-actions>
-
-        </q-card-section>
-
-        <q-card-section class="col-8 col-sm-6"
-                        style="flex-wrap: wrap;
-                        align-items: center;"
-                        bordered>
-
-          <q-slide-transition v-show="expanded">
-              <div ref="partnerTaskBarChart" class="inner-card-section chart-container" @resize="onResize"/>
-          </q-slide-transition>
-
-        </q-card-section>
-
-      </div>
     </q-card>
-
-  </div>
 </template>
 
 
@@ -204,7 +185,7 @@ onUnmounted(() => {
 @import 'src/css/quasar.variables.scss';
 
 .outer-card {
-  @include outer-card;
+  @include outer-card-style;
 }
 
 .inner-card-section {
@@ -213,6 +194,26 @@ onUnmounted(() => {
 
 .chart-container {
   @include chart-container;
+}
+
+.main-card-size {
+  @include main-card-size;
+}
+
+.white-background {
+  @include white-background;
+}
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-subtitle-style {
+  @include card-subtitle-style;
+}
+
+.card-title-style {
+  @include card-title-style;
 }
 
 

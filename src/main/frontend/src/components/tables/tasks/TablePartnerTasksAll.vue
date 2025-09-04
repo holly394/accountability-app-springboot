@@ -12,7 +12,6 @@ defineOptions({
   name: 'TablePartnerTasksAll',
 });
 
-const expanded = ref<boolean>(false);
 const currentPage = ref<number>(0);
 const maxPages = ref<number>(0);
 const pageSize = 5;
@@ -38,89 +37,75 @@ async function changePage() {
 </script>
 
 <template>
-  <div class="col-12 col-sm-6 col-md-4 col-lg-3 container">
+  <q-card class="outer-card-style" bordered>
+    <div class="col column">
 
-    <q-card class="outer-card col-auto" bordered>
-      <div class="col column ">
+      <q-expansion-item
+        expand-separator
+        icon="star_rate"
+        label="Recent tasks by partners"
+        header-class="text-h5"
+      >
+        <q-card-section>
+          <div class="card-subtitle-style">See most recent tasks from your partners</div>
+        </q-card-section>
 
-        <q-card-section class="col-8 col-sm-6"
-                        style="flex-wrap: wrap;
-                        align-items: center;"
-                        bordered>
+        <q-card-section class="inner-card-section expanded-items-size">
+          <q-markup-table title="TASKS">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Task Description</th>
+              </tr>
+            </thead>
 
-          <div class="text-h6 header-text q-my-md">Recent tasks by partners</div>
-          <div class="text-subtitle2">See most recent tasks from your partners</div>
+            <tbody>
+              <tr v-for="task in recentPartnerTasks.content"
+                  :key="task.id" class="text-center">
+                  <td v-text="task.userName" />
+                    <q-tooltip>
+                      Status: {{ task.status }} <br>
+                      Duration: {{ task.durationString }}
+                    </q-tooltip>
+                  <td v-text="task.description"></td>
+              </tr>
+            </tbody>
 
-          <q-card-actions>
-            <q-btn
-              color="grey"
-              round
-              flat
-              dense
-              :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-              @click="expanded = !expanded"
+            <q-pagination
+              v-model="currentPage"
+              :max="maxPages"
+              @click="changePage()"
             />
-          </q-card-actions>
 
+          </q-markup-table>
         </q-card-section>
 
-        <q-card-section class="col-8 col-sm-6"
-                        style="flex-wrap: wrap;
-                        align-items: center;"
-                        bordered>
+      </q-expansion-item>
 
-          <q-slide-transition>
-            <div v-show="expanded">
-
-              <q-markup-table title="TASKS" class="col-8 col-sm-6">
-
-                <thead>
-                  <tr>
-                    <th>User</th>
-                    <th>Task Description</th>
-                    <th>Status</th>
-                    <th>Time Spent</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr v-for="task in recentPartnerTasks.content"
-                      :key="task.id" class="text-center">
-                      <td v-text="task.userName" />
-                      <td v-text="task.description" />
-                      <td v-text="task.status" />
-                      <td v-text="task.durationString" />
-                  </tr>
-                </tbody>
-
-                <q-pagination
-                  v-model="currentPage"
-                  :max="maxPages"
-                  @click="changePage()"
-                />
-
-              </q-markup-table>
-
-            </div>
-          </q-slide-transition>
-        </q-card-section>
-
-      </div>
-    </q-card>
-
-  </div>
+    </div>
+  </q-card>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
-.outer-card {
-  @include outer-card;
+.outer-card-style {
+  @include outer-card-style;
+  @include main-card-size;
 }
 
 .inner-card-section {
   @include inner-card-section;
 }
+
+.expanded-items-size {
+  @include expanded-items-size;
+}
+
+.card-subtitle-style {
+  @include card-subtitle-style;
+}
+
 
 </style>
 

@@ -12,17 +12,21 @@ defineOptions({
 </script>
 
 <template>
-  <q-page class="q-pa-md row items-start q-gutter-md">
+  <q-layout>
+    <q-page-container class="q-pa-md items-start q-gutter-md col-12 col-sm-6 col-md-4 col-lg-3">
 
-    <PartnerTaskDurationGraph />
-    <br>
-    <PartnerWalletsGraph />
-    <br>
-    <TableTasksApproved />
-    <br>
-    <TablePartnerTasksAll />
-    <br>
 
-  </q-page>
+        <PartnerTaskDurationGraph />
+        <br>
+        <PartnerWalletsGraph />
+
+        <TableTasksApproved />
+        <br>
+        <TablePartnerTasksAll />
+
+
+    </q-page-container>
+  </q-layout>
+
 </template>
 

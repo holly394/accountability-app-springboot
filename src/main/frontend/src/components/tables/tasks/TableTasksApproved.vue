@@ -42,67 +42,91 @@ async function changePage() {
 </script>
 
 <template>
-  <q-card
-    class="my-card text-white rounded-outer-card"
-    style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-  >
-    <q-card-section>
-      <div class="text-h6">Tasks approved</div>
-    </q-card-section>
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3 container">
 
-    <q-card-actions>
-      <q-btn
-        color="grey"
-        round
-        flat
-        dense
-        :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        @click="expanded = !expanded"
-      />
-    </q-card-actions>
+  <q-card class="outer-card" bordered>
+    <div class="col column">
 
-    <q-slide-transition>
-      <div v-show="expanded">
+      <q-card-section class="col-8 col-sm-6"
+                      style="flex-wrap: wrap;
+                      align-items: center;"
+                      bordered>
 
-    <q-card-section class="q-pt-none">
-    <q-markup-table title="APPROVED TASKS" class="q-pt-none">
-      <thead>
-        <tr>
-          <th>Task ID</th>
-          <th>Task Description</th>
-          <th>Status</th>
-          <th>Time Spent</th>
-          <th>Action</th>
-          <th>Delete task</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="task in approvedTasks.content" :key="task.id">
-            <td v-text="task.id" />
-            <td v-text="task.description" />
-            <td v-text="task.status" />
-            <td v-text="task.durationString" />
-            <td />
-            <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
-        </tr>
-      </tbody>
-      <q-pagination
-        v-model="currentPage"
-        :max="maxPages"
-        @click="changePage()"
-      />
-    </q-markup-table>
-    </q-card-section>
-      </div>
-    </q-slide-transition>
+        <div class="text-h6 header-text q-my-md">Your approved tasks</div>
+        <div class="text-subtitle2">See your most recently approved tasks</div>
+
+        <q-card-actions>
+          <q-btn
+            color="grey"
+            round
+            flat
+            dense
+            :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+            @click="expanded = !expanded"
+          />
+        </q-card-actions>
+
+      </q-card-section>
+
+
+      <q-card-section class="col-8 col-sm-6"
+                      style="flex-wrap: wrap;
+                      align-items: center;"
+                      bordered>
+
+        <q-slide-transition>
+          <div v-show="expanded">
+
+            <q-markup-table title="APPROVED TASKS" class="col-8 col-sm-6">
+
+              <thead>
+                <tr>
+                  <th>Task Description</th>
+                  <th>Time Spent</th>
+                  <th>Delete task</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr v-for="task in approvedTasks.content" :key="task.id" class="text-center">
+                    <td v-text="task.description" />
+                    <td v-text="task.durationString" />
+                    <td>
+                      <button @click="deleteTaskButton(task.id)">
+                        Delete
+                      </button>
+                    </td>
+                </tr>
+              </tbody>
+
+              <q-pagination
+                v-model="currentPage"
+                :max="maxPages"
+                @click="changePage()"
+              />
+
+            </q-markup-table>
+
+          </div>
+        </q-slide-transition>
+
+      </q-card-section>
+
+    </div>
   </q-card>
+
+  </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
-.rounded-outer-card {
-  @include card-style-6-columns;
+.outer-card {
+  @include outer-card;
+}
+
+.inner-card-section {
+  @include inner-card-section;
 }
 
 </style>

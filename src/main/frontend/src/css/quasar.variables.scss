@@ -56,8 +56,103 @@ $warning   : #F2C037;
   background: white radial-gradient(circle, #ffffff 0%, #ffffff 100%);
   border-radius: 50px;
   padding: 10px;
-  width: 450px;
-  height: 400px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+@mixin chart-container {
+  width: 1300px;
+  height: 400px;
+}
+
+@media (min-width: 340px) {
+  .chart-container {
+    max-width: 250px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 350px) {
+  .chart-container {
+    max-width: 280px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 375px) {
+  .chart-container {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 400px) {
+  .chart-container {
+    max-width: 340px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 500px) {
+  .chart-container {
+    max-width: 450px;
+    margin: 0 auto;
+  }
+}
+
+/* Tablet */
+@media (min-width: 750px) {
+  .chart-container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 800px) {
+  .chart-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 900px) {
+  .chart-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+  .chart-container {
+    max-width: 960px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1000px) {
+  .chart-container {
+    max-width: 900px;
+  }
+}
+
+@media (min-width: 1020px) {
+  .chart-container {
+    max-width: 650px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .chart-container {
+    max-width: 900px;
+    padding: 3rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1400px) {
+  .chart-container {
+    max-width: 1320px;
+  }
 }

@@ -16,7 +16,8 @@ declare module 'vue' {
 // "export default () => {}" function below (which runs individually
 // for each client)
 const api = axios.create({
-  baseURL: '/api'
+  baseURL: 'http://localhost:8080/api', //local development only. in normal app, just '/api'
+  withCredentials: true, //for local development only
 });
 
 export default boot(({ app }) => {

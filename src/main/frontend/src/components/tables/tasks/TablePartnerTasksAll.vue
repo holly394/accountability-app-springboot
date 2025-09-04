@@ -19,7 +19,6 @@ const pageSize = 5;
 
 const recentPartnerTasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);
 const partnerList = ref<number[]>([]);
-const tableTitle=ref<string>('Recent tasks by partners');
 
 onMounted(async () => {
   await reloadPartnerTaskList();
@@ -39,65 +38,88 @@ async function changePage() {
 </script>
 
 <template>
-  <q-card
-    class="rounded-outer-card my-card text-white"
-    style="background: radial-gradient(circle, #35a2ff 0%, #014a88 100%)"
-  >
-    <q-card-section>
-      <div class="text-h6">{{tableTitle}}</div>
-    </q-card-section>
+  <div class="col-12 col-sm-6 col-md-4 col-lg-3 container">
 
-    <q-card-actions>
-      <q-btn
-        color="grey"
-        round
-        flat
-        dense
-        :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
-        @click="expanded = !expanded"
-      />
-    </q-card-actions>
+    <q-card class="outer-card col-auto" bordered>
+      <div class="col column ">
 
-    <q-slide-transition>
-      <div v-show="expanded">
+        <q-card-section class="col-8 col-sm-6"
+                        style="flex-wrap: wrap;
+                        align-items: center;"
+                        bordered>
 
-    <q-card-section class="q-pt-none">
-    <q-markup-table title="TASKS" class="q-pt-none">
-      <thead>
-        <tr>
-          <th>Task ID</th>
-          <th>Task Description</th>
-          <th>Status</th>
-          <th>Time Spent</th>
-          <th>User</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="task in recentPartnerTasks.content" :key="task.id">
-            <td v-text="task.id" />
-            <td v-text="task.description" />
-            <td v-text="task.status" />
-            <td v-text="task.durationString" />
-            <td v-text="task.userName" />
-        </tr>
-      </tbody>
-      <q-pagination
-        v-model="currentPage"
-        :max="maxPages"
-        @click="changePage()"
-      />
-    </q-markup-table>
-    </q-card-section>
+          <div class="text-h6 header-text q-my-md">Recent tasks by partners</div>
+          <div class="text-subtitle2">See most recent tasks from your partners</div>
+
+          <q-card-actions>
+            <q-btn
+              color="grey"
+              round
+              flat
+              dense
+              :icon="expanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+              @click="expanded = !expanded"
+            />
+          </q-card-actions>
+
+        </q-card-section>
+
+        <q-card-section class="col-8 col-sm-6"
+                        style="flex-wrap: wrap;
+                        align-items: center;"
+                        bordered>
+
+          <q-slide-transition>
+            <div v-show="expanded">
+
+              <q-markup-table title="TASKS" class="col-8 col-sm-6">
+
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Task Description</th>
+                    <th>Status</th>
+                    <th>Time Spent</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr v-for="task in recentPartnerTasks.content"
+                      :key="task.id" class="text-center">
+                      <td v-text="task.userName" />
+                      <td v-text="task.description" />
+                      <td v-text="task.status" />
+                      <td v-text="task.durationString" />
+                  </tr>
+                </tbody>
+
+                <q-pagination
+                  v-model="currentPage"
+                  :max="maxPages"
+                  @click="changePage()"
+                />
+
+              </q-markup-table>
+
+            </div>
+          </q-slide-transition>
+        </q-card-section>
+
       </div>
-    </q-slide-transition>
-  </q-card>
+    </q-card>
+
+  </div>
 </template>
 
 <style lang="scss" scoped>
 @import 'src/css/quasar.variables.scss';
 
-.rounded-outer-card {
-  @include card-style-5-columns;
+.outer-card {
+  @include outer-card;
+}
+
+.inner-card-section {
+  @include inner-card-section;
 }
 
 </style>

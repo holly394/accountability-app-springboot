@@ -180,7 +180,24 @@ public class TaskController {
             long HH = duration.toHours();
             long MM = duration.toMinutesPart();
             long SS = duration.toSecondsPart();
-            String timeInHHMMSS = String.format("%02d:%02d:%02d", HH, MM, SS);
+
+            String timeInHH = String.format("%02d hours ", HH);
+            String timeInMM = String.format("%02d minutes ", MM);
+            String timeInSS = String.format("%02d seconds", SS);
+
+            if (HH == 1) {
+                timeInHH = "1 hour ";
+            }
+
+            if (MM == 1) {
+                timeInMM = "1 minute ";
+            }
+
+            if (SS == 1) {
+                timeInSS = "1 second";
+            }
+
+            String timeInHHMMSS = timeInHH.concat(timeInMM).concat(timeInSS);
 
             taskDto.setDurationNumber();
             taskDto.setDurationString(timeInHHMMSS);

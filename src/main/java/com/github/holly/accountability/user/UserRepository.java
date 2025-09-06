@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     )
     Page<User> getAllExceptCurrentUser(Long userId, Pageable pageable);
 
+    Optional<User> findUserByEmail(String email);
+
 }

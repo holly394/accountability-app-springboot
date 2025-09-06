@@ -2,10 +2,12 @@
   <q-layout>
     <q-page-container>
       <q-page class="flex flex-center">
+
         <div
           id="background"
           :class="$q.dark.isActive ? 'dark_gradient' : 'normal_gradient'"
         ></div>
+
         <q-btn
           color="white"
           class="absolute-top-right"
@@ -14,6 +16,7 @@
           @click="$q.dark.toggle()"
           :icon="$q.dark.isActive ? 'nights_stay' : 'wb_sunny'"
         />
+
         <q-card
           class="login-form"
           v-bind:style="
@@ -67,7 +70,18 @@
               </div>
             </q-form>
           </q-card-section>
+
+          <q-card-section>
+            <q-btn
+              label="Forgot password?"
+              type="button"
+              color="primary"
+              @click="resetPassword"
+            />
+          </q-card-section>
+
         </q-card>
+
       </q-page>
     </q-page-container>
   </q-layout>
@@ -104,10 +118,11 @@ const attemptLogin = async () => {
           badgeColor: 'red'
         })
       }
-
-      // handle unexpected error?
-
     })
+}
+
+const resetPassword = async() => {
+  await router.push('/send-password-reset-link');
 }
 
 </script>

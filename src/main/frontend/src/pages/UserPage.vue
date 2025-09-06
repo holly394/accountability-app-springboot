@@ -8,7 +8,8 @@ import {UserDto} from 'components/dto/UserDto.ts';
 
 const user = ref<UserDto>( {
   username: '',
-  id: 0
+  id: 0,
+  email: ''
 });
 
 defineOptions({
@@ -37,23 +38,78 @@ const attemptLogOut = async () => {
     })
 }
 
+const popupMessage = ref<boolean>(false);
+
+const resetPassword = async() => {
+  await router.push('/send-password-reset-link');
+}
+
 </script>
 
 <template>
-  <div>
-  <q-card dark bordered class="bg-grey-9 my-card">
-    <q-card-section>
-      <div class="text-h6">Log Out</div>
-    </q-card-section>
-    <q-card-section>
-        <q-btn
-          label="LogOut"
-          type="button"
-          color="primary"
-          @click="attemptLogOut"
-        />
-    </q-card-section>
-  </q-card>
+  <div class="row">
+    <div class="col-12 col-md-3">
+      <q-markup-table>
+        <tr>
+          <td>Username:</td>
+          <td>{{ user.username }}</td>
+        </tr>
+        <tr>
+          <td>User ID:</td>
+          <td>{{ user.id }}</td>
+        </tr>
+        <tr>
+          <td>Email:</td>
+          <td>{{ user.email }}</td>
+        </tr>
+        <tr class="row">
+          <td class="col-12">Password:</td>
+          <td class="col-12">******</td>
+          <td class="col-12">
+            <q-btn
+            label="Reset password?"
+            type="button"
+            color="primary"
+            @click="popupMessage = true"
+            />
+          </td>
+        </tr>
+        <tr>
+          <td>
 
+          </td>
+        </tr>
+      </q-markup-table>
+
+      <q-dialog v-model="popupMessage">
+        <q-card>
+
+          <q-card-section class="q-pt-none">
+            This will send a verification link to your email to reset your password.
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Send link" color="primary" @click="resetPassword"/>
+            <q-btn flat label="Cancel" color="primary" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <q-card dark bordered class="bg-grey-9 my-card">
+        <q-card-section>
+          <div class="text-h6">Log Out</div>
+        </q-card-section>
+        <q-card-section>
+          <q-btn
+            label="LogOut"
+            type="button"
+            color="primary"
+            @click="attemptLogOut"
+          />
+        </q-card-section>
+      </q-card>
+
+    </div>
   </div>
+
 </template>

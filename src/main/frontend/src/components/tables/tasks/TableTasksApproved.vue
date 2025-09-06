@@ -69,9 +69,9 @@ async function changePage() {
                 </q-tooltip>
                 <td v-text="task.description" />
                 <td>
-                  <button @click="deleteTaskButton(task.id)">
+                  <q-btn @click="deleteTaskButton(task.id)" class="glossy" color="deep-orange">
                     Delete
-                  </button>
+                  </q-btn>
                 </td>
               </tr>
             </tbody>

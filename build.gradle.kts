@@ -26,6 +26,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.data:spring-data-commons")
+    implementation ("org.springframework.boot:spring-boot-starter-mail")
     implementation("com.github.ben-manes.caffeine:caffeine")
 
 
@@ -69,6 +70,7 @@ frontend {
 
     packageJsonDirectory.set(project.layout.projectDirectory.dir("src/main/frontend"))
     cacheDirectory.set(project.layout.projectDirectory.dir(".frontend-gradle-plugin"))
+
 }
 
 tasks.register<Copy>("processFrontendResources") {

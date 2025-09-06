@@ -50,6 +50,7 @@ const addTaskForm = async () => {
                  @click="addTaskForm"
                  color="primary"
                  :loading="loading"
+                 class="glossy"
           >
             <template v-slot:loading>
               <q-spinner-hourglass class="on-left" />

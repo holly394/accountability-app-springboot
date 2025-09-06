@@ -77,7 +77,7 @@ async function editTaskButton(taskId: number, description: string) {
                   <q-tooltip>
                     Duration: {{ task.durationString }}
                   </q-tooltip>
-                  <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+                  <td><q-btn @click="deleteTaskButton(task.id)" class="glossy" color="deep-orange">Delete</q-btn></td>
               </tr>
               <tr>
                 <td>COMPLETED BALANCE: </td>

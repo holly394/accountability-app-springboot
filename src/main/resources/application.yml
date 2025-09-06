@@ -12,6 +12,19 @@ spring:
   threads:
     virtual:
       enabled: true
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "example@gmail.com"
+    password: "smtppassword"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+
 
   datasource:
     url: "jdbc:h2:file:./database/accountability;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"
@@ -32,4 +45,7 @@ logging:
       clean-history-on-start: true
   level:
     com.github.holly: INFO
+
+application:
+  base-url: "http://localhost:8080"
 

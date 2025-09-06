@@ -41,31 +41,37 @@ defineOptions({
     <q-page-container>
       <q-page class="flex flex-center">
         <q-page class="row items-center justify-evenly">
+
           <q-form v-model="user" @submit="sendUpdate">
+
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 The username you want to use, for other people to find you by.
               </q-tooltip>
             </q-icon>
             <q-input v-model="user.username" label="Username" />
+
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 Your real name, only shown to your close friends.
               </q-tooltip>
             </q-icon>
             <q-input v-model="user.name" label="Name" />
+
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 Your email address.
               </q-tooltip>
             </q-icon>
             <q-input v-model="user.email" label="Email" />
+
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 Your desired password.
               </q-tooltip>
             </q-icon>
             <q-input v-model="user.password" type="password" label="Password" />
+
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 Your desired password a second time, to make sure you didn't make any mistakes.
@@ -75,7 +81,9 @@ defineOptions({
             <div>
               <q-btn label="Submit" type="submit" color="primary"/>
             </div>
+
           </q-form>
+
         </q-page>
       </q-page>
     </q-page-container>

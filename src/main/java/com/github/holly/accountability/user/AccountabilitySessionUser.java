@@ -12,15 +12,17 @@ public class AccountabilitySessionUser implements UserDetails {
     private final Long id;
     private final String name;
     private final String username;
+    private final String email;
     private final String password;
     private final List<GrantedAuthority> authorities;
 
-    public AccountabilitySessionUser(Long id, String name, String username, String password, List<GrantedAuthority> authorities) {
+    public AccountabilitySessionUser(Long id, String name, String email, String username, String password, List<GrantedAuthority> authorities) {
         this.id = id;
         this.name = name;
         this.username = username;
         this.password = password;
         this.authorities = authorities;
+        this.email = email;
     }
 
     @Override
@@ -45,4 +47,6 @@ public class AccountabilitySessionUser implements UserDetails {
     public Long getId() {
         return id;
     }
+
+    public String getEmail() { return email; }
 }

@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                     .requestMatchers(extensions("png", "jpg", "jpeg", "svg", "gif")).permitAll()
                     .requestMatchers(extensions("woff", "woff2", "tff", "otf") ).permitAll()
                     .requestMatchers(extensions("ico")).permitAll()
-                    .requestMatchers("/index.html" ,"/registration", "/h2-console/**", "/error").permitAll()
+                    .requestMatchers("/index.html" ,"/registration", "/email/**", "/h2-console/**","/change-password-from-token/**", "/error").permitAll()
                     .requestMatchers("/api/**").authenticated()
                     .anyRequest().authenticated()
             )

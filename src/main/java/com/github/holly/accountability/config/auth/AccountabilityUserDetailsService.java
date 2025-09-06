@@ -28,8 +28,9 @@ public class AccountabilityUserDetailsService implements UserDetailsService {
 
         return new AccountabilitySessionUser(
                 databaseUser.getId(),
-                databaseUser.getUsername(),
                 databaseUser.getName(),
+                databaseUser.getEmail(),
+                databaseUser.getUsername(),
                 databaseUser.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
         );

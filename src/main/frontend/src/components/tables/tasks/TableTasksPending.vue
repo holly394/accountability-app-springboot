@@ -78,8 +78,8 @@ async function changePage() {
                          @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
               </q-popup-edit>
             </td>
-              <td><button @click="startTaskButton(task.id)">Start</button></td>
-              <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+              <td><q-btn @click="startTaskButton(task.id)" class="glossy">Start</q-btn></td>
+              <td><q-btn @click="deleteTaskButton(task.id)" class="glossy">Delete</q-btn></td>
           </tr>
           </tbody>
 

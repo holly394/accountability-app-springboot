@@ -54,9 +54,9 @@ async function updateRelationshipButton(relationshipId: number, statusEnum: Rela
                 <td v-text="relationship.partner.username" />
                 <td v-text="relationship.status" />
                 <td><q-btn @click="updateRelationshipButton(relationship.id, RelationshipStatus.APPROVED)"
-                           label="APPROVE" type="submit" color="primary"/></td>
+                           label="APPROVE" type="submit" color="primary" class="glossy" /></td>
                 <td><q-btn @click="updateRelationshipButton(relationship.id, RelationshipStatus.REJECTED)"
-                           label="REJECT" type="submit" color="primary"/></td>
+                           label="REJECT" type="submit" color="primary" class="glossy"/></td>
               </tr>
               </tbody>
             </q-markup-table>

@@ -23,12 +23,14 @@ defineOptions({
 
 const currentUser = ref<UserDto>({
   id: 0,
-  username: ''
+  username: '',
+  email: ''
 });
 
 const userSearch = ref<UserDto>({
   id: 0,
-  username: ''
+  username: '',
+  email: ''
 });
 
 const searchResult = ref<RelationshipDto[]>([]);

@@ -12,5 +12,6 @@ export function userData() {
     return (await api.get<Page<UserDto>>('/user/all-platform-users')).data;
   }
 
+
   return { getCurrentUserInfo, getAllUsers };
 }

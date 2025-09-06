@@ -59,8 +59,7 @@ async function changePage() {
             <thead>
               <tr>
                 <th>Task Description</th>
-                <th>Action</th>
-                <th>Delete task</th>
+                <th>Delete</th>
               </tr>
             </thead>
             <tbody>
@@ -69,7 +68,7 @@ async function changePage() {
                   Duration: {{ task.durationString }}
                 </q-tooltip>
                 <td v-text="task.description" />
-                <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+                <td><q-btn @click="deleteTaskButton(task.id)" class="glossy">Delete</q-btn></td>
               </tr>
             </tbody>
 

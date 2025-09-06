@@ -11,12 +11,22 @@ public class UserDto {
 
     private String username;
 
+    private String email;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getUsername() {
@@ -37,6 +47,7 @@ public class UserDto {
         UserDto userDtoCompared = (UserDto) compared;
 
         return Objects.equals(this.id, userDtoCompared.id) &&
-                Objects.equals(this.username, userDtoCompared.username);
+                Objects.equals(this.username, userDtoCompared.username) &&
+                Objects.equals(this.email, userDtoCompared.email);
     }
 }

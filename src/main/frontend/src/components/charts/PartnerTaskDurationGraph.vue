@@ -42,7 +42,8 @@ const userIdList = ref<number[]>([]);
 
 const currentUserId = ref<UserDto>({
   id: 0,
-  username: ''
+  username: '',
+  email: ''
 });
 
 const tasks = ref<Page<TaskDataDto>>(DefaultPage as Page<TaskDataDto>);

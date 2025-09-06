@@ -119,13 +119,13 @@ export default defineComponent({
         </q-item>
 
       <q-expansion-item
-          icon="pages"
+          icon="punch_clock"
           label="Tasks"
         >
       <q-list class="q-pl-lg">
         <q-item to="/tasks" active-class="q-item-no-link-highlighting">
           <q-item-section avatar>
-            <q-icon name="table_chart"/>
+            <q-icon name="checklist"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Your tasks</q-item-label>
@@ -134,7 +134,7 @@ export default defineComponent({
 
         <q-item to="/partner-tasks" active-class="q-item-no-link-highlighting">
           <q-item-section avatar>
-            <q-icon name="list"/>
+            <q-icon name="gavel"/>
           </q-item-section>
           <q-item-section>
             <q-item-label>Approve / reject tasks</q-item-label>
@@ -145,46 +145,60 @@ export default defineComponent({
       </q-expansion-item>
 
         <q-expansion-item
-          icon="pages"
+          icon="account_balance_wallet"
+          label="Balance & purchases"
+        >
+          <q-list class="q-pl-lg">
+            <q-item to="/wallet" active-class="q-item-no-link-highlighting">
+              <q-item-section avatar>
+                <q-icon name="shopping_cart"/>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Purchases</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-expansion-item>
+
+
+        <q-expansion-item
+          icon="account_box"
           label="Your info"
         >
           <q-list class="q-pl-lg">
+
             <q-item to="/user" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
-                <q-icon name="lock"/>
+                <q-icon name="person_outline"/>
               </q-item-section>
               <q-item-section>
                 <q-item-label>User info</q-item-label>
               </q-item-section>
             </q-item>
 
-            <q-item to="/wallet" active-class="q-item-no-link-highlighting">
+            <q-item to="/relationships" active-class="q-item-no-link-highlighting">
               <q-item-section avatar>
-                <q-icon name="email"/>
+                <q-icon name="person_search"/>
               </q-item-section>
               <q-item-section>
-                <q-item-label>Your wallet</q-item-label>
+                <q-item-label>Find a friend</q-item-label>
               </q-item-section>
             </q-item>
 
           </q-list>
         </q-expansion-item>
 
-        <q-item to="/relationships" active-class="q-item-no-link-highlighting">
-          <q-item-section avatar>
-            <q-icon name="lock"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Find a friend</q-item-label>
-          </q-item-section>
-        </q-item>
 
       </q-list>
     </q-drawer>
 
+
+
+
     <q-page-container class="bg-grey-2">
       <router-view/>
     </q-page-container>
+
   </q-layout>
 </template>
 

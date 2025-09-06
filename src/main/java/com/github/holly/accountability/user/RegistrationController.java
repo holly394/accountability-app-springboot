@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("/registration")
@@ -36,20 +37,60 @@ public class RegistrationController {
 
     @PostMapping("")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterUser registerUser, BindingResult bindingResult){
+
         if (!Objects.equals(registerUser.getPassword(), registerUser.getPasswordRepeated())) {
+
             bindingResult.rejectValue("password", "Passwords do not match.");
+
+            return new ResponseEntity<>(new BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST);
+        }
+
+        if (!patternMatches(registerUser.getPassword(), "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$")) {
+
+            bindingResult.rejectValue("password", "Password must have at least one small letter\n" +
+                                                                "at least one capital letter\n" +
+                                                                "at least one digit\n" +
+                                                                "at least one special symbol\n" +
+                                                                "between 8 to 20 characters.");
+
             return new ResponseEntity<>(new BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST);
         }
 
         if (userRepository.findByUsernameIgnoreCase(registerUser.getUsername()).isPresent()) {
+
             bindingResult.rejectValue("username", "Sorry, this username already exists.");
+
             return new ResponseEntity<>(new BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST);
         }
 
-        User user = userRepository.save(new User(registerUser.getUsername(), registerUser.getName(), passwordEncoder.encode(registerUser.getPassword())));
+        if (!patternMatches(registerUser.getEmail(), "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+
+            bindingResult.rejectValue("email", "Email is not in correct format. needs to have (@) symbol");
+
+            return new ResponseEntity<>(new BindingResultWrapper(bindingResult), HttpStatus.BAD_REQUEST);
+        }
+
+
+        User user = userRepository.save(
+                        new User(
+                            registerUser.getUsername(),
+                            registerUser.getName(),
+                            passwordEncoder.encode(registerUser.getPassword()),
+                            registerUser.getEmail()
+                        )
+        );
+
+
         walletRepository.save(new Wallet(user));
 
         return new ResponseEntity<Void>(MultiValueMap.fromSingleValue(Map.of("Location", "/login")), HttpStatus.FOUND);
+    }
+
+    private static boolean patternMatches(String emailAddress, String regexPattern) {
+
+        return Pattern.compile(regexPattern)
+                .matcher(emailAddress)
+                .matches();
     }
 
 

@@ -68,7 +68,8 @@ const emit = defineEmits(['newPurchase'])
             <div class="row justify-center" style="padding-top: 10px;">
               <q-btn label="Submit"
                      type="submit"
-                     color="primary"/>
+                     color="primary"
+                     class="glossy"/>
             </div>
 
         </q-form>

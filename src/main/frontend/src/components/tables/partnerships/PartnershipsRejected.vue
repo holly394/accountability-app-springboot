@@ -46,7 +46,7 @@ async function deleteRequest(relationshipId: number) {
               <tr v-for="relationship in props.rejectionsSent.content" :key="relationship.id" class="text-center">
                     <td v-text="relationship.partner.username" />
                     <td v-text="relationship.status" />
-                    <td><q-btn @click="deleteRequest(relationship.id)" label="UNDO" type="submit" color="primary"/></td>
+                    <td><q-btn @click="deleteRequest(relationship.id)" label="UNDO" type="submit" color="primary" class="glossy"/></td>
               </tr>
               <tr v-for="relationship in props.rejectionsReceived.content" :key="relationship.id" class="text-center">
                 <td v-text="relationship.user.username" />

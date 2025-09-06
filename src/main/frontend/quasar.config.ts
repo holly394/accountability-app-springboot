@@ -60,7 +60,7 @@ export default configure((/* ctx */) => {
       // distDir
 
       // extendViteConf (viteConf) {},
-      // viteVuePluginOptions: {},
+       //viteVuePluginOptions:
 
       vitePlugins: [
         ['vite-plugin-checker', {

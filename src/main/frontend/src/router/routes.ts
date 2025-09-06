@@ -12,6 +12,16 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/send-password-reset-link',
+    component: () => import('pages/SendEmailPasswordTokenPage.vue')
+  },
+
+  {
+    path: '/change-password-from-token',
+    component: () => import('pages/UpdatePasswordPage.vue')
+  },
+
+  {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [

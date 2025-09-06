@@ -71,7 +71,6 @@ async function changePage() {
 
 <template>
   <q-card class="outer-card-style">
-    <div class="col column">
 
       <q-expansion-item
         expand-separator
@@ -91,17 +90,20 @@ async function changePage() {
           </thead>
           <tbody>
           <tr v-for="task in props.taskList.content" :key="task.id" class="text-center">
+
               <q-tooltip>
                 Duration: {{ task.durationString }}
               </q-tooltip>
+
               <td>{{ task.description }}
                 <q-popup-edit v-model="task.description" title="Edit Description" auto-save v-slot="scope">
                   <q-input v-model="scope.value" dense autofocus counter @keyup.enter="scope.set"
                            @keydown.enter="editTaskButton(task.id, scope.value)" name=""/>
                 </q-popup-edit>
               </td>
-              <td><button @click="endTaskButton(task.id)">Finish</button></td>
-              <td><button @click="deleteTaskButton(task.id)">Delete</button></td>
+
+              <td><q-btn @click="endTaskButton(task.id)" class="glossy">Finish</q-btn></td>
+              <td><q-btn @click="deleteTaskButton(task.id)" class="glossy">Delete</q-btn></td>
           </tr>
           <tr>
             <td>IN-PROGRESS BALANCE: </td>
@@ -118,7 +120,7 @@ async function changePage() {
         </q-markup-table>
         </q-card-section>
       </q-expansion-item>
-    </div>
+
   </q-card>
 </template>
 

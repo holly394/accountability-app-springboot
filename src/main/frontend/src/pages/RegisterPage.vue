@@ -28,8 +28,11 @@ const sendUpdate = async () => {
   })
     .catch(error => {
         console.log(error);
+        popupMessage.value = true;
     })
 };
+
+const popupMessage = ref<boolean>(false);
 
 defineOptions({
   name: 'RegisterPage'
@@ -68,6 +71,11 @@ defineOptions({
             <q-icon name="info">
               <q-tooltip class="text-body1">
                 Your desired password.
+                Password must have at least one small letter,<br>
+                at least one capital letter,<br>
+                at least one digit,<br>
+                at least one special symbol,<br>
+                and be between 8 to 20 characters.<br>
               </q-tooltip>
             </q-icon>
             <q-input v-model="user.password" type="password" label="Password" />
@@ -83,6 +91,20 @@ defineOptions({
             </div>
 
           </q-form>
+
+          <q-dialog v-model="popupMessage">
+            <q-card>
+
+              <q-card-section class="q-pt-none">
+                One of the sections didn't meet format requirements. <br>
+                Please adjust and try again.
+              </q-card-section>
+
+              <q-card-actions align="right">
+                <q-btn flat label="Close" color="primary" v-close-popup />
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
 
         </q-page>
       </q-page>

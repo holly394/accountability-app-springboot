@@ -4,7 +4,7 @@ import { QForm } from 'quasar';
 import { email } from 'src/composables/EmailComposable.ts'
 import {GenericResponseDto} from 'components/dto/GenericResponseDto.ts';
 import { useRouteQuery } from '@vueuse/router';
-import {useRouter} from "vue-router";
+import {useRouter} from 'vue-router';
 
 defineOptions({
   name: 'UpdatePasswordPage'
@@ -31,7 +31,7 @@ const confirm = ref<boolean>(false);
 const sendToken = async () => {
   confirmation.value = await setNewPassword(token.value.toString(), formData.value.password, formData.value.passwordRepeated);
 
-  if(confirmation.value.error == "no"){
+  if(confirmation.value.error == 'no'){
     await router.push('/login');
   }
 };

@@ -87,22 +87,61 @@ services:
 
 # Database and log file configuration
 ### In your `application.yml`
-You can set the database URL, username, password. Here, it's set to an H2 database, but you can connect yours to PostgreSQL or any other relational database service. 
+You can set the database URL, username, password, as well as the log level for messages from this application.
+You can also set a Gmail SMTP server here so that you can send emails with password reset links if needed. 
+
+Here, it's set to an H2 database, but you can connect yours to PostgreSQL or any other relational database service. 
 
 You can also set the log level for your project related messages as well as the file path. 
 
 See example here: 
 ```
-spring:  
-  datasource:  
-    url: "jdbc:h2:file:./database/accountability;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH"  
-    username: accountability  
-    password: accountability-pw  
-  
-logging:  
-  file:  
-    path: "./logs"  
-    name: "./logs/accountability.log"  
-  level:  
+spring:
+  cache:
+    type: caffeine
+    caffeine:
+      spec: expireAfterAccess=30m
+  jpa:
+    properties:
+      hibernate:
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+    show-sql: false
+  threads:
+    virtual:
+      enabled: true
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "email address of Gmail account you want to use"
+    password: "the app password (not your real password!)"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  datasource:
+    url: "path to your database"
+    username: databaseUsername
+    password: databasePassword
+  h2:
+    console:
+      enabled: false
+
+logging:
+  file:
+    path: "./logs"
+    name: "./logs/accountability.log"
+  logback:
+    rollingpolicy:
+      max-history: 14
+      max-file-size: 100MB
+      clean-history-on-start: true
+  level:
     com.github.holly: INFO
+
+application:
+  base-url: "http://localhost:8080"
 ```

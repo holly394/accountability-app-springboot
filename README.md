@@ -34,13 +34,16 @@ So if you'd like to pull this image, know that it may not run as smoothly as you
 
 # For Docker containerization configuration
 ### In your `docker-compose.yml`
-Pull image from this url: `ghcr.io/holly394/accountability:master`
-Make sure you have these following files available in your container:
-	`/workspace/logs`
-	`/workspace/database`
-	`/workspace/application.yml`
-Set the container port to port `8080`
-See example here:
+Pull image from this url: `ghcr.io/holly394/accountability:master` <br>
+
+Make sure you have these following files available in your container:<br>
+	`/workspace/logs`<br>
+	`/workspace/database`<br>
+	`/workspace/application.yml`<br>
+ 
+Set the container port to port `8080`<br>
+
+See example here:<br>
 ```
 services:  
   accountability-app:  

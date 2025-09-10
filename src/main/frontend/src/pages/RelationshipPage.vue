@@ -42,6 +42,9 @@ const requestsToWait = ref<Page<RelationshipDto>>(DefaultPage as Page<Relationsh
 const rejectionsSent = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
 const rejectionsReceived = ref<Page<RelationshipDto>>(DefaultPage as Page<RelationshipDto>);
 
+const showRejectionList = ref<boolean>(true);
+const rejectionListTotal=ref<number>(0);
+
 onMounted( async () => {
   currentUser.value = await getCurrentUserInfo();
   approvedRelationships.value = await getRelationshipsByStatus(RelationshipStatus.APPROVED);
@@ -51,6 +54,13 @@ onMounted( async () => {
 
   rejectionsSent.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.SENDER);
   rejectionsReceived.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.RECEIVER);
+
+  const list1 = (rejectionsSent.value.content.length);
+  const list2 = (rejectionsReceived.value.content.length);
+  rejectionListTotal.value = list1.valueOf() + list2.valueOf();
+
+  showRejectionList.value = rejectionListTotal.value < 1 ? false : true;
+
 })
 
 const searchFriend = async () => {
@@ -60,6 +70,7 @@ const searchFriend = async () => {
 async function sendPartnershipRequest(partnerId: number) {
   await sendRequest(partnerId);
   await searchFriend();
+  await reloadRequestsToWait();
 }
 
 async function reloadRequestsToAnswer() {
@@ -67,7 +78,7 @@ async function reloadRequestsToAnswer() {
 }
 
 async function reloadRequestsToWait() {
-  requestsToAnswer.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.RECEIVER);
+  requestsToWait.value = await getRequests(RelationshipStatus.PENDING, RelationshipDirection.RECEIVER);
 }
 
 async function reloadApprovedPartners() {
@@ -76,12 +87,18 @@ async function reloadApprovedPartners() {
 
 async function reloadRejectedPartners() {
   rejectionsSent.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.SENDER);
+  rejectionsReceived.value = await getRequests(RelationshipStatus.REJECTED, RelationshipDirection.RECEIVER);
+
+  const list1 = (rejectionsSent.value.content.length);
+  const list2 = (rejectionsReceived.value.content.length);
+  rejectionListTotal.value = list1.valueOf() + list2.valueOf();
+
+  showRejectionList.value = rejectionListTotal.value < 1 ? false : true;
 }
 
 async function reloadListsAfterAnswering() {
   await Promise.all([reloadRequestsToAnswer(), reloadApprovedPartners(), reloadRejectedPartners()]);
 }
-
 
 </script>
 
@@ -89,6 +106,7 @@ async function reloadListsAfterAnswering() {
   <div class="q-gutter-md q-col-gutter-md">
 
     <div class="row justify-center q-gutter-md q-col-gutter-md">
+
       <div class="col-12 col-md-6">
         <q-card class="outer-card-style">
           <q-card-section>
@@ -145,12 +163,6 @@ async function reloadListsAfterAnswering() {
         />
       </div>
 
-
-
-    </div>
-
-    <div class="row justify-center q-gutter-md q-col-gutter-md">
-
       <div class="col-12 col-md-6">
         <PartnershipsApproved
           :currentUser="currentUser"
@@ -170,6 +182,7 @@ async function reloadListsAfterAnswering() {
         <PartnershipsRejected
           :rejectionsSent="rejectionsSent"
           :rejectionsReceived="rejectionsReceived"
+          :showList="showRejectionList"
           @delete-relationship="reloadRejectedPartners"
         />
       </div>

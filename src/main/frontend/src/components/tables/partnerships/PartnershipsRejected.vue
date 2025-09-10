@@ -3,7 +3,6 @@ import { QMarkupTable } from 'quasar';
 import { RelationshipDto } from 'components/dto/relationship/RelationshipDto.ts';
 import {Page} from 'components/paging/Page.ts';
 import {relationshipData} from 'src/composables/RelationshipData.ts';
-import {onMounted, ref} from 'vue';
 
 const { deleteRelationship } = relationshipData();
 
@@ -13,7 +12,8 @@ defineOptions({
 
 const props = defineProps<{
   rejectionsSent: Page<RelationshipDto>,
-  rejectionsReceived: Page<RelationshipDto>
+  rejectionsReceived: Page<RelationshipDto>,
+  showList: boolean
 }>()
 
 const emit = defineEmits(['deleteRelationship']);
@@ -23,19 +23,6 @@ async function deleteRequest(relationshipId: number) {
   emit('deleteRelationship');
 }
 
-const showList = ref<boolean>(false);
-
-onMounted( async() => {
-  let list1 = props.rejectionsSent.content.length;
-  let list2 = props.rejectionsReceived.content.length;
-  let listTotal = list1 + list2;
-
-  if(listTotal>0){
-    showList.value = true;
-  }
-
-})
-
 </script>
 
 <template>
@@ -43,11 +30,10 @@ onMounted( async() => {
     <div class="col column">
 
         <q-card-section class="inner-card-section">
-
           <q-card-section>
             <div class="card-title-style">Rejected Partnerships</div>
           </q-card-section>
-          <template v-if="showList">
+          <template v-if="props.showList">
             <q-markup-table title="REJECTED PARTNERSHIPS">
               <thead>
               <tr>

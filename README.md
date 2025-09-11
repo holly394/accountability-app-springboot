@@ -9,34 +9,35 @@ Disclaimer: This app is still very much in development! It's my personal sandbox
 So if you'd like to pull this image, know that it may not run as smoothly as you may expect. 
 
 ## Built With
-
-* [Spring Boot](https://spring.io/projects/spring-boot) - The web framework used
+* Spring Web framework
+* [Spring Boot 3.5+](https://spring.io/projects/spring-boot)
 * [Flyway](org.flywaydb:flyway-core) - Database Migration
-* [Gradle](https://gradle.org/) - Dependency Management
+* [Gradle 9.0](https://gradle.org/) - Dependency Management
 * [H2](https://www.h2database.com/html/main.html) - Database
 * [Hibernate](https://hibernate.org/) - ORM
 * [Docker](https://www.docker.com/) - Containerization
 
-# How to install
-### Prerequisites
-- JDK 24 or later
-- Gradle 8.0+
-- Docker
-  
 ### Features
-- Spring Boot 3.2 with Java 24
-- Caffeine caching 
+- Spring Boot 3.5 with Java 24
+- Caffeine caching
 - Frontend integration with Node.js build pipeline
 - Docker containerization with Paketo Buildpacks
+
+# How to install
+## Prerequisites
+- JDK 24 or later
+- Gradle 9.0+
+- Docker
 
 **To pull the image from the command line, use:**
 `$ docker pull ghcr.io/holly394/accountability:0f4eae4c`
 
-# For Docker containerization configuration
-### In your `docker-compose.yml`
-Pull image from this url: `ghcr.io/holly394/accountability:master` <br>
+## For Docker containerization configuration
+To pull the image: `ghcr.io/holly394/accountability:master` <br>
 
-Make sure you have these following files available in your container:<br>
+You should configure the application based on my [application.yml](https://github.com/holly394/accountability-app-springboot/blob/master/src/main/resources/application.yml) file.
+
+Then, make sure you map this from your host server to your container:<br>
 	`/workspace/logs`<br>
 	`/workspace/database`<br>
 	`/workspace/application.yml`<br>
@@ -59,33 +60,22 @@ services:
 
 # Database and log file configuration
 ### In your `application.yml`
-You can set the database URL, username, password, as well as the log level for messages from this application.<br>
-You can also set a Gmail SMTP server here so that you can send emails with password reset links if needed. <br>
+See the full [application.yml](https://github.com/holly394/accountability-app-springboot/blob/master/src/main/resources/application.yml) example here. 
 
-Here, it's set to an H2 database, but you can connect yours to PostgreSQL or any other relational database service. <br>
+In this file, you can set the database URL, username, password, as well as the log level and file path for messages from this application.<br>
+In my version, it's set to an H2 database, but you can connect yours to PostgreSQL or any other relational database service. <br>
 
-You can also set the log level for your project related messages as well as the file path. <br>
+### Gmail SMTP server setup
+You can also set a [Gmail SMTP server](https://support.google.com/a/answer/176600?hl=en) in your `application.yml` so that you can send emails with password reset links if needed. <br>
+Make sure to set up an [app password](https://support.google.com/mail/answer/185833?hl=en) for this. 
 
 See example here: <br>
 ```
 spring:
-  cache:
-    type: caffeine
-    caffeine:
-      spec: expireAfterAccess=30m
-  jpa:
-    properties:
-      hibernate:
-        globally_quoted_identifiers: true
-        globally_quoted_identifiers_skip_column_definitions: true
-    show-sql: false
-  threads:
-    virtual:
-      enabled: true
   mail:
     host: "smtp.gmail.com"
     port: 587
-    username: "email address of Gmail account you want to use"
+    username: "email address of the Gmail account you want to use"
     password: "the app password (not your real password!)"
     properties:
       mail:
@@ -93,29 +83,6 @@ spring:
           auth: true
           starttls:
             enable: true
-
-  datasource:
-    url: "path to your database"
-    username: databaseUsername
-    password: databasePassword
-  h2:
-    console:
-      enabled: false
-
-logging:
-  file:
-    path: "./logs"
-    name: "./logs/accountability.log"
-  logback:
-    rollingpolicy:
-      max-history: 14
-      max-file-size: 100MB
-      clean-history-on-start: true
-  level:
-    com.github.holly: INFO
-
-application:
-  base-url: "http://localhost:8080"
 ```
 
 # How to use (for users)

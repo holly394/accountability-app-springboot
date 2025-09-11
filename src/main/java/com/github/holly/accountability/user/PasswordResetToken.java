@@ -2,6 +2,9 @@ package com.github.holly.accountability.user;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Date;
 
 @Entity
@@ -12,7 +15,7 @@ public class PasswordResetToken {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private static final int EXPIRATION = 60 * 24;
+    private static final int EXPIRATION = 60 * 24 * 60;
 
     @Column(name = "token")
     private String token;
@@ -22,7 +25,7 @@ public class PasswordResetToken {
     private User user;
 
     @Column(name = "expiry_date", columnDefinition = "DATETIME")
-    private Date expiryDate;
+    private LocalDateTime expiryDate;
 
     public PasswordResetToken() {
 
@@ -31,7 +34,7 @@ public class PasswordResetToken {
     public PasswordResetToken(String token, User user) {
         this.token = token;
         this.user = user;
-        this.expiryDate = new Date();
+        this.expiryDate = LocalDateTime.now().plusDays(1);
     }
 
     public Long getId() {
@@ -58,7 +61,7 @@ public class PasswordResetToken {
         this.user = user;
     }
 
-    public Date getExpiryDate() {
+    public LocalDateTime getExpiryDate() {
         return expiryDate;
     }
 

@@ -1,14 +1,9 @@
 package com.github.holly.accountability.email;
 
 import com.github.holly.accountability.config.GenericResponse;
-import com.github.holly.accountability.user.PasswordResetToken;
-import com.github.holly.accountability.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 
 @Controller

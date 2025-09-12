@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.Calendar;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,13 +36,12 @@ public class EmailService {
     @Autowired
     public EmailService(UserService userService,
                         ApplicationProperties applicationProperties,
-                        JavaMailSender mailSender,
                         PasswordResetTokenRepository passwordResetTokenRepository,
                         PasswordEncoder passwordEncoder) {
 
         this.userService = userService;
         this.applicationProperties = applicationProperties;
-        this.mailSender = mailSender;
+        this.mailSender = new JavaMailSenderImpl();
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
     }

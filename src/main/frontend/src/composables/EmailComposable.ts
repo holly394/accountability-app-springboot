@@ -1,5 +1,6 @@
 import {GenericResponseDto} from 'components/dto/GenericResponseDto.ts';
 import axios from 'axios';
+import {ResetPasswordDto} from "components/dto/ResetPasswordDto.ts";
 
 export function email() {
 
@@ -21,21 +22,10 @@ export function email() {
   }
 
   const setNewPassword = async (token: string,
-                                password: string,
-                                passwordRepeated: string):
+                                resetPasswordDto: ResetPasswordDto):
     Promise<GenericResponseDto> => {
-
-    return (await api.get<GenericResponseDto>(
-      '/email/set-new-password', {
-      params: {
-        token: token,
-        password: password,
-        passwordRepeated: passwordRepeated
-      },
-      paramsSerializer: {
-        indexes: null
-      }
-    })).data;
+    return (await api.post<GenericResponseDto>(`/email/set-new-password/${token}`,
+      resetPasswordDto)).data;
   }
 
   return { sendEmailResetPassword, setNewPassword };

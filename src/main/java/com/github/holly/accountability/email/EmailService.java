@@ -61,8 +61,7 @@ public class EmailService {
     }
 
     public GenericResponse setNewPassword(String token,
-                                          String newPassword,
-                                          String newPasswordRepeated)
+                                          ResetPasswordDto passwordDto)
             throws ResponseStatusException {
 
         PasswordResetToken thisToken = passwordResetTokenRepository.findByToken(token)
@@ -76,17 +75,17 @@ public class EmailService {
         }
 
         // Check if the current password matches
-        if (!Objects.equals(newPassword, newPasswordRepeated)) {
+        if (!Objects.equals(passwordDto.getPassword(), passwordDto.getPasswordRepeated())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match.");
         }
 
-        if (!patternMatches(newPassword, "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,20}$")) {
+        if (!patternMatches(passwordDto.getPassword(), "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,20}$")) {
 
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password in wrong format");
         }
 
         // Encode and set the new password, then save the user
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(passwordDto.getPassword()));
         userService.saveChangesToUser(user);
 
         return new GenericResponse("Password updated successfully.", "no");

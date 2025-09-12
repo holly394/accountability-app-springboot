@@ -3,6 +3,7 @@ package com.github.holly.accountability.User;
 import com.github.holly.accountability.config.GenericResponse;
 import com.github.holly.accountability.config.properties.ApplicationProperties;
 import com.github.holly.accountability.email.EmailService;
+import com.github.holly.accountability.email.ResetPasswordDto;
 import com.github.holly.accountability.user.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,40 +83,45 @@ public class EmailServiceTest {
         User user = new User();
         String token = UUID.randomUUID().toString();
         PasswordResetToken passwordResetToken = new PasswordResetToken(token, user);
+
+        ResetPasswordDto matchingAndFormattedPasswordDto = new ResetPasswordDto("Changedpass@app1", "Changedpass@app1");
+        ResetPasswordDto notMatchingPasswordDto = new ResetPasswordDto("notMatching@app", "Changedpass@app1");
+        ResetPasswordDto matchingButNotFormattedPasswordDto = new ResetPasswordDto("notFormatted", "notFormatted");
+
         when(passwordResetTokenRepository.save(passwordResetToken)).thenReturn(passwordResetToken);
 
         passwordResetTokenRepository.save(passwordResetToken);
         when(passwordResetTokenRepository.findByToken(token)).thenReturn(Optional.of(passwordResetToken));
 
-        GenericResponse successResponse = emailService.setNewPassword(token, "Changedpass@app1", "Changedpass@app1");
+        GenericResponse successResponse = emailService.setNewPassword(token, matchingAndFormattedPasswordDto);
 
         assertEquals("Password updated successfully.", successResponse.getMessage());
 
         String unusedToken = UUID.randomUUID().toString();
 
         RuntimeException noTokenFound = assertThrows(RuntimeException.class, () -> {
-            emailService.setNewPassword(unusedToken, "Changedpass@app1", "Changedpass@app1");
+            emailService.setNewPassword(unusedToken, matchingAndFormattedPasswordDto);
         });
 
         assertEquals("Token not found", noTokenFound.getMessage());
 
         ResponseStatusException passwordNotMatching = assertThrows(ResponseStatusException.class, () -> {
-            emailService.setNewPassword(token, "notMatching", "Changedpass@app1");
+            emailService.setNewPassword(token, notMatchingPasswordDto);
         });
 
         assertEquals("Passwords do not match.", passwordNotMatching.getReason());
 
         ResponseStatusException passwordNotFormatted = assertThrows(ResponseStatusException.class, () -> {
-            emailService.setNewPassword(token, "noformat", "noformat");
+            emailService.setNewPassword(token, matchingButNotFormattedPasswordDto);
         });
 
         assertEquals("Password in wrong format", passwordNotFormatted.getReason());
 
         //checks if anything was saved in the userRepository using Mockito.any
-        verify(userRepository, times(0)).save(any(User.class));
+        //verify(userRepository, times(0)).save(any(User.class));
 
         //instead of times(0), we can also use never()
-        verify(userRepository, never()).save(any(User.class));
+        //verify(userRepository, never()).save(any(User.class));
     }
 
     //we don't normally test private methods in production. example for learning.

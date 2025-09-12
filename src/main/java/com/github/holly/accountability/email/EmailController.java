@@ -17,12 +17,10 @@ public class EmailController {
 
     public static final String CHANGE_PASSWORD_FROM_TOKEN = "/change-password-from-token";
 
-    private final UserService userService;
     private final EmailService emailService;
 
     @Autowired
-    public EmailController(UserService userService, EmailService emailService) {
-        this.userService = userService;
+    public EmailController(EmailService emailService) {
         this.emailService = emailService;
     }
 
@@ -42,20 +40,20 @@ public class EmailController {
         if (!isValid) {
             return "redirect:/login";
         }
-        return "redirect:%s".formatted(CHANGE_PASSWORD_FROM_TOKEN);
+        return "redirect:%s?token=%s".formatted(CHANGE_PASSWORD_FROM_TOKEN, token);
     }
 
     //change this so it's a JSON object being given with a PostMapping
     @ResponseBody
-    @GetMapping("/set-new-password")
-    public GenericResponse changePasswordFromToken(@RequestParam("token") String token,
-                                                   @RequestParam("password") String newPassword,
-                                                   @RequestParam("passwordRepeated") String newPasswordRepeated) {
+    @PostMapping("/set-new-password/{token}")
+    public GenericResponse changePasswordFromToken(@PathVariable("token") String token,
+                                                   @RequestBody ResetPasswordDto passwordDto) {
         try {
-            return emailService.setNewPassword(token, newPassword, newPasswordRepeated);
+            return emailService.setNewPassword(token, passwordDto);
         } catch (Exception e) {
             return new GenericResponse(e.getMessage(), "yes");
         }
     }
+    //NewTest@1
 
 }

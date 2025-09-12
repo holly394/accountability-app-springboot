@@ -5,6 +5,7 @@ import { email } from 'src/composables/EmailComposable.ts'
 import {GenericResponseDto} from 'components/dto/GenericResponseDto.ts';
 import { useRouteQuery } from '@vueuse/router';
 import {useRouter} from 'vue-router';
+import {ResetPasswordDto} from "components/dto/ResetPasswordDto.ts";
 
 defineOptions({
   name: 'UpdatePasswordPage'
@@ -15,26 +16,30 @@ const token = useRouteQuery('token', '', {transform: String});
 
 const { setNewPassword } = email();
 
-const formData = ref({
-  password: '',
-  passwordRepeated: ''
-});
-
 const confirmation = ref<GenericResponseDto>({
-  message: 'not changed',
+  message: '',
   error: ''
 });
+
+const formData = ref<ResetPasswordDto>({
+  password: '',
+  passwordRepeated: ''
+})
 
 const formRef = ref<QForm>();
 const confirm = ref<boolean>(false);
 
 const sendToken = async () => {
-  confirmation.value = await setNewPassword(token.value.toString(), formData.value.password, formData.value.passwordRepeated);
+  confirmation.value = await setNewPassword(token.value.toString(), formData.value);
 
   if(confirmation.value.error == 'no'){
-    await router.push('/login');
+    confirmation.value.message = "Password changed successfully!"
   }
 };
+
+const toLoginPage = async () => {
+  await router.push('/login');
+}
 
 </script>
 
@@ -93,7 +98,12 @@ const sendToken = async () => {
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn flat label="OK" color="primary" v-close-popup />
+              <template v-if=" confirmation.error == 'no'">
+                <q-btn @click="toLoginPage" flat label="Go to login" color="primary"/>
+              </template>
+              <template v-else>
+                <q-btn flat label="OK" color="primary" v-close-popup />
+              </template>
             </q-card-actions>
           </q-card>
         </q-dialog>

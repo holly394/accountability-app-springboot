@@ -7,6 +7,7 @@ import com.github.holly.accountability.user.PasswordResetTokenRepository;
 import com.github.holly.accountability.user.User;
 import com.github.holly.accountability.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -60,7 +61,7 @@ public class PasswordEmailService {
         String token = createPasswordResetTokenForUser(user);
         mailSender.send(constructResetTokenEmail(token, user));
 
-        return new GenericResponse("Email sent!", "no");
+        return new GenericResponse("Email sent!", HttpStatus.OK);
     }
 
     public ResetPasswordDto setNewPassword(String token, ResetPasswordDto passwordDto) throws RuntimeException {

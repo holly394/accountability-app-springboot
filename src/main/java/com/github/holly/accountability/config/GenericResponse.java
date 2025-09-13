@@ -1,21 +1,23 @@
 package com.github.holly.accountability.config;
 
+import org.springframework.http.HttpStatus;
+
 public class GenericResponse {
     private String message;
-    private String error;
+    private HttpStatus error;
 
     public GenericResponse(String message) {
         super();
         this.message = message;
     }
 
-    public GenericResponse(String message, String error) {
+    public GenericResponse(String message, HttpStatus error) {
         super();
         this.message = message;
         this.error = error;
     }
 
-    public String getError() {
+    public HttpStatus getError() {
         return this.error;
     }
 
@@ -27,7 +29,7 @@ public class GenericResponse {
         return this.message;
     }
 
-    public void setError(String error) {
+    public void setError(HttpStatus error) {
         this.error = error;
     }
 

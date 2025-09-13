@@ -128,7 +128,7 @@ public class UserServiceTest {
         assertEquals(user.getPassword(), savedUser.getPassword());
         assertEquals(user.getEmail(), savedUser.getEmail());
         assertEquals(user.getName(), savedUser.getName());
-        assertTrue(user.getId() == 1);
+        assertEquals(1, (long) user.getId());
     }
 
     @Test

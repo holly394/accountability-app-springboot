@@ -19,7 +19,6 @@ import java.util.Map;
 public class PasswordEmailController {
 
     public static final String CHANGE_PASSWORD_FROM_TOKEN = "/change-password-from-token";
-    public static final java.util.regex.Pattern PASSWORD_FORMAT = java.util.regex.Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,20}$");
 
     private final PasswordEmailService passwordEmailService;
 

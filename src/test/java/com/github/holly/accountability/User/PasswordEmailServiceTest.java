@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -57,9 +56,7 @@ public class PasswordEmailServiceTest {
         when(userService.findUserByEmail("doesntexist@email")).thenReturn(Optional.empty());
         when(applicationProperties.getBaseUrl()).thenReturn("http://localhost:8080");
 
-        RuntimeException userNotFound = assertThrows(RuntimeException.class, () -> {
-            passwordEmailService.sendPasswordEmail("doesntexist@email");
-        });
+        RuntimeException userNotFound = assertThrows(RuntimeException.class, () -> passwordEmailService.sendPasswordEmail("doesntexist@email"));
 
         assertEquals("User not found", userNotFound.getMessage());
 
@@ -89,13 +86,9 @@ public class PasswordEmailServiceTest {
         when(passwordResetTokenRepository.findByToken(token)).thenReturn(Optional.of(passwordResetToken));
         when(passwordResetTokenRepository.findByToken(unusedToken)).thenReturn(Optional.empty());
 
-        assertThrows(PasswordEmailService.PasswordsNotMatchingException.class, () -> {
-            passwordEmailService.setNewPassword(token, notMatchingPasswordDto);
-        });
+        assertThrows(PasswordEmailService.PasswordsNotMatchingException.class, () -> passwordEmailService.setNewPassword(token, notMatchingPasswordDto));
 
-        assertThrows(RuntimeException.class, () -> {
-            passwordEmailService.setNewPassword(unusedToken, matchingAndFormattedPasswordDto);
-        });
+        assertThrows(RuntimeException.class, () -> passwordEmailService.setNewPassword(unusedToken, matchingAndFormattedPasswordDto));
 
         //checks if anything was saved in the userRepository using Mockito.any
         verify(userService, times(0)).saveChangesToUser(any(User.class));
@@ -104,7 +97,7 @@ public class PasswordEmailServiceTest {
         //instead of times(0), we can also use never()
         //verify(userRepository, never()).save(any(User.class));
 
-        ResetPasswordDto newPasswordSuccessful = passwordEmailService.setNewPassword(token, matchingAndFormattedPasswordDto);
+        passwordEmailService.setNewPassword(token, matchingAndFormattedPasswordDto);
         verify(userService, times(1)).saveChangesToUser(any(User.class));
     }
 

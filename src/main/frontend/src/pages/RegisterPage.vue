@@ -12,23 +12,24 @@ const user = ref<RegisterUser>( {
 });
 
 const api = axios.create({
-  baseURL: '/',
-  headers: { 'Content-Type': 'application/json', },
-  maxRedirects: 0
+  baseURL: '/', // Base URL for all requests
+  headers: { 'Content-Type': 'application/json', }, // Send data as JSON
+  maxRedirects: 0 // Don't follow redirects automatically
 });
 
 const sendUpdate = async () => {
   await api.post<RegisterUser>('/registration', user.value)
     .then(response => {
+      // If response isn't JSON, assume it's a redirect
         // TODO: interpret errors and show on fields
         if (response.headers['Content-Type'] !== 'application/json') {
-          window.location.href = response.headers['Location']
+          window.location.href = response.headers['Location'] // Manual redirect
         }
         console.log(response);
   })
     .catch(error => {
         console.log(error);
-        popupMessage.value = true;
+        popupMessage.value = true; // Show error popup
     })
 };
 
@@ -78,6 +79,7 @@ defineOptions({
                 and be between 8 to 20 characters.<br>
               </q-tooltip>
             </q-icon>
+
             <q-input v-model="user.password" type="password" label="Password" />
 
             <q-icon name="info">

@@ -1,0 +1,124 @@
+package com.github.holly.accountability.password_reset_email;
+
+import com.github.holly.accountability.config.GenericResponse;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+@Controller
+@RequestMapping("/email")
+public class PasswordEmailController {
+
+    public static final String CHANGE_PASSWORD_FROM_TOKEN = "/change-password-from-token";
+    public static final java.util.regex.Pattern PASSWORD_FORMAT = java.util.regex.Pattern.compile("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,20}$");
+
+    private final PasswordEmailService passwordEmailService;
+
+    @Autowired
+    public PasswordEmailController(PasswordEmailService passwordEmailService) {
+        this.passwordEmailService = passwordEmailService;
+    }
+
+    @ResponseBody
+    @GetMapping("/send-token")
+    public GenericResponse sendPasswordEmail(@RequestParam String email) {
+        try {
+            return passwordEmailService.sendPasswordEmail(email);
+        } catch (Exception e) {
+            return new GenericResponse(e.getMessage());
+        }
+    }
+
+    @GetMapping(CHANGE_PASSWORD_FROM_TOKEN + "/{token}")
+    public String showChangePasswordFromTokenPage(@PathVariable("token") String token) {
+        boolean isValid = passwordEmailService.validatePasswordResetToken(token);
+        if (!isValid) {
+            return "redirect:/login";
+        }
+        return "redirect:%s?token=%s".formatted(CHANGE_PASSWORD_FROM_TOKEN, token);
+    }
+
+    //change this so it's a JSON object being given with a PostMapping
+    @ResponseBody
+    @PostMapping("/set-new-password")
+    public ResponseEntity<?> changePasswordFromToken(@RequestBody @Valid ResetPasswordDto passwordDto,
+                                                     BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            Map<String, String> errorMap = new HashMap<>();
+
+            for (FieldError error : bindingResult.getFieldErrors()) {
+                errorMap.put(error.getField(), error.getDefaultMessage());
+            }
+
+            return ResponseEntity.badRequest()
+                    .body(new ErrorResponse("Validation failed", errorMap));
+        }
+
+        try {
+            ResetPasswordDto newPassword = passwordEmailService.setNewPassword(passwordDto.getToken(), passwordDto);
+            return ResponseEntity
+                    .ok(new SuccessfulPasswordChangeResponse(
+                            "Password changed successfully!", newPassword));
+
+        } catch (PasswordEmailService.PasswordsNotMatchingException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Passwords do not match"));
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ErrorResponse("An unexpected error occurred"));
+        }
+    }
+
+    public class ErrorResponse {
+        private String message;
+        private Map<String, String> errors;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public ErrorResponse(String message, Map<String, String> errors) {
+            this.message = message;
+            this.errors = errors;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public Map<String, String> getErrors() {
+            return errors;
+        }
+
+    }
+
+    public class SuccessfulPasswordChangeResponse {
+        private String message;
+        private ResetPasswordDto changedPassword;
+
+        public SuccessfulPasswordChangeResponse(String message, ResetPasswordDto changedPassword) {
+            this.message = message;
+            this.changedPassword = changedPassword;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public ResetPasswordDto getChangedPassword() {
+            return changedPassword;
+        }
+    }
+
+}
